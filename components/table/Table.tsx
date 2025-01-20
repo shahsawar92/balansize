@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import Text from "../text/Text";
 import { useViewport } from "@/lib/view-port";
+import Input from "../input/Input";
 
 interface Column<T> {
   header: string;
@@ -103,10 +104,12 @@ export default function Table<T extends { id: string | number }>({
             <tr>
               {selectable && (
                 <th className='px-6 py-3 w-12'>
-                  <input
+                  <Input
                     type='checkbox'
                     checked={selectedRows.size === paginatedData.length}
                     onChange={handleSelectAll}
+                    sizeOfInput='sm'
+                    variant='transparent'
                     className='rounded border-gray-300'
                   />
                 </th>
@@ -178,21 +181,24 @@ export default function Table<T extends { id: string | number }>({
                 )}>
                 {selectable && (
                   <td className='px-6 py-4 whitespace-nowrap w-12'>
-                    <input
+                    <Input
                       type='checkbox'
                       checked={selectedRows.has(row.id)}
                       onChange={() => handleSelectRow(row)}
-                      onClick={(e) => e.stopPropagation()}
+                      sizeOfInput='sm'
+                      variant='transparent'
                       className='rounded border-gray-300'
                     />
                   </td>
                 )}
                 {columns.map((column, colIndex) => (
-                  <td key={colIndex} className='px-6 py-4 whitespace-nowrap  '>
+                  <td
+                    key={colIndex + 1}
+                    className='px-6 py-4 whitespace-nowrap  '>
                     <Text
                       variant='secondary'
                       size='sm'
-                      tagName='h3'
+                      tagName='span'
                       weight='normal'
                       isCenterAligned={isMobile ? true : false}
                       isUppercase={false}
@@ -212,11 +218,11 @@ export default function Table<T extends { id: string | number }>({
       </div>
       <div className='flex justify-between gap-2'>
         <div className='flex items-center gap-2'>
-          <span className='text-sm text-gray-600'>
+          <Text variant='secondary' size='sm' weight='normal'>
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
             {Math.min(currentPage * itemsPerPage, filteredData.length)} of{" "}
             {filteredData.length}
-          </span>
+          </Text>
         </div>
         {/* Pagination */}
         <div className='flex justify-center gap-2'>

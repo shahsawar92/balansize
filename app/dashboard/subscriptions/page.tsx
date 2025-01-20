@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import logger from "@/lib/logger";
+
 import initialPlans from "@/data/mock-plans";
 
 import { AddPlanForm } from "@/app/dashboard/subscriptions/components/add-plan-form";
@@ -9,7 +11,7 @@ import { AddPlanForm } from "@/app/dashboard/subscriptions/components/add-plan-f
 import PlanCard from "./components/plan-card";
 
 import { Plan } from "@/types/plans";
-import logger from "@/lib/logger";
+import Text from "@/components/text/Text";
 
 export default function Page() {
   const [plans, setPlans] = useState<Plan[]>(initialPlans);
@@ -35,10 +37,17 @@ export default function Page() {
   const yearlyPlans = plans.filter((plan) => plan.interval === "yearly");
 
   return (
-    <div className='container mx-auto py-8 px-5 space-y-8 bg-secondary-100'>
+    <div className='container mx-auto py-8 px-5 rounded-2xl space-y-8 bg-secondary-100'>
       <div className='grid gap-6 '>
         <div>
-          <h2 className='text-lg font-medium mb-4'>Monthly</h2>
+          <Text
+            variant='main'
+            size='lg'
+            weight='bold'
+            tagName='h2'
+            classNames='mb-2'>
+            Monthly
+          </Text>
           <div className='grid md:grid-cols-3 2xl:grid-cols-4 gap-6'>
             {monthlyPlans.map((plan) => (
               <PlanCard

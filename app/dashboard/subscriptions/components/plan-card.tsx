@@ -3,6 +3,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+import Button from "@/components/buttons/Button";
 import {
   Card,
   CardContent,
@@ -32,14 +33,16 @@ const PlanCard: React.FC<PlanCardProps> = ({
   return (
     <Card
       className={cn(
-        "w-full max-w-sm mx-auto bg-white rounded-3xl shadow-sm p-6",
+        "w-full max-w-sm mx-auto bg-white rounded-2xl shadow-sm p-6",
         className
       )}
       {...rest}>
-      <CardHeader className='p-0 mb-4 space-y-0'>
+      <CardHeader className='p-0 mb-0 space-y-0 border-none'>
         <div className='flex justify-between items-start'>
-          <CardTitle className='text-2xl font-bold text-dark'>
-            {title}
+          <CardTitle>
+            <Text tagName='span' variant='main' size='xs' weight='bold'>
+              {title}
+            </Text>
           </CardTitle>
           <div className='inline-flex items-center px-3 py-1 rounded-full bg-secondary-100 max-w-fit text-nowrap'>
             <Text size='xs' classNames='text-dark'>
@@ -50,26 +53,26 @@ const PlanCard: React.FC<PlanCardProps> = ({
       </CardHeader>
 
       <CardContent className='p-0'>
-        <div className='mb-4'>
-          <Text tagName='p' size='3xl' weight='bold' classNames='text-dark'>
+        <div className='mb-2'>
+          <Text tagName='h4' size='2xl' weight='normal' variant='main'>
             ${price}
-            <span className='text-base font-normal text-gray-500 ml-1'>
+            <Text tagName='span' size='xs' weight='normal' variant='thirtery'>
               / month
-            </span>
+            </Text>
           </Text>
         </div>
 
-        <div className='mb-6'>
-          <Text tagName='p' size='base' classNames='text-gray-600'>
+        <div className='mb-3'>
+          <Text tagName='p' size='xs' weight='normal' variant='secondary'>
             {description}
           </Text>
         </div>
 
-        <ul className='space-y-4 mb-8'>
+        <ul className='space-y-2 mb-8'>
           {features.map((feature, index) => (
-            <li key={index} className='flex items-center gap-3'>
+            <li key={index} className='flex items-center gap-2'>
               <CheckIcon className='w-5 h-5 text-main-brown flex-shrink-0' />
-              <Text tagName='span' size='base' classNames='text-dark'>
+              <Text tagName='span' size='xs' weight='normal' variant='main'>
                 {feature?.text}
               </Text>
             </li>
@@ -77,18 +80,14 @@ const PlanCard: React.FC<PlanCardProps> = ({
         </ul>
 
         <div className='flex items-center gap-4'>
-          <button
-            onClick={onEdit}
-            className='inline-flex items-center gap-2 text-dark hover:text-main-brown transition-colors'>
+          <Button variant='light' className='border-none' onClick={onEdit}>
             <PencilIcon className='w-5 h-5' />
             <span>Edit</span>
-          </button>
-          <button
-            onClick={onDelete}
-            className='inline-flex items-center gap-2 text-dark hover:text-red-500 transition-colors'>
+          </Button>
+          <Button variant='light' className='border-none' onClick={onDelete}>
             <TrashIcon className='w-5 h-5' />
             <span>Delete</span>
-          </button>
+          </Button>
         </div>
       </CardContent>
     </Card>
