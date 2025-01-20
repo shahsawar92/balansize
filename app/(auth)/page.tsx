@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 import logger from "@/lib/logger";
 import { type LoginFormData, loginSchema } from "@/lib/validation/auth";
@@ -25,11 +26,13 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+  const router = useRouter();
 
   async function onSubmit(data: LoginFormData) {
     setIsLoading(true);
     try {
       // Handle login logic here
+      router.push("/dashboard");
       logger(data);
     } catch (error) {
       logger(error);
