@@ -1,11 +1,9 @@
-import { Metadata } from 'next';
-import * as React from 'react';
+import { Metadata } from "next";
+import * as React from "react";
 
-import '@/styles/globals.css';
+import "@/styles/globals.css";
 
-// !STARTERCONF This is for demo purposes, remove @/styles/colors.css import immediately
-// import '@/styles/colors.css';
-import { siteConfig } from '@/constant/config';
+import { siteConfig } from "@/constant/config";
 
 // !STARTERCONF Change these default meta
 // !STARTERCONF Look at @/constant/config to change them
@@ -20,9 +18,9 @@ export const metadata: Metadata = {
   // !STARTERCONF this is the default favicon, you can generate your own from https://realfavicongenerator.net/
   // ! copy to /favicon folder
   icons: {
-    icon: '/favicon/favicon.ico',
-    shortcut: '/favicon/icon.png',
-    apple: '/favicon/icon.png',
+    icon: "/favicon/favicon.ico",
+    shortcut: "/favicon/icon.png",
+    apple: "/favicon/icon.png",
   },
   manifest: `/favicon/manifest`,
   openGraph: {
@@ -30,20 +28,20 @@ export const metadata: Metadata = {
     title: siteConfig.title,
     description: siteConfig.description,
     siteName: siteConfig.title,
-    images: [`${siteConfig.url}/images/og.jpg`],
-    type: 'website',
-    locale: 'en_US',
+    images: [`${siteConfig.url}/images/og.png`],
+    type: "website",
+    locale: "en_US",
   },
   twitter: {
-    card: 'summary_large_image',
+    card: "summary_large_image",
     title: siteConfig.title,
     description: siteConfig.description,
-    images: [`${siteConfig.url}/images/og.jpg`],
-    creator: '@shahsawar',
+    images: [`${siteConfig.url}/images/og.png`],
+    creator: "@shahsawar",
   },
   authors: [
     {
-      name: 'Shah Sawar',
+      name: "Shah Sawar",
       // url: 'https://theodorusclarence.com',
     },
   ],
