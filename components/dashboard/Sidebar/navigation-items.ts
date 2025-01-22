@@ -4,6 +4,8 @@ import {
   CreditCardIcon,
   HomeIcon,
   QuestionMarkCircleIcon,
+  TvIcon,
+  UserIcon,
   UsersIcon,
   VideoCameraIcon,
 } from "@heroicons/react/24/outline";
@@ -40,8 +42,23 @@ export const navigationItems = [
     icon: AcademicCapIcon,
   },
   {
+    label: "Quiz",
+    path: "/dashboard/quiz",
+    icon: QuestionMarkCircleIcon,
+  },
+  {
+    label: "Experts",
+    path: "/dashboard/experts",
+    icon: UserIcon,
+  },
+  {
     label: "Videos",
     path: "/dashboard/videos",
     icon: VideoCameraIcon,
+  },
+  {
+    label: "Courses and Lessons",
+    path: "/dashboard/courses",
+    icon: TvIcon,
   },
 ];

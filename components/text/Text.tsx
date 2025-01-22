@@ -7,6 +7,7 @@ const TextVariant = [
   "secondary/beige",
   "secondary",
   "thirtery",
+  "white",
   "light",
 ] as const;
 const TextSize = [
@@ -39,6 +40,7 @@ type TextProps = {
   isCenterAligned?: boolean;
   isUppercase?: boolean;
   isItalic?: boolean;
+  readonly?: boolean;
   tagName?: (typeof TextTagName)[number];
   classNames?: string;
   ref?: React.Ref<HTMLElement>;
@@ -51,6 +53,7 @@ const Text = React.forwardRef<HTMLElement, TextProps>(
       variant = "light",
       size = "base",
       weight = "normal",
+      readonly = false,
       isCenterAligned = false,
       isUppercase = false,
       isItalic = false,
@@ -87,11 +90,13 @@ const Text = React.forwardRef<HTMLElement, TextProps>(
             variant === "secondary/beige" && "text-secondary-500",
             variant === "thirtery" && "text-text-3",
             variant === "light" && "text-light",
+            variant === "white" && "text-white",
           ],
           isCenterAligned && "text-center",
           isUppercase && "uppercase",
           isItalic && "italic",
-          classNames
+          classNames,
+          readonly && "readonly"
         )}
         {...rest}>
         {children}

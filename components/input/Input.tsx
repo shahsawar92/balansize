@@ -1,12 +1,12 @@
-import { LucideIcon } from 'lucide-react';
-import * as React from 'react';
-import { IconType } from 'react-icons';
-import { HiEye, HiEyeOff } from 'react-icons/hi';
+import { LucideIcon } from "lucide-react";
+import * as React from "react";
+import { IconType } from "react-icons";
+import { HiEye, HiEyeOff } from "react-icons/hi";
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
-const InputVariant = ['dark', 'brown', 'light', 'transparent'] as const;
-const sizeOfInput = ['sm', 'base', 'large'] as const;
+const InputVariant = ["dark", "brown", "light", "transparent"] as const;
+const sizeOfInput = ["sm", "base", "large"] as const;
 type InputProps = {
   isInvalid?: boolean;
   errorMessage?: string;
@@ -15,6 +15,7 @@ type InputProps = {
   sizeOfInput?: (typeof sizeOfInput)[number];
   leftIcon?: IconType | LucideIcon;
   withBorder?: boolean;
+  readonly?: boolean;
   classNames?: {
     container?: string;
     input?: string;
@@ -22,7 +23,7 @@ type InputProps = {
     rightIcon?: string;
     errorMessage?: string;
   };
-} & React.ComponentPropsWithRef<'input'>;
+} & React.ComponentPropsWithRef<"input">;
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
@@ -31,8 +32,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       isInvalid,
       errorMessage,
       isPassword = false,
-      variant = 'light',
-      sizeOfInput = 'base',
+      variant = "light",
+      sizeOfInput = "base",
+      readOnly = false,
       withBorder = true,
       leftIcon: LeftIcon,
       classNames,
@@ -43,53 +45,54 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const [isVisible, setIsVisible] = React.useState(false);
 
     return (
-      <div className={cn('flex flex-col', classNames?.container)}>
-        <div className="relative flex items-center">
+      <div className={cn("flex flex-col", classNames?.container)}>
+        <div className='relative flex items-center'>
           {LeftIcon && (
-            <div className={cn('absolute left-3', classNames?.leftIcon)}>
-              <LeftIcon className="text-gray-500" />
+            <div className={cn("absolute left-3", classNames?.leftIcon)}>
+              <LeftIcon className='text-gray-500' />
             </div>
           )}
           <input
             ref={ref}
-            type={isPassword && !isVisible ? 'password' : 'text'}
+            readOnly={readOnly}
+            type={isPassword && !isVisible ? "password" : "text"}
             className={cn(
-              'block w-full rounded-full font-medium focus:outline-none focus:ring-2',
-              'transition-all duration-75',
+              "block w-full rounded-full font-medium focus:outline-none focus:ring-2",
+              "transition-all duration-75",
               [
-                sizeOfInput === 'large' && ['px-4 py-2 text-base'],
-                sizeOfInput === 'base' && ['px-3 py-1.5 text-sm'],
-                sizeOfInput === 'sm' && ['px-2 py-1 text-xs'],
+                sizeOfInput === "large" && ["px-4 py-2 text-base"],
+                sizeOfInput === "base" && ["px-3 py-1.5 text-sm"],
+                sizeOfInput === "sm" && ["px-2 py-1 text-xs"],
               ],
               [
-                variant === 'brown' && [
-                  'bg-main-brown text-white',
-                  'border border-main-brown',
-                  'placeholder:text-white',
-                  'focus:ring-main-brownHover',
+                variant === "brown" && [
+                  "bg-main-brown text-white",
+                  "border border-main-brown",
+                  "placeholder:text-white",
+                  "focus:ring-main-brownHover",
                 ],
-                variant === 'transparent' && [
-                  'bg-transparent text-main-brown',
-                  'border border-main-brown',
-                  'placeholder:text-main-brown',
-                  'focus:ring-main-brownHover',
+                variant === "transparent" && [
+                  "bg-transparent text-main-brown",
+                  "border border-main-brown",
+                  "placeholder:text-main-brown",
+                  "focus:ring-main-brownHover",
                 ],
-                variant === 'light' && [
-                  'bg-white text-dark',
-                  withBorder && 'border border-secondary-500',
-                  'placeholder:text-gray-500', 
-                  'focus:ring-secondary-500',
+                variant === "light" && [
+                  "bg-white text-dark",
+                  withBorder && "border border-secondary-500",
+                  "placeholder:text-gray-500",
+                  "focus:ring-secondary-500",
                 ],
-                variant === 'dark' && [
-                  'bg-gray-900 text-white',
-                  'border border-gray-600',
-                  'placeholder:text-gray-400',
-                  'focus:ring-gray-700',
+                variant === "dark" && [
+                  "bg-gray-900 text-white",
+                  "border border-gray-600",
+                  "placeholder:text-gray-400",
+                  "focus:ring-gray-700",
                 ],
               ],
-              LeftIcon && 'pl-10',
-              isPassword && 'pr-10',
-              isInvalid && 'border-red-500',
+              LeftIcon && "pl-10",
+              isPassword && "pr-10",
+              isInvalid && "border-red-500",
               className,
               classNames?.input
             )}
@@ -97,9 +100,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           />
           {isPassword && (
             <div
-              className="absolute right-3 cursor-pointer text-gray-500"
-              onClick={() => setIsVisible(!isVisible)}
-            >
+              className='absolute right-3 cursor-pointer text-gray-500'
+              onClick={() => setIsVisible(!isVisible)}>
               {isVisible ? <HiEyeOff /> : <HiEye />}
             </div>
           )}
@@ -107,10 +109,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {isInvalid && errorMessage && (
           <p
             className={cn(
-              'mt-1 ml-4 text-xs text-red-500',
+              "mt-1 ml-4 text-xs text-red-500",
               classNames?.errorMessage
-            )}
-          >
+            )}>
             {errorMessage}
           </p>
         )}

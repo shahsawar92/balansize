@@ -13,6 +13,7 @@ interface Column<T> {
   accessor: keyof T | ((data: T) => string | number);
   sortable?: boolean;
   cell?: (data: T) => React.ReactNode;
+  onView?: (row: T) => void; // Optional callback for onView
 }
 
 interface TableProps<T> {
@@ -202,7 +203,11 @@ export default function Table<T extends { id: string | number }>({
                       weight='normal'
                       isCenterAligned={isMobile ? true : false}
                       isUppercase={false}
-                      isItalic={false}>
+                      isItalic={false}
+                      className={
+                        column.onView ? "cursor-pointer hover:underline" : ""
+                      }
+                      onClick={() => column.onView && column.onView(row)}>
                       {column.cell
                         ? column.cell(row)
                         : typeof column.accessor === "function"

@@ -64,9 +64,11 @@ const CustomSelect: React.FC<SelectProps> = ({
         <button
           onClick={toggleDropdown}
           className={cn(
+            
             "flex items-center justify-between rounded font-medium focus:outline-none focus:ring-2 transition-all duration-75 ",
             [
-              size === "large" && "px-4 py-2 text-base",
+              size === "large" && "px-4 py-2",
+              "text-base md:text-lg",
               size === "base" && "px-3 py-1.5 text-sm",
               size === "sm" && "px-2 py-1 text-xs",
             ],

@@ -14,6 +14,7 @@ import Table from "@/components/table/Table";
 import { Column, User } from "@/types/user";
 
 export default function UsersPage() {
+  const [users, setUsers] = useState<User[]>(mockUsers);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const router = useRouter();
 
@@ -21,9 +22,12 @@ export default function UsersPage() {
     router.push(`/dashboard/users/${user.id}/edit`);
   };
 
+  const handleView = (user: User) => {
+    router.push(`/dashboard/users/${user.id}`);
+  };
   const handleDelete = (user: User) => {
     logger(user, "delete");
-    // Add your delete logic here
+    setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id)); // Remove user from the state
   };
 
   const columns = [
@@ -32,15 +36,19 @@ export default function UsersPage() {
       accessor: "id",
       sortable: false,
       cell: (user: User) => (
-        <span className='text-sm text-gray-600'>
-          {mockUsers.indexOf(user) + 1}
-        </span>
+        <span className='text-sm text-gray-600'>{users.indexOf(user) + 1}</span>
       ),
     },
     {
       header: "Name",
-      accessor: "name",
+      accessor: "firstName",
       sortable: true,
+      onView: handleView,
+      cell: (user: User) => (
+        <span className='text-sm text-gray-600'>
+          {user?.firstName + " " + user?.lastName}
+        </span>
+      ),
     },
     {
       header: "Email",
@@ -92,7 +100,7 @@ export default function UsersPage() {
   return (
     <div className='max-w-7xl mx-auto'>
       <Table
-        data={mockUsers}
+        data={users}
         columns={columns as Column<User>[]}
         onRowClick={handleRowClick}
         selectable={false}
