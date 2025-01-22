@@ -15,7 +15,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const currentTitle = useCurrentNavigation();
 
   return (
-    <div className='flex min-h-dvh p-5 bg-white'>
+    <div className='flex h-dvh p-5 bg-white'>
       {/* Sidebar */}
       <DashboardSidebar />
 

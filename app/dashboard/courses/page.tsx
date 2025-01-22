@@ -97,7 +97,7 @@ export default function BlogPage() {
           Upload new course
         </Button>
       </div>
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
         {blogPosts.map((post, index) => (
           <Card
             key={index}
@@ -107,52 +107,66 @@ export default function BlogPage() {
               className='block h-full'>
               <CardContent className='p-0 rounded-none'>
                 <div className='relative h-48 w-full'>
-                  {/* lock png at top left */}
-
+                  {/* Background Image */}
                   <Image
                     src={post.image}
                     alt={post.title}
                     fill
-                    className='object-contain'
+                    className='object-cover'
                   />
+
+                  {/* Lock Icon */}
                   {post?.isLock === true && (
-                    <div className='absolute top-2 left-2  rounded-full'>
+                    <div className='absolute top-2 left-2 md:top-3 md:left-4 lg:top-4 lg:left-6'>
                       <Image
                         src='/images/lock.png'
-                        alt='creator'
-                        width={32}
-                        height={32}
+                        alt='lock'
+                        width={24} // Dynamically scaled for small screens
+                        height={24}
                         className='rounded-full opacity-100'
                       />
                     </div>
                   )}
+
+                  {/* Creator Info Button */}
                   <div
-                    className='absolute flex items-center gap-5 bottom-3 left-0 w-3/2 mx-5 right-2 p-1 rounded-full'
+                    className='absolute flex items-center gap-3 md:gap-5 bottom-2 md:bottom-3 lg:bottom-4 left-2 right-2 px-3 py-1 rounded-full'
                     style={{
-                      backgroundImage: `linear-gradient(${["to right", "to left", "to top", "to bottom", "to top left", "to bottom right"][index % 6]}, #564137, #796E68)`,
+                      backgroundImage: `linear-gradient(${
+                        [
+                          "to right",
+                          "to left",
+                          "to top",
+                          "to bottom",
+                          "to top left",
+                          "to bottom right",
+                        ][index % 6]
+                      }, #564137, #796E68)`,
                       opacity: 0.8,
                     }}>
                     <Image
                       src='/images/placeholder.png'
                       alt='creator'
-                      width={32}
-                      height={32}
+                      width={24} // Dynamically scaled
+                      height={24}
                       className='rounded-full opacity-100'
                     />
                     <Text
                       variant='white'
-                      size='lg'
+                      size='sm' // Scaled down for smaller screens
                       weight='normal'
                       isCenterAligned={true}>
                       Creator
                     </Text>
                   </div>
                 </div>
-                <div className='p-1'>
-                  <h3 className='font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors text-main-black'>
+
+                {/* Post Content */}
+                <div className='p-2 md:p-3'>
+                  <h3 className='font-semibold text-sm md:text-base lg:text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors text-main-black'>
                     {post.title}
                   </h3>
-                  <p className='text-sm text-muted-foreground mb-4 line-clamp-2 text-text-2'>
+                  <p className='text-xs md:text-sm text-muted-foreground mb-2 md:mb-4 line-clamp-2 text-text-2'>
                     {post.excerpt}
                   </p>
                   <p className='text-xs text-muted-foreground text-text-3'>
