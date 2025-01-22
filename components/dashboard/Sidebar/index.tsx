@@ -2,7 +2,9 @@
 
 import clsx from "clsx";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { useViewport } from "@/lib/view-port";
 
 import UnstyledLink from "@/components/links/UnstyledLink";
 import NextImage from "@/components/NextImage";
@@ -11,16 +13,20 @@ import { navigationItems } from "./navigation-items";
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isMobile } = useViewport();
+  const [isCollapsed, setIsCollapsed] = useState(isMobile ? true : false);
 
+  useEffect(() => {
+    setIsCollapsed(isMobile);
+  }, [isMobile]);
   return (
     <aside
       className={clsx(
-        "bg-secondary-100 border-r rounded-2xl border-secondary-300 transition-all duration-300",
+        "bg-secondary-100 border-r overflow-hidden min-h-dvh  rounded-2xl border-secondary-300 transition-all duration-300",
         isCollapsed ? "w-16" : "w-64"
       )}>
       {/* Logo */}
-      <div className='flex justify-center items-center p-5'>
+      <div className='flex justify-center  items-center p-5'>
         <UnstyledLink href='/dashboard'>
           <NextImage
             useSkeleton
@@ -37,7 +43,7 @@ export default function DashboardSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className='p-2'>
+      <nav className='p-2 h-full'>
         {navigationItems.map((item) => (
           <UnstyledLink
             key={item.path}

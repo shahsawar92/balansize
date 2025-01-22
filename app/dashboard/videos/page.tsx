@@ -16,7 +16,7 @@ export default function BlogPage() {
 
   return (
     <div className='min-h-screen bg-secondary-100 rounded-2xl p-6 md:p-8'>
-      <div className='w-full flex justify-between items-center mb-9 '>
+      <div className='w-full flex flex-col md:flex-row gap-3 justify-between items-center mb-9 '>
         <CustomSelect
           value={formData.category}
           onChange={(value: string) =>
