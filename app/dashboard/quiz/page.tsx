@@ -65,7 +65,7 @@ export default function QuestionnairePage() {
   };
 
   return (
-    <div className='w-full bg-secondary-100 rounded-2xl max-w-7xl  py-5 px-5 mx-auto'>
+    <div className='w-full bg-secondary-100 rounded-2xl  py-5 px-5 mx-auto'>
       <div className='bg-secondary-100 rounded-2xl p-6 mb-8'>
         <Text variant='main' size='2xl' weight='bold' classNames='mb-6'>
           {isEditing ? "Edit Quiz" : "Add Quiz"}

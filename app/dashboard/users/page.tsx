@@ -70,7 +70,7 @@ export default function UsersPage() {
       accessor: "id",
       sortable: false,
       cell: (user: User) => (
-        <div className='flex items-center gap-3'>
+        <div className='flex items-center gap-3 text-center w-full content-center place-content-center'>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -98,7 +98,7 @@ export default function UsersPage() {
   };
 
   return (
-    <div className='max-w-7xl mx-auto'>
+    <div className=' mx-auto'>
       <Table
         data={users}
         columns={columns as Column<User>[]}

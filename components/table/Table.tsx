@@ -195,7 +195,7 @@ export default function Table<T extends { id: string | number }>({
                 {columns.map((column, colIndex) => (
                   <td
                     key={colIndex + 1}
-                    className='px-6 py-4 whitespace-nowrap  '>
+                    className='px-6 py-4 whitespace-nowrap text-center '>
                     <Text
                       variant='secondary'
                       size='sm'

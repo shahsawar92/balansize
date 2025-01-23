@@ -41,6 +41,11 @@ export default function UsersPage() {
       header: "Name",
       accessor: "name",
       sortable: true,
+      cell: (user: User) => (
+        <span className='text-sm text-gray-600'>
+          {user?.firstName + " " + user?.lastName}
+        </span>
+      ),
     },
     {
       header: "Email",
