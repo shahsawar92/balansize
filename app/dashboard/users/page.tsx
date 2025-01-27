@@ -2,7 +2,7 @@
 
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import logger from "@/lib/logger";
 import { cn } from "@/lib/utils";
@@ -12,10 +12,14 @@ import { mockUsers } from "@/data/mock-users";
 import Table from "@/components/table/Table";
 
 import { Column, User } from "@/types/user";
+import UnstyledLink from "@/components/links/UnstyledLink";
+import UnderlineLink from "@/components/links/UnderlineLink";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>(mockUsers);
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const router = useRouter();
 
   const handleEdit = (user: User) => {
@@ -23,12 +27,28 @@ export default function UsersPage() {
   };
 
   const handleView = (user: User) => {
-    router.push(`/dashboard/users/${user.id}`);
+    router.push(``);
   };
   const handleDelete = (user: User) => {
     logger(user, "delete");
     setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id)); // Remove user from the state
   };
+
+  const handleSearch = async (term: string) => {
+    // Simulate an API call with a delay
+    setTimeout(() => {
+      const filteredUsers = mockUsers.filter((user) =>
+        Object.values(user).some((value) =>
+          value.toString().toLowerCase().includes(term.toLowerCase())
+        )
+      );
+      setUsers(filteredUsers);
+    }, 300);
+  };
+
+  useEffect(() => {
+    handleSearch(searchTerm);
+  }, [searchTerm]);
 
   const columns = [
     {
@@ -43,11 +63,12 @@ export default function UsersPage() {
       header: "Name",
       accessor: "firstName",
       sortable: true,
-      onView: handleView,
       cell: (user: User) => (
-        <span className='text-sm text-gray-600'>
+        <UnderlineLink
+          href={`/dashboard/users/${user.id}`}
+          className='text-sm text-main-brown border-none'>
           {user?.firstName + " " + user?.lastName}
-        </span>
+        </UnderlineLink>
       ),
     },
     {
@@ -106,6 +127,16 @@ export default function UsersPage() {
         selectable={false}
         onSelectionChange={setSelectedUsers}
         itemsPerPage={10}
+        isSearchable={false}
+        classes={{
+          table: "w-full",
+          header: "",
+          row: " text-main-brown",
+          cell: "",
+          pagination: "",
+        }}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
       />
     </div>
   );

@@ -1,28 +1,39 @@
-"use client";
-
 import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { useState } from "react";
 
-import Text from "../text/Text";
+import { cn } from "@/lib/utils";
 import { useViewport } from "@/lib/view-port";
+
 import Input from "../input/Input";
+import Text from "../text/Text";
 
 interface Column<T> {
   header: string;
   accessor: keyof T | ((data: T) => string | number);
   sortable?: boolean;
   cell?: (data: T) => React.ReactNode;
-  onView?: (row: T) => void; // Optional callback for onView
+  onView?: (row: T) => void;
 }
 
 interface TableProps<T> {
   data: T[];
   columns: Column<T>[];
   onRowClick?: (row: T) => void;
+  classes?: {
+    container?: string;
+    table?: string;
+    header?: string;
+    row?: string;
+    cell?: string;
+    pagination?: string;
+  };
   selectable?: boolean;
   onSelectionChange?: (selectedRows: T[]) => void;
   itemsPerPage?: number;
+  isSearchable?: boolean;
+  searchTerm?: string;
+  onSearchChange?: (term: string) => void;
 }
 
 export default function Table<T extends { id: string | number }>({
@@ -31,7 +42,11 @@ export default function Table<T extends { id: string | number }>({
   onRowClick,
   selectable = false,
   onSelectionChange,
+  classes,
   itemsPerPage = 10,
+  searchTerm = "",
+  isSearchable = true,
+  onSearchChange,
 }: TableProps<T>) {
   const [sortConfig, setSortConfig] = useState<{
     key: keyof T | ((data: T) => string | number);
@@ -39,9 +54,8 @@ export default function Table<T extends { id: string | number }>({
   } | null>(null);
   const [selectedRows, setSelectedRows] = useState<Set<T["id"]>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
   const { isMobile } = useViewport();
-  // Sorting logic
+
   const sortedData = [...data].sort((a, b) => {
     if (!sortConfig) return 0;
 
@@ -59,21 +73,17 @@ export default function Table<T extends { id: string | number }>({
     return 0;
   });
 
-  // Filtering logic
-  const filteredData = sortedData.filter((item) =>
-    Object.values(item).some((value) =>
-      value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+  const filteredData = sortedData.filter((item) => item);
+  // Object.values(item).some((value) =>
+  //   value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+  // )
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // Selection handling
   const handleSelectAll = () => {
     if (selectedRows.size === paginatedData.length) {
       setSelectedRows(new Set());
@@ -97,11 +107,29 @@ export default function Table<T extends { id: string | number }>({
   };
 
   return (
-    <div className='flex flex-col gap-4'>
-      {/* Table */}
-      <div className='overflow-x-auto rounded-lg border bg-secondary-100'>
-        <table className='min-w-full divide-y divide-gray-200 '>
-          <thead className=''>
+    <div className={cn(`flex flex-col gap-4 `, classes?.container ?? "")}>
+      {isSearchable && (
+        <div className='flex justify-end mb-4'>
+          <Input
+            type='text'
+            placeholder='Search...'
+            value={searchTerm}
+            onChange={(e) => onSearchChange?.(e.target.value)}
+            className='w-64'
+          />
+        </div>
+      )}
+      <div
+        className={clsx(
+          "overflow-x-auto rounded-lg border bg-secondary-100",
+          classes?.table
+        )}>
+        <table
+          className={clsx(
+            "min-w-full divide-y divide-gray-200",
+            classes?.table
+          )}>
+          <thead className={classes?.header}>
             <tr>
               {selectable && (
                 <th className='px-6 py-3 w-12'>
@@ -120,7 +148,8 @@ export default function Table<T extends { id: string | number }>({
                   key={index}
                   className={clsx(
                     "px-6 py-3 mx-auto text-center ",
-                    column.sortable && "cursor-pointer hover:bg-gray-100"
+                    column.sortable && "cursor-pointer hover:bg-gray-100",
+                    classes?.cell
                   )}
                   onClick={() => {
                     if (column.sortable) {
@@ -171,14 +200,15 @@ export default function Table<T extends { id: string | number }>({
               ))}
             </tr>
           </thead>
-          <tbody className=''>
+          <tbody className={classes?.row}>
             {paginatedData.map((row, rowIndex) => (
               <tr
                 key={row.id}
                 onClick={() => onRowClick?.(row)}
                 className={clsx(
                   "hover:bg-secondary-300",
-                  onRowClick && "cursor-pointer"
+                  onRowClick && "cursor-pointer",
+                  classes?.row
                 )}>
                 {selectable && (
                   <td className='px-6 py-4 whitespace-nowrap w-12'>
@@ -195,7 +225,10 @@ export default function Table<T extends { id: string | number }>({
                 {columns.map((column, colIndex) => (
                   <td
                     key={colIndex + 1}
-                    className='px-6 py-4 whitespace-nowrap text-center '>
+                    className={clsx(
+                      "px-6 py-4 whitespace-nowrap text-center",
+                      classes?.cell
+                    )}>
                     <Text
                       variant='secondary'
                       size='sm'
@@ -221,7 +254,7 @@ export default function Table<T extends { id: string | number }>({
           </tbody>
         </table>
       </div>
-      <div className='flex justify-between gap-2'>
+      <div className={clsx("flex justify-between gap-2", classes?.pagination)}>
         <div className='flex items-center gap-2'>
           <Text variant='secondary' size='sm' weight='normal'>
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
@@ -229,7 +262,6 @@ export default function Table<T extends { id: string | number }>({
             {filteredData.length}
           </Text>
         </div>
-        {/* Pagination */}
         <div className='flex justify-center gap-2'>
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}

@@ -37,7 +37,7 @@ export default function Page() {
   const yearlyPlans = plans.filter((plan) => plan.interval === "yearly");
 
   return (
-    <div className='container mx-auto py-8 px-5 rounded-2xl space-y-8 bg-secondary-100'>
+    <div className='mx-auto py-8 px-5 rounded-2xl space-y-8 bg-secondary-100'>
       <div className='grid gap-6 '>
         <div>
           <Text
