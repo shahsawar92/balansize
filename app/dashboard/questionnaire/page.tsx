@@ -40,22 +40,153 @@ const dummyQuestions: Question[] = [
     question_translation: [
       {
         language: "EN",
-        question_text: "What is your favorite color?",
+        question_text: "What is the primary source of Vitamin C?",
         options: [
-          { name: "Red", tags: [1, "health", "wow"] },
-          { name: "Blue", tags: [2] },
-          { name: "Green", tags: [3] },
-          { name: "Yellow", tags: [4] },
+          { name: "Milk", tags: [1, "dairy", "vitamin"] },
+          { name: "Oranges", tags: [2, "citrus", "vitaminC"] },
+          { name: "Eggs", tags: [3, "protein", "diet"] },
+          { name: "Bread", tags: [4, "carbs", "nutrition"] },
         ],
       },
       {
         language: "AR",
-        question_text: "ما هو لونك المفضل؟",
+        question_text: "ما هو المصدر الرئيسي لفيتامين C؟",
         options: [
-          { name: "أحمر", tags: [1] },
-          { name: "أزرق", tags: [2] },
-          { name: "أخضر", tags: [3] },
-          { name: "أصفر", tags: [4] },
+          { name: "حليب", tags: [1, "dairy", "vitamin"] },
+          { name: "برتقال", tags: [2, "citrus", "vitaminC"] },
+          { name: "بيض", tags: [3, "protein", "diet"] },
+          { name: "خبز", tags: [4, "carbs", "nutrition"] },
+        ],
+      },
+    ],
+  },
+  {
+    id: 2,
+    category_id: 1,
+    is_questioner: true,
+    is_multiple: false,
+    question_translation: [
+      {
+        language: "EN",
+        question_text:
+          "Which nutrient is essential for building and repairing tissues?",
+        options: [
+          { name: "Carbohydrates", tags: [1, "energy", "carbs"] },
+          { name: "Fats", tags: [2, "energy", "fats"] },
+          { name: "Protein", tags: [3, "protein", "recovery"] },
+          { name: "Fiber", tags: [4, "digestion", "fiber"] },
+        ],
+      },
+      {
+        language: "AR",
+        question_text: "أي عنصر غذائي ضروري لبناء وإصلاح الأنسجة؟",
+        options: [
+          { name: "الكربوهيدرات", tags: [1, "energy", "carbs"] },
+          { name: "الدهون", tags: [2, "energy", "fats"] },
+          { name: "البروتين", tags: [3, "protein", "recovery"] },
+          { name: "الألياف", tags: [4, "digestion", "fiber"] },
+        ],
+      },
+      {
+        language: "RU",
+        question_text:
+          "Какое питательное вещество необходимо для восстановления и строительства тканей?",
+        options: [
+          { name: "Углеводы", tags: [1, "energy", "carbs"] },
+          { name: "Жиры", tags: [2, "energy", "fats"] },
+          { name: "Белки", tags: [3, "protein", "recovery"] },
+          { name: "Клетчатка", tags: [4, "digestion", "fiber"] },
+        ],
+      },
+    ],
+  },
+  {
+    id: 6,
+    category_id: 2,
+    is_questioner: true,
+    is_multiple: false,
+    question_translation: [
+      {
+        language: "EN",
+        question_text:
+          "What activity is recommended to reduce stress and improve mental health?",
+        options: [
+          { name: "Exercise", tags: [1, "mentalhealth", "fitness"] },
+          { name: "Meditation", tags: [2, "mindfulness", "relaxation"] },
+          { name: "Reading", tags: [3, "knowledge", "calm"] },
+          { name: "Watching TV", tags: [4, "entertainment", "relaxation"] },
+        ],
+      },
+      {
+        language: "AR",
+        question_text:
+          "ما هو النشاط الموصى به لتقليل التوتر وتحسين الصحة العقلية؟",
+        options: [
+          { name: "التمرين", tags: [1, "mentalhealth", "fitness"] },
+          { name: "التأمل", tags: [2, "mindfulness", "relaxation"] },
+          { name: "القراءة", tags: [3, "knowledge", "calm"] },
+          { name: "مشاهدة التلفاز", tags: [4, "entertainment", "relaxation"] },
+        ],
+      },
+      {
+        language: "RU",
+        question_text:
+          "Какая деятельность рекомендуется для снижения стресса и улучшения психического здоровья?",
+        options: [
+          { name: "Упражнения", tags: [1, "mentalhealth", "fitness"] },
+          { name: "Медитация", tags: [2, "mindfulness", "relaxation"] },
+          { name: "Чтение", tags: [3, "knowledge", "calm"] },
+          { name: "Просмотр ТВ", tags: [4, "entertainment", "relaxation"] },
+        ],
+      },
+    ],
+  },
+  {
+    id: 7,
+    category_id: 2,
+    is_questioner: true,
+    is_multiple: false,
+    question_translation: [
+      {
+        language: "EN",
+        question_text: "Which habit is beneficial for mental well-being?",
+        options: [
+          { name: "Regular sleep", tags: [1, "sleep", "mentalwellbeing"] },
+          {
+            name: "Excessive social media",
+            tags: [2, "distraction", "stress"],
+          },
+          { name: "Healthy diet", tags: [3, "nutrition", "mentalhealth"] },
+          { name: "Skipping meals", tags: [4, "unhealthy", "mentalhealth"] },
+        ],
+      },
+      {
+        language: "AR",
+        question_text: "ما هي العادة المفيدة للصحة العقلية؟",
+        options: [
+          { name: "النوم المنتظم", tags: [1, "sleep", "mentalwellbeing"] },
+          {
+            name: "وسائل التواصل الاجتماعي المفرطة",
+            tags: [2, "distraction", "stress"],
+          },
+          { name: "نظام غذائي صحي", tags: [3, "nutrition", "mentalhealth"] },
+          { name: "تخطي الوجبات", tags: [4, "unhealthy", "mentalhealth"] },
+        ],
+      },
+      {
+        language: "RU",
+        question_text: "Какая привычка полезна для психического здоровья?",
+        options: [
+          { name: "Регулярный сон", tags: [1, "sleep", "mentalwellbeing"] },
+          {
+            name: "Чрезмерное использование соцсетей",
+            tags: [2, "distraction", "stress"],
+          },
+          { name: "Здоровое питание", tags: [3, "nutrition", "mentalhealth"] },
+          {
+            name: "Пропуск приема пищи",
+            tags: [4, "unhealthy", "mentalhealth"],
+          },
         ],
       },
     ],
