@@ -3,86 +3,146 @@
 import { PencilIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 
-import { cn } from "@/lib/utils";
-
-import dummyQuestions from "@/data/mock-questions";
+import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
 import Input from "@/components/input/Input";
 import Modal from "@/components/Modal/Modal";
 import { Switch } from "@/components/switch/switch";
-import Label from "@/components/text/Label";
 import Text from "@/components/text/Text";
 
-interface Translation {
-  question?: string;
-  options?: string[];
+interface Option {
+  name: string;
+  tags: (string | number)[];
+  tagInput?: string;
+}
+
+interface QuestionTranslation {
+  language: string;
+  question_text: string;
+  options: Option[];
 }
 
 interface Question {
   id: number;
-  question: string;
-  options: string[];
-  translations: {
-    ar?: Translation;
-    ru?: Translation;
-  };
-  isMultipleAllowed?: boolean;
-  tags: string[];
+  category_id: number;
+  is_questioner: boolean;
+  is_multiple: boolean;
+  question_translation: QuestionTranslation[];
 }
+
+const dummyQuestions: Question[] = [
+  {
+    id: 1,
+    category_id: 1,
+    is_questioner: true,
+    is_multiple: false,
+    question_translation: [
+      {
+        language: "EN",
+        question_text: "What is your favorite color?",
+        options: [
+          { name: "Red", tags: [1, "health", "wow"] },
+          { name: "Blue", tags: [2] },
+          { name: "Green", tags: [3] },
+          { name: "Yellow", tags: [4] },
+        ],
+      },
+      {
+        language: "AR",
+        question_text: "ما هو لونك المفضل؟",
+        options: [
+          { name: "أحمر", tags: [1] },
+          { name: "أزرق", tags: [2] },
+          { name: "أخضر", tags: [3] },
+          { name: "أصفر", tags: [4] },
+        ],
+      },
+    ],
+  },
+];
 
 export default function QuestionnairePage() {
   const [questions, setQuestions] = useState<Question[]>(dummyQuestions);
   const [newQuestion, setNewQuestion] = useState("");
-  const [options, setOptions] = useState<string[]>([""]); // Start with one empty option
-  const [tags, setTags] = useState<string[]>([]); // Store tags as an array
-  const [tagInput, setTagInput] = useState(""); // Input for tags
+  const [options, setOptions] = useState<Option[]>([{ name: "", tags: [] }]);
+  const [categoryId] = useState(1);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-  const [translationModal, setTranslationModal] = useState({
+  const [translationModal, setTranslationModal] = useState<{
+    show: boolean;
+    lang: string;
+    questionId: number | null;
+    tempTranslation: QuestionTranslation;
+  }>({
     show: false,
     lang: "",
-    questionId: null as number | null,
-    tempTranslation: { question: "", options: [""] },
+    questionId: null,
+    tempTranslation: { language: "", question_text: "", options: [] },
   });
-  const [allowMultipleSelection, setAllowMultipleSelection] = useState(false); // Toggle for multiple selection
+  const [allowMultipleSelection, setAllowMultipleSelection] = useState(false);
+  const [isQuestioner, setIsQuestioner] = useState(true);
 
-  // Add a new option
-  const addOption = () => {
-    setOptions([...options, ""]);
+  const handleTagInput = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent form submission
+      const newOptions = [...options];
+      const currentInput = newOptions[index].tagInput?.trim();
+      if (currentInput) {
+        // Add tag and clear input
+        newOptions[index].tags.push(currentInput);
+        newOptions[index].tagInput = "";
+        setOptions(newOptions);
+      }
+    }
   };
 
-  // Remove an option by index
+  // Update the handleOptionChange function
+  const handleOptionChange = (
+    index: number,
+    value: string,
+    field: "name" | "tagInput"
+  ) => {
+    const newOptions = [...options];
+    if (field === "name") {
+      newOptions[index].name = value;
+    } else {
+      // Only update the tagInput field, don't push here
+      newOptions[index].tagInput = value;
+    }
+    setOptions(newOptions);
+  };
+
+  const removeTag = (optionIndex: number, tagIndex: number) => {
+    const newOptions = [...options];
+    newOptions[optionIndex].tags.splice(tagIndex, 1);
+    setOptions(newOptions);
+  };
+
+  const addOption = () => {
+    setOptions([...options, { name: "", tags: [] }]);
+  };
+
   const removeOption = (index: number) => {
     const newOptions = options.filter((_, i) => i !== index);
     setOptions(newOptions);
   };
 
-  // Handle tag input
-  const handleTagInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && tagInput.trim() !== "") {
-      setTags([...tags, tagInput.trim()]);
-      setTagInput("");
-    }
-  };
-
-  // Remove a tag
-  const removeTag = (index: number) => {
-    const newTags = tags.filter((_, i) => i !== index);
-    setTags(newTags);
-  };
-
-  // Save or update a question
   const handleAddQuestion = () => {
     if (newQuestion.trim() === "") return;
 
     const newQuestionObj: Question = {
       id: isEditing && editId !== null ? editId : Date.now(),
-      question: newQuestion,
-      options: options.filter((opt) => opt.trim() !== ""),
-      translations: {},
-      tags: tags,
-      isMultipleAllowed: allowMultipleSelection,
+      category_id: categoryId,
+      is_questioner: isQuestioner,
+      is_multiple: allowMultipleSelection,
+      question_translation: [
+        {
+          language: "EN",
+          question_text: newQuestion,
+          options: options.filter((opt) => opt.name.trim() !== ""),
+        },
+      ],
     };
 
     if (isEditing) {
@@ -94,33 +154,35 @@ export default function QuestionnairePage() {
     } else {
       setQuestions([...questions, newQuestionObj]);
     }
-
     resetForm();
   };
 
-  const handleTranslation = (questionId: number, lang: "ar" | "ru") => {
-    const question = questions.find((q) => q.id === questionId);
-    setTranslationModal({
-      show: true,
-      lang,
-      questionId,
-
-      tempTranslation: {
-        question: question?.translations[lang]?.question || "",
-        options: question?.translations[lang]?.options || question?.options || [],
-      },
-    });
+  const resetForm = () => {
+    setNewQuestion("");
+    setOptions([{ name: "", tags: [] }]);
   };
+
   const saveTranslation = () => {
     setQuestions(
       questions.map((q) => {
         if (q.id === translationModal.questionId) {
+          const existing = q.question_translation.findIndex(
+            (t) => t.language === translationModal.lang
+          );
+          const newTranslation = {
+            language: translationModal.lang,
+            question_text: translationModal.tempTranslation.question_text,
+            options: translationModal.tempTranslation.options,
+          };
+
           return {
             ...q,
-            translations: {
-              ...q.translations,
-              [translationModal.lang]: translationModal.tempTranslation,
-            },
+            question_translation:
+              existing === -1
+                ? [...q.question_translation, newTranslation]
+                : q.question_translation.map((t) =>
+                    t.language === translationModal.lang ? newTranslation : t
+                  ),
           };
         }
         return q;
@@ -128,33 +190,50 @@ export default function QuestionnairePage() {
     );
     setTranslationModal({ ...translationModal, show: false });
   };
-  // Reset form fields
-  const resetForm = () => {
-    setNewQuestion("");
-    setOptions([""]);
-    setTags([]);
-    setTagInput("");
-  };
 
-  // Edit a question
+  logger(questions);
+
+  const handleTranslation = (questionId: number, lang: string) => {
+    const question = questions.find((q) => q.id === questionId);
+    const baseTranslation = question?.question_translation.find(
+      (t) => t.language === "EN"
+    );
+
+    const existingTranslation = question?.question_translation.find(
+      (t) => t.language === lang
+    );
+
+    setTranslationModal({
+      show: true,
+      lang,
+      questionId,
+      tempTranslation: {
+        language: lang,
+        question_text: existingTranslation?.question_text || "",
+        options:
+          existingTranslation?.options ||
+          baseTranslation?.options.map((opt) => ({
+            name: "",
+            tags: opt.tags,
+          })) ||
+          [],
+      },
+    });
+  };
   const handleEditQuestion = (question: Question) => {
-    setNewQuestion(question.question);
-    setOptions(question.options);
-    setTags(question.tags);
-    setIsEditing(true);
-    setEditId(question.id);
+    const enTranslation = question.question_translation.find(
+      (t) => t.language === "EN"
+    );
+    if (enTranslation) {
+      setNewQuestion(enTranslation.question_text);
+      setOptions(enTranslation.options);
+      setIsEditing(true);
+      setEditId(question.id);
+    }
   };
 
-  // Delete a question
   const handleDeleteQuestion = (id: number) => {
     setQuestions(questions.filter((q) => q.id !== id));
-  };
-
-  // Handle option change
-  const handleOptionChange = (index: number, value: string) => {
-    const newOptions = [...options];
-    newOptions[index] = value;
-    setOptions(newOptions);
   };
 
   return (
@@ -176,17 +255,40 @@ export default function QuestionnairePage() {
               />
             </div>
           </div>
-          <div className='w-full  flex flex-row flex-wrap gap-2'>
+          <div className='w-full flex flex-col gap-2'>
             {options.map((option, index) => (
               <div key={index} className='flex gap-2 items-center'>
                 <Input
                   placeholder={`Option ${index + 1}`}
-                  type='text'
-                  value={option}
-                  onChange={(e) => handleOptionChange(index, e.target.value)}
-                  variant='light'
-                  sizeOfInput='large'
+                  value={option.name}
+                  onChange={(e) =>
+                    handleOptionChange(index, e.target.value, "name")
+                  }
+                  className='flex-1'
                 />
+                <div className='flex gap-2 items-center'>
+                  {option.tags.map((tag, tagIdx) => (
+                    <span
+                      key={tagIdx}
+                      className='px-2 py-1 bg-gray-200 rounded'>
+                      {tag}
+                      <button
+                        onClick={() => removeTag(index, tagIdx)}
+                        className='ml-1 text-red-500'>
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                  <Input
+                    placeholder='Add tag'
+                    value={option.tagInput || ""}
+                    onChange={(e) =>
+                      handleOptionChange(index, e.target.value, "tagInput")
+                    }
+                    onKeyDown={(e) => handleTagInput(e, index)}
+                    className='w-24'
+                  />
+                </div>
                 {options.length > 1 && (
                   <button
                     onClick={() => removeOption(index)}
@@ -201,35 +303,9 @@ export default function QuestionnairePage() {
             variant='light'
             sizeOfButton='large'
             onClick={addOption}
-            className='w-fit rounded-full '>
+            className='w-fit rounded-full'>
             Add Option
           </Button>
-          <div className='mt-4'>
-            <Label className='block text-sm font-semibold text-gray-700'>
-              Tags
-            </Label>
-            <div className='flex flex-wrap gap-2 '>
-              {tags.map((tag, index) => (
-                <span key={index} className=' flex items-center gap-1'>
-                  {tag}
-                  <button
-                    onClick={() => removeTag(index)}
-                    className='text-red-500 hover:text-red-700'>
-                    ×
-                  </button>
-                </span>
-              ))}
-              <Input
-                type='text'
-                value={tagInput}
-                sizeOfInput='large'
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleTagInput}
-                placeholder='Type and press Enter...'
-                className='flex-1 outline-none'
-              />
-            </div>
-          </div>
           <div className='flex justify-between items-center'>
             <Button
               variant='brown'
@@ -238,17 +314,26 @@ export default function QuestionnairePage() {
               onClick={handleAddQuestion}>
               {isEditing ? "Update" : "Save"}
             </Button>
-            <div className='flex items-center gap-2'>
-              <Text variant='secondary' size='sm'>
-                Allow Multiple Selection
-              </Text>
-              <Switch
-                checked={
-                  questions.find((q) => q.id === editId)?.isMultipleAllowed ||
-                  allowMultipleSelection
-                }
-                onCheckedChange={setAllowMultipleSelection}
-              />
+            <div>
+              {" "}
+              <div className='flex items-center gap-2'>
+                <Text variant='secondary' size='sm'>
+                  Allow Multiple Selection
+                </Text>
+                <Switch
+                  checked={allowMultipleSelection}
+                  onCheckedChange={setAllowMultipleSelection}
+                />
+              </div>
+              <div className='flex items-center gap-2'>
+                <Text variant='secondary' size='sm'>
+                  Is Questioner
+                </Text>
+                <Switch
+                  checked={isQuestioner}
+                  onCheckedChange={setIsQuestioner}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -256,97 +341,68 @@ export default function QuestionnairePage() {
 
       {/* Questions List */}
       <div className='bg-secondary-100 rounded-2xl p-6'>
-        {questions.map((q, index) => (
-          <div key={q.id} className='mb-6 p-4 bg-white rounded-lg shadow-sm'>
-            <div className='flex justify-between items-start'>
-              <Text variant='main' size='lg' weight='bold' tagName='h3'>
-                {index + 1}. {q.question}
-              </Text>
-              <div className='flex gap-2'>
-                <Button
-                  variant='light'
-                  onClick={() => handleTranslation(q.id, "ar")}
-                  className={cn(
-                    " hover:bg-gray-100 rounded-full",
-                    q.translations.ar &&
-                      Object.keys(q.translations?.ar).length &&
-                      "bg-main-brown text-white"
-                  )}>
-                  🇸🇦
-                </Button>
-                <Button
-                  variant='light'
-                  onClick={() => handleTranslation(q.id, "ru")}
-                  className={cn(
-                    " hover:bg-gray-100 rounded-full",
-                    q.translations.ru &&
-                      Object.keys(q.translations?.ru).length &&
-                      "bg-main-brown text-white"
-                  )}>
-                  {" "}
-                  🇷🇺
-                </Button>
-
-                {/* multiple allowed or not */}
-                <Button
-                  variant='light'
-                  title={
-                    q?.isMultipleAllowed
-                      ? "Multiple Selection"
-                      : "Single Selection"
-                  }
-                  sizeOfButton='base'
-                  className='p-2 border-none'>
-                  {q?.isMultipleAllowed ? (
-                    <div className='w-5 h-5 bg-main-brown  border border-main-brown  rounded-full'></div>
-                  ) : (
-                    <div className='w-5 h-5 bg-transparent border border-main-brown rounded-full'></div>
-                  )}
-                </Button>
-                <Button
-                  variant='light'
-                  sizeOfButton='base'
-                  className='p-2 border-none'
-                  onClick={() => handleEditQuestion(q)}>
-                  <PencilIcon className='w-5 h-5' />
-                </Button>
-                <Button
-                  variant='light'
-                  sizeOfButton='base'
-                  className='p-2 border-none'
-                  onClick={() => handleDeleteQuestion(q.id)}>
-                  <TrashIcon className='w-5 h-5' />
-                </Button>
-              </div>
-            </div>
-
-            {/* Tags Display */}
-            {q.options.length > 0 && (
-              <div className='mt-2 flex flex-wrap gap-2'>
-                {q.options.map((tag, i) => (
-                  <span
-                    key={i}
-                    className='px-2 py-1 bg-main-brown/10 text-main-brown text-sm rounded-full'>
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className='p-2  rounded-lg mt-2'>
-              {q.tags.length > 0 && (
-                <div className='mt-2 flex flex-wrap gap-2'>
-                  {q.tags.map((tag, i) => (
-                    <span
-                      key={i}
-                      className='px-2 py-1 bg-main-light text-main-brown text-sm rounded-full'>
-                      {tag}
-                    </span>
-                  ))}
+        {questions.map((q) => {
+          const enTranslation = q.question_translation.find(
+            (t) => t.language === "EN"
+          );
+          return (
+            <div key={q.id} className='mb-6 p-4 bg-white rounded-lg shadow-sm'>
+              <div className='flex justify-between items-start'>
+                <Text variant='main' size='lg' weight='bold' tagName='h3'>
+                  {enTranslation?.question_text}
+                </Text>
+                <div className='flex gap-2'>
+                  <Button
+                    variant='light'
+                    onClick={() => handleTranslation(q.id, "AR")}
+                    className='rounded-full'>
+                    🇸🇦
+                  </Button>
+                  <Button
+                    variant='light'
+                    onClick={() => handleTranslation(q.id, "RU")}
+                    className='rounded-full'>
+                    🇷🇺
+                  </Button>
+                  <Button
+                    variant='light'
+                    sizeOfButton='base'
+                    className='p-2 border-none'
+                    onClick={() => handleEditQuestion(q)}>
+                    <PencilIcon className='w-5 h-5' />
+                  </Button>
+                  <Button
+                    variant='light'
+                    sizeOfButton='base'
+                    className='p-2 border-none'
+                    onClick={() => handleDeleteQuestion(q.id)}>
+                    <TrashIcon className='w-5 h-5' />
+                  </Button>
                 </div>
-              )}
+              </div>
+
+              {enTranslation?.options.map((opt, idx) => (
+                <div key={idx} className='mt-2 flex flex-col w-full'>
+                  <span className='font-medium'>
+                    {idx + 1}.{opt.name}
+                  </span>
+                  <div className='flex flex-wrap gap-2'>
+                    <span className='px-2 py-1  text-sm rounded-full'>
+                      tags:
+                    </span>
+                    {opt.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className='px-2 py-1 bg-text-3 text-white text-sm rounded-full'>
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Translation Modal */}
@@ -361,33 +417,29 @@ export default function QuestionnairePage() {
             Translated Question
           </label>
           <Input
-            value={translationModal.tempTranslation.question}
+            value={translationModal.tempTranslation.question_text}
             onChange={(e) =>
               setTranslationModal({
                 ...translationModal,
                 tempTranslation: {
                   ...translationModal.tempTranslation,
-                  question: e.target.value,
+                  question_text: e.target.value,
                 },
               })
             }
           />
-
           {translationModal.tempTranslation.options.map((option, i) => (
-            <>
-              <label
-                key={i}
-                className='block text-sm font-semibold text-gray-700'>
+            <div key={i}>
+              <label className='block text-sm font-semibold text-gray-700 mt-4'>
                 Option {i + 1}
               </label>
               <Input
-                key={i}
-                value={option}
+                value={option.name}
                 onChange={(e) => {
                   const newOptions = [
                     ...translationModal.tempTranslation.options,
                   ];
-                  newOptions[i] = e.target.value;
+                  newOptions[i].name = e.target.value;
                   setTranslationModal({
                     ...translationModal,
                     tempTranslation: {
@@ -397,10 +449,9 @@ export default function QuestionnairePage() {
                   });
                 }}
               />
-            </>
+            </div>
           ))}
-
-          <Button variant='brown' onClick={saveTranslation}>
+          <Button variant='brown' onClick={saveTranslation} className='mt-4'>
             Save Translation
           </Button>
         </div>
