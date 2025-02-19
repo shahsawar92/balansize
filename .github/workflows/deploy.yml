@@ -27,7 +27,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
           ssh -o StrictHostKeyChecking=no tech@147.93.123.248 "
-            cd ~/AdminBackend &&
+            cd ~/BalansizeAdmin &&
             git pull origin master &&
             npm install &&
             npm run build &&
