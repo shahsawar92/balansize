@@ -23,12 +23,12 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa_balansizeadmin
+          chmod 600 ~/.ssh/id_rsa_balansizeadmin
 
           ssh -o StrictHostKeyChecking=no tech@147.93.123.248 "
             cd ~/BalansizeAdmin &&
-            git pull origin master &&
+            GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa_balansizeadmin' git pull origin master &&
             npm install &&
             npm run build &&
             pm2 restart balansize-admin
