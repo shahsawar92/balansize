@@ -6,7 +6,21 @@ import {
   Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 
+import { logout } from "@/redux/features/auth-slice";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
+
 export default function DashboardHeader({ title }: { title: string }) {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const handleLogout = () => {
+    // confirm logout
+    alert("Are you sure you want to logout?");
+    // dispatch logout action
+    dispatch(logout());
+    router.push("/login");
+  };
+
   return (
     <header className='bg-white '>
       <div className='px-4 py-3 flex items-center justify-between'>
@@ -21,7 +35,10 @@ export default function DashboardHeader({ title }: { title: string }) {
           </button>
 
           <button className='p-2 hover:bg-gray-100 rounded-full'>
-            <ArrowRightStartOnRectangleIcon className='w-6 h-6 text-gray-600' />
+            <ArrowRightStartOnRectangleIcon
+              className='w-6 h-6 text-gray-600'
+              onClick={handleLogout}
+            />
           </button>
         </div>
       </div>

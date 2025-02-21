@@ -1,3 +1,4 @@
+"use client";
 import { Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,6 +6,10 @@ import Link from "next/link";
 import Button from "@/components/buttons/Button";
 import Separator from "@/components/seperator/Seperator";
 import Text from "@/components/text/Text";
+import { useGetArticleQuery } from "@/redux/api/articles-api";
+import path from "path";
+import logger from "@/lib/logger";
+import { usePathname, useRouter } from "next/navigation";
 
 interface BlogPost {
   title: string;
@@ -15,6 +20,13 @@ interface BlogPost {
 }
 
 export default function BlogPost() {
+  const pathname = usePathname();
+  logger(pathname, "pathname");
+  const artilcleId = pathname.split("/").pop();
+  const { data, isLoading } = useGetArticleQuery(Number(artilcleId));
+
+  logger(data, "data");
+
   const post: BlogPost = {
     title: "5 Benefits of Zumba for Weight Loss",
     author: "Anna Deer",

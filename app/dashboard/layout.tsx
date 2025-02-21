@@ -1,5 +1,7 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
+
+import AuthGuard from "../authGuard";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return children;
-} 
+  return <AuthGuard>{children}</AuthGuard>;
+}

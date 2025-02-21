@@ -2,23 +2,30 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 import logger from "@/lib/logger";
 import { type LoginFormData, loginSchema } from "@/lib/validation/auth";
+import { useViewport } from "@/lib/view-port";
 
 import Button from "@/components/buttons/Button";
 import Input from "@/components/input/Input";
 import UnderlineLink from "@/components/links/UnderlineLink";
 import NextImage from "@/components/NextImage";
 import Text from "@/components/text/Text";
-import { useViewport } from "@/lib/view-port";
+
+import { useLoginMutation } from "@/redux/api/auth-api";
+import { loginSuccess } from "@/redux/features/auth-slice";
+import { useAppDispatch } from "@/redux/store";
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const { isMobile } = useViewport();
+  const [login, { isLoading }] = useLoginMutation();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -26,22 +33,50 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
-  const router = useRouter();
+  // const router = useRouter();
 
   async function onSubmit(data: LoginFormData) {
-    setIsLoading(true);
     try {
-      // Handle login logic here
+      logger(data, "data to be sent to the server");
+
+      const response = await login(data).unwrap();
+      logger(response, "response from the server");
+
+      if (!response.success) {
+        toast.error(response.message, {
+          position: "top-center",
+          autoClose: 5000,
+        });
+        return;
+      }
+
+      // Dispatch loginSuccess only when login is successful
+      dispatch(
+        loginSuccess({
+          token: response.result.accessToken,
+          user: {
+            id: response.result.user.id,
+            name: `${response.result.user.first_name} ${response.result.user.last_name}`,
+            email: response.result.user.email,
+            user_type: response.result.user.user_type, // Role
+          },
+        })
+      );
+
+      toast.success(response.message, {
+        position: "top-center",
+        autoClose: 5000,
+      });
+
       router.push("/dashboard");
-      logger(data);
     } catch (error) {
-      logger(error);
-    } finally {
-      setIsLoading(false);
+      logger(error, "error");
+      toast.error("Login failed! Please try again.", {
+        position: "top-center",
+        autoClose: 5000,
+      });
     }
   }
-
-  logger("hello");
 
   return (
     <main className=''>

@@ -1,7 +1,11 @@
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
-import DashboardLayout from './DashboardLayout';
+import DashboardLayout from "./DashboardLayout";
 
-export default function DashboardTemplate({ children }: { children: ReactNode }) {
+export default function DashboardTemplate({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return <DashboardLayout>{children}</DashboardLayout>;
-} 
+}

@@ -5,6 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Card, CardContent } from "@/components/cards/card";
+import { useGetArticlesQuery } from "@/redux/api/articles-api";
+import { Article } from "@/types/articles";
+import logger from "@/lib/logger";
+import { BASE_URL } from "@/constant/env";
 
 interface BlogPost {
   title: string;
@@ -16,36 +20,12 @@ interface BlogPost {
 
 export default function BlogPage() {
   // Sample blog posts data
-  const blogPosts: BlogPost[] = [
-    {
-      title: "The Connection Between Physical and Mental Health",
-      excerpt: "Explore the connection between physical and mental health...",
-      readTime: "4 min read",
-      image: "/images/blog1.png",
-      slug: "physical-mental-health",
-    },
-    {
-      title: "5 Benefits of Zumba for Weight Loss",
-      excerpt: "Zumba is more than just a dance",
-      readTime: "4 min read",
-      image: "/images/blog2.png",
-      slug: "zumba-benefits",
-    },
-    {
-      title: "The Core of Fitness: Why Physical Strength Matters",
-      excerpt: "Explore the importance of building physical strength f...",
-      readTime: "5 min read",
-      image: "/images/blog3.png",
-      slug: "physical-strength",
-    },
-    {
-      title: "10 Steps to Achieve Optimal Physical Fitness",
-      excerpt: "Discover practical steps to improve your fitness level...",
-      readTime: "6 min read",
-      image: "/images/blog4.png",
-      slug: "optimal-fitness",
-    },
-  ];
+  const { data, isLoading } = useGetArticlesQuery();
+  console.log("dataaaaaaaa: ", data);
+  // if (data) {
+  //   const articles: Article[] = data.result;
+  //   logger(data, "articles");
+  // }
 
   return (
     <div className='min-h-screen bg-secondary-100 rounded-2xl p-6 md:p-8'>
@@ -61,17 +41,21 @@ export default function BlogPage() {
           </Link>
         </Card>
 
-        {blogPosts.map((post, index) => (
+        {data?.result.map((post, index) => (
           <Card
             key={index}
             className='group  overflow-hidden p-0 bg-transparent rounded-lg shadow-none border-none'>
             <Link
-              href={`/dashboard/articles/${post.slug}`}
+              href={`/dashboard/articles/${post.id}`}
               className='block h-full'>
               <CardContent className='p-0 rounded-none'>
                 <div className='relative h-48 w-full'>
                   <Image
-                    src={post.image}
+                    src={
+                      post.feature_image
+                        ? `${BASE_URL}/${post.feature_image}`
+                        : "/images/blog2.png"
+                    }
                     alt={post.title}
                     fill
                     className='object-contain'
@@ -85,7 +69,7 @@ export default function BlogPage() {
                     {post.excerpt}
                   </p>
                   <p className='text-xs text-muted-foreground text-text-3'>
-                    {post.readTime}
+                    {post.min_to_read} min read
                   </p>
                 </div>
               </CardContent>
