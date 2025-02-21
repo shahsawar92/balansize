@@ -1,0 +1,40 @@
+name: Deploy Admin Backend
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Deploy to Server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa_balansizeadmin
+          chmod 600 ~/.ssh/id_rsa_balansizeadmin
+
+          # Add GitHub to known hosts to prevent interactive prompts
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
+          ssh -o StrictHostKeyChecking=no tech@147.93.123.248 << 'EOF'
+            export GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa_balansizeadmin'
+            cd ~/BalansizeAdmin
+            git pull origin master
+            npm install
+            npm run build
+            pm2 restart balansize-admin
+          EOF

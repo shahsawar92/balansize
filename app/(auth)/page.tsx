@@ -191,7 +191,7 @@ export default function LoginPage() {
                   Terms and Conditions
                 </UnderlineLink>{" "}
                 and{" "}
-                <UnderlineLink href='/privacy'>Privacy Policy</UnderlineLink>.
+                <UnderlineLink href='/privacy'>Privacy Policy</UnderlineLink>
               </p>
             </Text>
           </div>
