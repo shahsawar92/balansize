@@ -1,70 +1,68 @@
-import {
-  BookOpenIcon,
-  CalendarDaysIcon,
-  PuzzlePieceIcon,
-  UsersIcon,
-} from "@heroicons/react/24/outline"; // Heroicons
-import { Brain, Dumbbell, HeartPulse, Leaf, User } from "lucide-react"; // Lucide icons
-import React from "react";
+"use client";
+
+import { Plus } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 import { Card, CardContent } from "@/components/cards/card";
+import logger from "@/lib/logger";
+import { BASE_URL } from "@/constant/env";
+import { useGetCategoriesQuery } from "@/redux/api/categories-api";
 
-const Dashboard = () => {
-  // Define the features with their respective icons and labels
-  const features = [
-    { label: "Mental Health", icon: <Brain size={32} /> },
-    { label: "Nutritions", icon: <Leaf size={32} /> },
-    { label: "Self Care", icon: <HeartPulse size={32} /> },
-    { label: "Fitness", icon: <Dumbbell size={32} /> },
-    { label: "Experts", icon: <User size={32} /> },
-    {
-      label: "Cycle Calendar",
-      icon: <CalendarDaysIcon className='w-8 h-8' />,
-      comingSoon: true,
-    },
-    {
-      label: "Library",
-      icon: <BookOpenIcon className='w-8 h-8' />,
-      comingSoon: true,
-    },
-    {
-      label: "Events",
-      icon: <CalendarDaysIcon className='w-8 h-8' />,
-      comingSoon: true,
-    },
-    {
-      label: "Partners",
-      icon: <UsersIcon className='w-8 h-8' />,
-      comingSoon: true,
-    },
-    {
-      label: "Hobbies",
-      icon: <PuzzlePieceIcon className='w-8 h-8' />,
-      comingSoon: true,
-    },
-  ];
+export default function CategoriesPage() {
+  const { data, isLoading } = useGetCategoriesQuery();
+
+  if (isLoading) return <p>Loading...</p>;
 
   return (
-    <div className='min-h-dvh bg-secondary-100 rounded-2xl flex flex-wrap items-start p-6'>
-      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 w-full'>
-        {features.map((feature, index) => (
-          <Card
-            key={index}
-            className='flex flex-col items-center justify-center bg-white shadow-md rounded-lg p-6 text-center '>
-            <CardContent className='flex flex-col items-center justify-center'>
-              <div className='text-main-black mb-4 '>{feature.icon}</div>
+    <div className='min-h-dvh bg-secondary-100 rounded-2xl p-6'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6'>
+        {/* Add New Category Card */}
+        <Card className='flex flex-col items-center justify-center bg-white shadow-md rounded-lg p-6 text-center'>
+          <CardContent className='flex flex-col items-center justify-center'>
+            <Link
+              href='/dashboard/categories/new'
+              className='flex flex-col items-center'>
+              <div className='w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-4'>
+                <Plus className='w-8 h-8 text-primary' />
+              </div>
               <h3 className='text-sm font-semibold text-main-black'>
-                {feature.label}
+                Add New Category
               </h3>
-              {feature.comingSoon && (
-                <p className='text-xs text-text-3 mt-2'>Coming Soon</p>
-              )}
+            </Link>
+          </CardContent>
+        </Card>
+
+        {/* Categories List */}
+        {data?.result?.map((category) => (
+          <Card
+            key={category.id}
+            className='flex flex-col items-center justify-center bg-white shadow-md rounded-lg p-6 text-center'>
+            <CardContent className='flex flex-col items-center justify-center'>
+              <div className='relative w-16 h-16 mb-4'>
+                <Image
+                  src={
+                    category.icon
+                      ? `${BASE_URL}/${category.icon}`
+                      : "/images/placeholder.png"
+                  }
+                  alt={category.name}
+                  fill
+                  className='object-contain rounded-lg'
+                />
+              </div>
+              <h3 className='text-sm font-semibold text-main-black'>
+                {category.name}
+              </h3>
+              <Link
+                href={`/dashboard/categories/${category.id}`}
+                className='text-xs text-primary mt-2'>
+                Manage
+              </Link>
             </CardContent>
           </Card>
         ))}
       </div>
     </div>
   );
-};
-
-export default Dashboard;
+}

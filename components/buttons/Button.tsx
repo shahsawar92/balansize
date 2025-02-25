@@ -5,7 +5,13 @@ import { ImSpinner2 } from "react-icons/im";
 
 import { cn } from "@/lib/utils";
 
-const ButtonVariant = ["dark", "brown", "light", "transparent"] as const;
+const ButtonVariant = [
+  "dark",
+  "brown",
+  "light",
+  "transparent",
+  "danger",
+] as const;
 const ButtonSize = ["sm", "base", "large"] as const;
 
 type ButtonProps = {
@@ -80,6 +86,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               "bg-gray-900 text-white",
               "border border-gray-600",
               "hover:bg-gray-800 active:bg-gray-700 disabled:bg-gray-700",
+            ],
+            variant === "danger" && [
+              //className='ml-4 bg-red-500 hover:bg-red-600 text-white hover:text-white'>
+              "bg-red-500 text-white",
+              "hover:bg-red-600 hover:text-white",
+              "active:bg-red-600",
+              "disabled:bg-red-600",
             ],
           ],
           //#endregion  //*======== Variants ===========

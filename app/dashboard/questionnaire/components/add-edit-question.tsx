@@ -123,7 +123,7 @@ export default function AddQuestion({
       question_texts: [
         {
           id: editingQuestion?.question_texts[0]?.id ?? 0,
-          language: "EN",
+          language: "en",
           question_text: newQuestion,
           options: formattedOptions,
         },

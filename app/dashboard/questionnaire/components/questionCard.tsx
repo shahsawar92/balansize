@@ -20,7 +20,7 @@ export default function QuestionCard({
   onTranslate,
 }: QuestionCardProps) {
   const enTranslation = question.question_texts.find(
-    (t) => t.language === "EN"
+    (t) => t.language === "en"
   );
 
   return (

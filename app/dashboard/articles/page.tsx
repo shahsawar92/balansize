@@ -60,6 +60,11 @@ export default function BlogPage() {
                     fill
                     className='object-contain'
                   />
+                  <img
+                    src={`${BASE_URL}/${post.feature_image}`}
+                    alt='blog'
+                    className='absolute inset-0 object-cover w-full h-full'
+                  />
                 </div>
                 <div className='p-1'>
                   <h3 className='font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors text-main-black'>

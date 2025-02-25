@@ -17,8 +17,14 @@ export interface CategoryResponse {
   result: Category[];
 }
 
+export interface SingleCategoryResponse {
+  success: boolean;
+  message: string;
+  result: Category;
+}
+
 export interface CategoryRequest {
-  key: string;
-  value: string | File | string[];
-  type: "text" | "file";
+  name: string;
+  icon: File | null;
+  translations: Translation[];
 }

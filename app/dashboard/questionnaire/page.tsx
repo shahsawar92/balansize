@@ -65,7 +65,7 @@ export default function QuestionnairePage() {
     );
 
     const baseTranslationOptions = question.question_texts.find(
-      (t) => t.language === "EN"
+      (t) => t.language === "en"
     )?.options.length;
 
     if (baseTranslationOptions) {

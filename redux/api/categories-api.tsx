@@ -7,7 +7,11 @@ import { API_URL } from "@/constant/env";
 import { selectCurrentToken } from "../features/auth-slice";
 import { RootState } from "../store";
 
-import { CategoryRequest, CategoryResponse } from "@/types/categories-types";
+import {
+  CategoryRequest,
+  CategoryResponse,
+  SingleCategoryResponse,
+} from "@/types/categories-types";
 
 export const categoryApi = createApi({
   reducerPath: "categoryApi",
@@ -22,16 +26,14 @@ export const categoryApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    addCategory: builder.mutation<CategoryResponse, CategoryRequest>({
-      query: (credentials) => {
-        logger(API_URL, "API_URL");
-        return {
-          url: "/categories",
-          method: "POST",
-          body: credentials,
-        };
-      },
+    addCategory: builder.mutation<CategoryResponse, FormData>({
+      query: (formData) => ({
+        url: "/categories",
+        method: "POST",
+        body: formData,
+      }),
     }),
+
     getCategories: builder.query<CategoryResponse, void>({
       query: () => {
         return {
@@ -40,7 +42,7 @@ export const categoryApi = createApi({
         };
       },
     }),
-    getCategory: builder.query<CategoryResponse, number>({
+    getCategory: builder.query<SingleCategoryResponse, number>({
       query: (id) => {
         return {
           url: `/categories/${id}`,
@@ -49,12 +51,12 @@ export const categoryApi = createApi({
       },
     }),
     updateCategory: builder.mutation<
-      CategoryResponse,
-      { id: number; data: CategoryResponse }
+      SingleCategoryResponse,
+      { id: number; data: FormData }
     >({
       query: ({ id, data }) => ({
         url: `/categories/${id}`,
-        method: "POST",
+        method: "PUT",
         body: data,
       }),
     }),
