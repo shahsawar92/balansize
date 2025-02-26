@@ -7,7 +7,11 @@ import { API_URL } from "@/constant/env";
 import { selectCurrentToken } from "../features/auth-slice";
 import { RootState } from "../store";
 
-import { ExpertRequest, ExpertResponse } from "@/types/experts";
+import {
+  ExpertRequest,
+  ExpertResponse,
+  singleExpertResponse,
+} from "@/types/experts";
 
 export const expertApi = createApi({
   reducerPath: "expertApi",
@@ -40,7 +44,7 @@ export const expertApi = createApi({
         };
       },
     }),
-    getExpert: builder.query<ExpertResponse, number>({
+    getExpert: builder.query<singleExpertResponse, string>({
       query: (id) => {
         return {
           url: `/experts/${id}`,
@@ -50,11 +54,11 @@ export const expertApi = createApi({
     }),
     updateExpert: builder.mutation<
       ExpertResponse,
-      { id: number; data: ExpertRequest }
+      { id: number; data: FormData }
     >({
       query: ({ id, data }) => ({
         url: `/experts/${id}`,
-        method: "POST",
+        method: "PUT",
         body: data,
       }),
     }),
