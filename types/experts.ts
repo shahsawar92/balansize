@@ -1,10 +1,12 @@
 export interface Expert {
-  id: number;
-  name: string;
+  expert_id: number;
+  expert_name: string;
   about: string;
   designation: string;
   profile_picture: string | File;
-  categoryId?: number;
+  category_id?: number;
+  category_name?: string;
+  tags?: string[];
 }
 
 export interface ExpertResponse {

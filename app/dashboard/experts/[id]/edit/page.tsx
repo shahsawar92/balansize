@@ -3,190 +3,180 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-import { cn } from "@/lib/utils";
+import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
+import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
-import NextImage from "@/components/NextImage";
-import Text from "@/components/text/Text";
+
+import CategorySelect from "@/app/_app-components/getCategories";
+import { BASE_URL } from "@/constant/env";
 import {
   useGetExpertQuery,
+  useGetExpertsQuery,
   useUpdateExpertMutation,
 } from "@/redux/api/expert-api";
-import { Expert } from "@/types/experts";
-import { BASE_URL } from "@/constant/env";
-import logger from "@/lib/logger";
-import CategorySelect from "@/app/_app-components/getCategories";
-import { Category } from "@/types/categories-types";
 
-export default function EditUserPage() {
+import { Category } from "@/types/categories-types";
+import { Expert } from "@/types/experts";
+import TagInput from "@/components/tagInput/TagInput";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
+
+export default function EditExpertPage() {
   const router = useRouter();
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const [category, setCategory] = useState<Category | undefined>(undefined);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch expert data
-  const { data: expert, isLoading } = useGetExpertQuery(id);
+  const { data: expertData, isLoading } = useGetExpertQuery(id);
   const [updateExpert, { isLoading: isUpdating }] = useUpdateExpertMutation();
+  logger(expertData, "expertData");
+  const { refetch } = useGetExpertsQuery();
 
-  // State for user details
-  const [user, setUser] = useState<Expert>({
-    id: 0,
-    name: "",
+  const [category, setCategory] = useState<Category | undefined>(undefined);
+  const [expert, setExpert] = useState<Expert>({
+    expert_id: 0,
+    expert_name: "",
     designation: "",
     about: "",
     profile_picture: "",
-    categoryId: 0,
+    tags: [] as string[],
+    category_id: 0,
   });
-
-  // Update user state when expert data is fetched
-  useEffect(() => {
-    if (expert?.result) {
-      setUser(expert.result);
-    }
-  }, [expert]);
-
-  // Image Upload & Preview Handling
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageUrl, setImageUrl] = useState<string>(
-    "/images/default-profile.jpg"
-  );
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
-    if (expert?.result?.profile_picture) {
-      setImageUrl(`${BASE_URL}/${expert.result.profile_picture}`);
+    if (expertData?.result) {
+      setExpert(expertData.result);
+      setCategory(
+        expertData.result.category_id && expertData.result.category_name
+          ? {
+              id: expertData.result.category_id,
+              name: expertData.result.category_name,
+              icon: "",
+              translations: [],
+            }
+          : undefined
+      );
     }
-  }, [expert]);
-
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setImageUrl(objectUrl);
-      setUser({ ...user, profile_picture: file });
-      // Implement image upload logic here if needed
-    }
-  };
+  }, [expertData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const result = await Swal.fire({
+      title: "Update Expert?",
+      text: "You are about to update this expert's details.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, update it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       const formData = new FormData();
-      formData.append("name", user.name);
-      formData.append("designation", user.designation);
-      formData.append("about", user.about);
-      formData.append("categoryId", (user.categoryId ?? 0).toString());
+      formData.append("name", expert.expert_name);
+      formData.append("designation", expert.designation);
+      formData.append("about", expert.about);
+      formData.append("categoryId", (expert.category_id ?? 0).toString());
+      (expert?.tags || []).forEach((tag) => formData.append("tags[]", tag));
 
-      // Ensure profile_picture is a file before appending
-      if (user.profile_picture instanceof File) {
-        formData.append("profile_picture", user.profile_picture);
+      if (imageFile) {
+        formData.append("profile_picture", imageFile);
       }
 
       logger(formData, "formData");
 
-      await updateExpert({ id: parseInt(id), data: formData }).unwrap();
+      toast.info("Updating expert...");
+      await updateExpert({
+        id: expert.expert_id,
+        data: formData,
+      }).unwrap();
+
+      toast.success("Expert updated successfully!");
+      await refetch();
       router.push("/dashboard/experts");
     } catch (error) {
-      console.error("Error updating user:", error);
+      logger(error, "Error updating expert:");
+      toast.error("Failed to update expert. Please try again.");
     }
+  };
+
+  const handleChange = (key: string, value: any) => {
+    setExpert({ ...expert, [key]: value });
   };
 
   return (
     <div className='w-full max-w-7xl py-5 px-5 mx-auto bg-secondary-100 rounded-2xl'>
-      <div className='relative'>
-        {/* Profile Image */}
-        <div className='absolute right-8 top-0'>
-          <div
-            onClick={handleImageClick}
-            className='relative w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:opacity-80 transition-opacity'>
-            <NextImage
-              useSkeleton
-              src={imageUrl}
-              alt='Profile Picture'
-              width={126}
-              height={126}
-              className='object-cover w-full h-full'
-              classNames={{
-                image: "object-cover w-full h-full",
-                blur: "bg-gray-200",
-              }}
-            />
-            <input
-              type='file'
-              ref={fileInputRef}
-              onChange={handleImageChange}
-              accept='image/*'
-              className='hidden'
-            />
-          </div>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className='space-y-6 mt-12 max-w-2xl'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <Input
-              placeholder='Name'
-              variant='light'
-              sizeOfInput='large'
-              className='w-full max-w-80'
-              withBorder={false}
-              value={user.name}
-              onChange={(e) => setUser({ ...user, name: e.target.value })}
-            />
-            <Input
-              placeholder='Designation'
-              variant='light'
-              className='w-full max-w-80'
-              withBorder={false}
-              sizeOfInput='large'
-              value={user.designation}
-              onChange={(e) =>
-                setUser({ ...user, designation: e.target.value })
-              }
-            />
-          </div>
-
+      <form onSubmit={handleSubmit} className='space-y-6 mt-12 max-w-2xl'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <Input
-            placeholder='About'
-            type='text'
+            placeholder='Name'
             variant='light'
             className='w-full max-w-80'
-            withBorder={false}
-            sizeOfInput='large'
-            value={user.about}
-            onChange={(e) => setUser({ ...user, about: e.target.value })}
+            value={expert.expert_name}
+            onChange={(e) => handleChange("expert_name", e.target.value)}
           />
+          <Input
+            placeholder='Designation'
+            variant='light'
+            className='w-full max-w-80'
+            value={expert.designation}
+            onChange={(e) => handleChange("designation", e.target.value)}
+          />
+        </div>
 
-          {/* Category */}
-          <div
-            className='flex items-center gap-4'
-            onClick={(e) => e.preventDefault()}>
-            <CategorySelect
-              selectedCategory={category}
-              onChange={(category) => {
-                setCategory(category);
-                setUser({ ...user, categoryId: category?.id || 0 });
-              }}
-            />
-          </div>
+        <Input
+          placeholder='About'
+          variant='light'
+          className='w-full max-w-80'
+          value={expert.about}
+          onChange={(e) => handleChange("about", e.target.value)}
+        />
 
-          {/* Submit Button */}
-          <div className='absolute bottom-0 right-0'>
-            <Button
-              type='submit'
-              className='w-full max-w-28 items-center justify-center rounded-full'
-              sizeOfButton='large'
-              variant='brown'
-              disabled={isUpdating}>
-              {isUpdating ? "Saving..." : "Save"}
-            </Button>
-          </div>
-        </form>
-      </div>
+        {/* Category Selection */}
+        <div onClick={(e) => e.preventDefault()}>
+          <CategorySelect
+            selectedCategory={category}
+            onChange={(category) => {
+              setCategory(category);
+              handleChange("categoryId", category?.id || 0);
+            }}
+          />
+        </div>
+
+        {/* Tags Input */}
+        <div onClick={(e) => e.preventDefault()}>
+          <TagInput
+            tags={expert.tags || []}
+            onTagsChange={(newTags) => handleChange("tags", newTags)}
+          />
+        </div>
+
+        {/* Profile Picture Upload */}
+        <ImageUploader
+          imageUrl={
+            typeof expert.profile_picture === "string"
+              ? new URL(expert.profile_picture, BASE_URL).toString()
+              : ""
+          }
+          onFileChange={(file) => {
+            setImageFile(file);
+          }}
+          buttonText='Upload Profile Picture'
+        />
+
+        <Button
+          type='submit'
+          className='w-full max-w-28 rounded-full'
+          variant='brown'
+          disabled={isUpdating}>
+          {isUpdating ? "Saving..." : "Save Changes"}
+        </Button>
+      </form>
     </div>
   );
 }

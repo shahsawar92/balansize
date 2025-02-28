@@ -1,69 +1,94 @@
 "use client";
 
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import logger from "@/lib/logger";
 import { cn } from "@/lib/utils";
 
 import Table from "@/components/table/Table";
 
+import { BASE_URL } from "@/constant/env";
 import {
   useDeleteExpertMutation,
   useGetExpertsQuery,
 } from "@/redux/api/expert-api";
 
 import { Expert } from "@/types/experts";
-import Image from "next/image";
-import { BASE_URL } from "@/constant/env";
-import { toast } from "react-toastify";
 
 export default function ExpertsPage() {
   const [selectedExperts, setSelectedExperts] = useState<Expert[]>([]);
   const [users, setExperts] = useState<Expert[]>([]);
+  logger(users, "Experts");
   const router = useRouter();
-  const { data: experts, error, isLoading } = useGetExpertsQuery();
+  const { data: experts, error, isLoading, refetch } = useGetExpertsQuery();
   const [deleteExpert] = useDeleteExpertMutation();
+
   useEffect(() => {
     if (experts) {
       setExperts(experts.result);
     }
   }, [experts]);
+
   logger(experts, "experts");
+
   const handleEdit = (user: Expert) => {
-    router.push(`/dashboard/experts/${user.id}/edit`);
+    router.push(`/dashboard/experts/${user.expert_id}/edit`);
   };
 
-  const handleDelete = (user: Expert) => {
-    toast.error(`Deleting ${user.name}`);
-    // deleteExpert(user.id);
-    toast.success(`Deleted ${user.name}`);
+  const handleDelete = async (user: Expert) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `You are about to delete ${user.expert_name}. This action cannot be undone!`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      toast.info(`Deleting ${user.expert_name}...`);
+      try {
+        const res = await deleteExpert(user.expert_id).unwrap();
+        if (res.success === true) {
+          refetch();
+        }
+        toast.success(`${user.expert_name} has been deleted successfully!`);
+      } catch (error) {
+        toast.error("Failed to delete expert. Please try again.");
+      }
+    }
   };
 
   const columns = [
     {
       header: "#",
-      accessor: (expert: Expert) => expert.id.toString(),
+      accessor: (expert: Expert) => expert.expert_id.toString(),
       sortable: false,
     },
     {
       header: "Profile Picture",
-      accessor: (expert: Expert) => (expert.profile_picture ? expert.profile_picture.toString() : ""),
+      accessor: (expert: Expert) =>
+        expert.profile_picture ? expert.profile_picture.toString() : "",
       sortable: false,
       cell: (user: Expert | any) => (
         <Image
           width={40}
           height={40}
           src={BASE_URL + "/" + user.profile_picture}
-          alt={user.name}
+          alt={user.expert_name}
           className='w-10 h-10 rounded-full'
         />
       ),
     },
     {
       header: "Name",
-      accessor: (expert: Expert) => expert.name,
+      accessor: (expert: Expert) => expert.expert_name,
       sortable: true,
     },
     {
@@ -86,7 +111,7 @@ export default function ExpertsPage() {
     },
     {
       header: "Actions",
-      accessor: (expert: Expert) => expert.id.toString(),
+      accessor: (expert: Expert) => expert.expert_id.toString(),
       sortable: false,
       cell: (user: Expert) => (
         <div className='flex items-center gap-3'>
@@ -116,13 +141,18 @@ export default function ExpertsPage() {
     logger(user, "click");
   };
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p>Loading experts...</p>;
   if (error) return <p>Error loading experts</p>;
+
   return (
     <div className='max-w-7xl mx-auto'>
       <Table
-        data={users}
+        data={users.map((user) => ({ ...user, id: user.expert_id }))}
         columns={columns}
+        headerButton={{
+          title: "Add Expert",
+          link: "/dashboard/experts/add",
+        }}
         onRowClick={handleRowClick}
         selectable={false}
         onSelectionChange={setSelectedExperts}

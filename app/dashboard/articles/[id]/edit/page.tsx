@@ -1,6 +1,6 @@
 "use client";
 
-import { Router, Upload } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -10,77 +10,115 @@ import logger from "@/lib/logger";
 import Button from "@/components/buttons/Button";
 import { Card } from "@/components/cards/card";
 import { TextEditor } from "@/components/editor/Editor";
+import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
 import LoadingOverlay from "@/components/loading/LoadingOverlay";
+import CustomSelect from "@/components/select/Select";
 import TagInput from "@/components/tagInput/TagInput";
 
 import CategorySelect from "@/app/_app-components/getCategories";
 import ExpertSelect from "@/app/_app-components/getExperts";
+import { BASE_URL } from "@/constant/env";
 import {
   useAddArticleMutation,
+  useGetArticleQuery,
   useGetArticlesQuery,
+  useUpdateArticleMutation,
+  // useUpdateArticleMutation,
 } from "@/redux/api/articles-api";
 import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
+import { Expert } from "@/types/articles";
 import { Category } from "@/types/categories-types";
-import { Expert } from "@/types/experts";
-import CustomSelect from "@/components/select/Select";
-import { useRouter } from "next/navigation";
-
-type FormState = {
-  title: string;
-  content: string;
-  excerpt: string;
-  tags: string[];
-  type: string;
-  category: Category;
-  min_to_read: number;
-  feature_image: File | null;
-  expert: Expert;
-};
 
 export default function CreateBlog() {
   const role = useSelector(selectUserRole);
-  logger(role, "role");
   const user = useSelector(selectCurrentUser);
-  const router = useRouter();
-  const { refetch } = useGetArticlesQuery();
+  const { id } = useParams();
 
-  const [formData, setFormData] = useState<FormState>({
+  const { data: article } = useGetArticleQuery(Number(id));
+
+  logger(article, "Article Data");
+  const [updateArticle, { isLoading }] = useUpdateArticleMutation();
+  const { refetch } = useGetArticlesQuery();
+  const router = useRouter();
+  const [formData, setFormData] = useState<{
+    title: string;
+    content: string;
+    excerpt: string;
+    type: string;
+    tags: string[];
+    category: Category;
+    min_to_read: number;
+    feature_image: string | null;
+    expert: Expert;
+  }>({
     title: "",
     content: "",
     excerpt: "",
     type: "",
     tags: [],
-    category: { id: 0, name: "", icon: "", translations: [] },
+    category: {
+      id: 0,
+      name: "",
+      icon: "",
+      translations: [],
+    },
     min_to_read: 5,
     feature_image: null,
     expert: user || {
       id: 0,
-      name: "",
+      expert_name: "",
       about: "",
       designation: "",
       profile_picture: "",
     },
   });
 
-  const [addArticle, { isLoading }] = useAddArticleMutation();
+  useEffect(() => {
+    if (article?.data) {
+      const {
+        title,
+        excerpt,
+        content,
+        type,
+        min_to_read,
+        feature_image,
+        category,
+        tags,
+        expert,
+      } = article.data;
+
+      setFormData((prev) => ({
+        ...prev,
+        title,
+        excerpt,
+        content,
+        type,
+        tags: Array.isArray(tags) ? tags.map((tag) => String(tag)) : [],
+        min_to_read,
+        feature_image,
+        category,
+        expert,
+      }));
+    }
+  }, [article]);
 
   logger(formData, "formData");
   useEffect(() => {
     if (role === "Expert" || role === "User") {
       const udata = JSON.parse(user);
       toast.info(`${udata?.name}, you are creating an article as ${role}`);
-      setFormData((prev) => ({ ...prev, expert: udata as Expert }));
+      setFormData((prev) => ({
+        ...prev,
+        expert: { ...udata, id: udata.id },
+      }));
     }
   }, [role, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLoading) {
-      toast.info("Please wait, article is being created...");
-      return;
-    }
+    if (isLoading) return;
 
     if (!formData.title || !formData.content || !formData.category?.id) {
       toast.error("Please fill all required fields!");
@@ -93,7 +131,7 @@ export default function CreateBlog() {
       articleData.append("content", formData.content);
       articleData.append("excerpt", formData.excerpt);
       articleData.append("min_to_read", formData.min_to_read.toString());
-      articleData.append("expertId", formData?.expert?.expert_id.toString());
+      articleData.append("expertId", formData?.expert?.id.toString());
       articleData.append("type", formData.type);
 
       if (formData.feature_image) {
@@ -102,43 +140,53 @@ export default function CreateBlog() {
 
       articleData.append("categoryId", formData.category.id.toString());
 
-      formData.tags.forEach((tag) => {
+      (formData?.tags || []).forEach((tag) => {
         articleData.append("tags[]", tag);
       });
 
-      toast.info("Creating article, please wait...");
-      const response = await addArticle(articleData).unwrap();
+      const response = await updateArticle({
+        id: Number(id),
+        data: articleData,
+      }).unwrap();
 
-      toast.success("Article created successfully!");
-      logger(response, "Article created successfully");
-
+      toast.success("Article updated successfully!");
+      logger(response, "Article updated successfully");
+ 
       await refetch();
-      router.push(`/dashboard/articles`);
+      router.push("/dashboard/articles");
     } catch (error) {
-      logger(error, "Error creating article:");
-      toast.error("Failed to create article. Please try again.");
+      toast.error("Failed to update article. Please try again.");
+      logger(error, "Error updating article:");
     }
   };
 
-  const handleImageUpload = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        setFormData((prev) => ({ ...prev, feature_image: file }));
-      }
-    },
-    []
-  );
+  interface FormData {
+    title: string;
+    content: string;
+    excerpt: string;
+    type: string;
+    tags: string[];
+    category: Category;
+    min_to_read: number;
+    feature_image: File | string | null;
+    expert: Expert;
+  }
+
+  type FormDataField = keyof FormData;
 
   const handleChange = useCallback(
-    <K extends keyof FormState>(field: K, value: FormState[K]) => {
+    <K extends FormDataField>(field: K, value: FormData[K]) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
     },
     []
   );
 
+  logger(formData.feature_image, "featured image");
+
   return (
     <div className='min-h-screen bg-secondary-100 p-6'>
+      {isLoading && <LoadingOverlay />}
+
       <Card className='max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md'>
         <form onSubmit={handleSubmit} className='space-y-6'>
           <h1 className='text-2xl font-bold text-gray-900 mb-8'>
@@ -164,28 +212,11 @@ export default function CreateBlog() {
             className='w-full'
           />
 
-          <div className='flex gap-4 items-center'>
-            <input
-              type='file'
-              accept='image/*'
-              onChange={handleImageUpload}
-              className='hidden'
-              id='image-upload'
-            />
-            <Button
-              type='button'
-              variant='light'
-              className='w-full md:w-auto'
-              onClick={() => document.getElementById("image-upload")?.click()}>
-              <Upload className='w-4 h-4 mr-2' />
-              Upload Featured Image
-            </Button>
-            {formData.feature_image && (
-              <span className='text-sm text-gray-500'>
-                {formData.feature_image.name}
-              </span>
-            )}
-          </div>
+          <ImageUploader
+            imageUrl={(BASE_URL + "/" + formData.feature_image) as string}
+            onFileChange={(file) => handleChange("feature_image", file)}
+            buttonText='Upload Featured Image'
+          />
 
           <div onClick={(e) => e.preventDefault()}>
             <TextEditor
@@ -233,8 +264,36 @@ export default function CreateBlog() {
 
           <div onClick={(e) => e.preventDefault()}>
             <ExpertSelect
-              selectedExpert={formData.expert}
-              onChange={(expert) => expert && handleChange("expert", expert)}
+              selectedExpert={{
+                expert_id: formData.expert.id,
+                expert_name: formData.expert.name,
+                about: formData.expert.about,
+                designation: formData.expert.designation,
+                profile_picture: formData.expert.profile_picture,
+              }}
+              onChange={
+                (expert) =>
+                  expert &&
+                  logger(
+                    {
+                      ...expert,
+
+                      id: expert.expert_id,
+                      name: expert.expert_name,
+                      about: expert.about,
+                      designation: expert.designation,
+                      profile_picture: expert.profile_picture,
+                    },
+                    "selected expert"
+                  )
+                // handleChange("expert", {
+                //   expert_id: expert.id,
+                //   name: expert.expert_name,
+                //   about: expert.about,
+                //   designation: expert.designation,
+                //   profile_picture: expert.profile_picture,
+                // })
+              }
             />
           </div>
 

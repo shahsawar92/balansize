@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import logger from "@/lib/logger";
 
@@ -14,10 +16,10 @@ import Text from "@/components/text/Text";
 import { BASE_URL } from "@/constant/env";
 import {
   useDeleteCategoryMutation,
+  useGetCategoriesQuery,
   useGetCategoryQuery,
   useUpdateCategoryMutation,
 } from "@/redux/api/categories-api";
-
 export default function EditCategoryPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -26,6 +28,7 @@ export default function EditCategoryPage() {
     useUpdateCategoryMutation();
   const [deleteCategory, { isLoading: isDeleting }] =
     useDeleteCategoryMutation();
+  const { refetch } = useGetCategoriesQuery();
 
   const [name, setName] = useState("");
   const [icon, setIcon] = useState<string | File | null>(null);
@@ -39,6 +42,7 @@ export default function EditCategoryPage() {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const translations = [
       {
         language: "en",
@@ -54,21 +58,47 @@ export default function EditCategoryPage() {
     });
 
     try {
+      toast.info("Updating category, please wait...");
       await updateCategory({ id: Number(id), data: formData }).unwrap();
+
+      toast.success("Category updated successfully!");
+      await refetch();
       router.push("/dashboard/categories");
     } catch (error) {
+      toast.error("Failed to update category. Please try again.");
       logger(error, "Failed to update category:");
     }
   };
 
   const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this category?")) {
-      try {
-        await deleteCategory(Number(id)).unwrap();
-        router.push("/dashboard/categories");
-      } catch (error) {
-        logger(error, "Failed to delete category");
-      }
+    const confirmDelete = await Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!confirmDelete.isConfirmed) return;
+
+    try {
+      toast.info("Deleting category, please wait...");
+      await deleteCategory(Number(id)).unwrap();
+
+      Swal.fire("Deleted!", "The category has been deleted.", "success");
+      await refetch();
+      toast.success("Category deleted successfully!");
+      router.push("/dashboard/categories");
+    } catch (error) {
+      Swal.fire(
+        "Error!",
+        "Failed to delete category. Please try again.",
+        "error"
+      );
+      toast.error("Failed to delete category.");
+      logger(error, "Failed to delete category");
     }
   };
 

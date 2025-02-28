@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import logger from "@/lib/logger";
 
@@ -43,6 +44,18 @@ export default function QuestionnairePage() {
   }, [questionsList, isLoading]);
 
   const handleDeleteQuestion = async (id: number) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!result.isConfirmed) return;
+
     toast.info("Deleting question...");
 
     const res = await deleteQuestion(id);
@@ -50,8 +63,7 @@ export default function QuestionnairePage() {
       toast.success("Question deleted!");
       setQuestions((prev) => prev.filter((q) => q.id !== id));
       refetch();
-    }
-    if ("data" in res && res.data?.success === false) {
+    } else {
       toast.error("Failed to delete");
     }
   };

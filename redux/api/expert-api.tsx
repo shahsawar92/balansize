@@ -26,7 +26,7 @@ export const expertApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    addExpert: builder.mutation<ExpertResponse, ExpertRequest>({
+    addExpert: builder.mutation<ExpertResponse, FormData>({
       query: (credentials) => {
         logger(API_URL, "API_URL");
         return {

@@ -5,12 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Card, CardContent } from "@/components/cards/card";
-import logger from "@/lib/logger";
+
 import { BASE_URL } from "@/constant/env";
 import { useGetCategoriesQuery } from "@/redux/api/categories-api";
 
 export default function CategoriesPage() {
-  const { data, isLoading } = useGetCategoriesQuery();
+  const { data, isLoading, refetch } = useGetCategoriesQuery();
 
   if (isLoading) return <p>Loading...</p>;
 

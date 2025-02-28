@@ -7,6 +7,8 @@ import { useViewport } from "@/lib/view-port";
 
 import Input from "../input/Input";
 import Text from "../text/Text";
+import { Link } from "lucide-react";
+import ButtonLink from "../links/ButtonLink";
 
 interface Column<T> {
   header: string;
@@ -20,6 +22,10 @@ interface TableProps<T> {
   data: T[];
   columns: Column<T>[];
   onRowClick?: (row: T) => void;
+  headerButton?: {
+    title: string;
+    link: string;
+  };
   classes?: {
     container?: string;
     table?: string;
@@ -42,6 +48,7 @@ export default function Table<T extends { id: string | number }>({
   onRowClick,
   selectable = false,
   onSelectionChange,
+  headerButton,
   classes,
   itemsPerPage = 10,
   searchTerm = "",
@@ -109,7 +116,32 @@ export default function Table<T extends { id: string | number }>({
   return (
     <div className={cn(`flex flex-col gap-4 `, classes?.container ?? "")}>
       {isSearchable && (
-        <div className='flex justify-end mb-4'>
+        <div
+          className={cn(
+            "flex items-center gap-2",
+            headerButton?.title ? "justify-between" : "justify-end"
+          )}>
+          {/*  children,
+      className,
+      variant = 'primary',
+      size = 'base',
+      isDarkBg = false,
+      leftIcon: LeftIcon,
+      rightIcon: RightIcon,
+      classNames,
+      ...rest */}
+          {headerButton?.title && (
+            <ButtonLink href={headerButton.link} variant='light' size='sm'>
+              <Text
+                variant='main'
+                size='sm'
+                weight='normal'
+                className='cursor-pointer'>
+                {headerButton.title}
+              </Text>
+            </ButtonLink>
+          )}
+
           <Input
             type='text'
             placeholder='Search...'

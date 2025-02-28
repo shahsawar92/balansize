@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import logger from "@/lib/logger";
+
 import Input from "../input/Input";
 
 type TagInputProps = {
@@ -24,6 +26,7 @@ export default function TagInput({ tags, onTagsChange }: TagInputProps) {
     onTagsChange(tags.filter((_, i) => i !== index));
   };
 
+  logger(tags, "tags");
   return (
     <div className='flex gap-2 items-center'>
       {tags.map((tag, index) => (

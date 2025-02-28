@@ -2,19 +2,21 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 import Button from "@/components/buttons/Button";
 
-import { useAddCategoryMutation } from "@/redux/api/categories-api";
-import logger from "@/lib/logger";
-
+import {
+  useAddCategoryMutation,
+  useGetCategoriesQuery,
+} from "@/redux/api/categories-api";
 
 export default function NewCategoryPage() {
   const router = useRouter();
   const [name, setName] = useState<string>("");
   const [icon, setIcon] = useState<File | null>(null);
-  logger(icon, "icon");
-  logger(name, "name");
+  const { refetch } = useGetCategoriesQuery();
+
   //   const [translations, setTranslations] = useState<
   //     { language: string; name: string }[]
   //   >([
@@ -37,7 +39,7 @@ export default function NewCategoryPage() {
     e.preventDefault();
 
     if (!name.trim()) {
-      alert("Category name is required.");
+      toast.error("Category name is required");
       return;
     }
 
@@ -55,7 +57,8 @@ export default function NewCategoryPage() {
 
     try {
       const res = await addCategory(formData).unwrap();
-      logger(res, "res");
+      res && toast.success("Category added successfully");
+      await refetch();
       router.push("/dashboard/categories");
     } catch (error) {
       console.error("Failed to add category:", error);

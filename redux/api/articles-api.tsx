@@ -5,7 +5,12 @@ import { API_URL } from "@/constant/env";
 import { selectCurrentToken } from "../features/auth-slice";
 import { RootState } from "../store";
 
-import { Article, ArticleResponse, DeleteResponse } from "@/types/articles";
+import {
+  Article,
+  ArticleResponse,
+  DeleteResponse,
+  singleArticleResponse,
+} from "@/types/articles";
 
 export const articleApi = createApi({
   reducerPath: "articleApi",
@@ -34,7 +39,7 @@ export const articleApi = createApi({
         method: "GET",
       }),
     }),
-    getArticle: builder.query<ArticleResponse, number>({
+    getArticle: builder.query<singleArticleResponse, number>({
       query: (id) => ({
         url: `/articles/${id}`,
         method: "GET",
@@ -42,11 +47,11 @@ export const articleApi = createApi({
     }),
     updateArticle: builder.mutation<
       ArticleResponse,
-      { id: number; data: Article }
+      { id: number; data: FormData }
     >({
       query: ({ id, data }) => ({
         url: `/articles/${id}`,
-        method: "PUT",
+        method: "PATCH",
         body: data,
       }),
     }),

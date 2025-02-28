@@ -2,45 +2,87 @@
 import { Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+
+import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
+import ButtonLink from "@/components/links/ButtonLink";
 import Separator from "@/components/seperator/Seperator";
 import Text from "@/components/text/Text";
-import { useGetArticleQuery } from "@/redux/api/articles-api";
-import path from "path";
-import logger from "@/lib/logger";
-import { usePathname, useRouter } from "next/navigation";
 
-interface BlogPost {
-  title: string;
-  author: string;
-  content: string;
-  image: string;
-  benefits: string[];
-}
+import { BASE_URL } from "@/constant/env";
+import {
+  useDeleteArticleMutation,
+  useGetArticleQuery,
+  useGetArticlesQuery,
+} from "@/redux/api/articles-api";
 
 export default function BlogPost() {
   const pathname = usePathname();
-  logger(pathname, "pathname");
-  const artilcleId = pathname.split("/").pop();
-  const { data, isLoading } = useGetArticleQuery(Number(artilcleId));
+  const articleId = pathname.split("/").pop();
+  const { refetch } = useGetArticlesQuery();
 
-  logger(data, "data");
+  const router = useRouter();
+  const { data, isLoading } = useGetArticleQuery(Number(articleId));
+  // useDeleteArticleMutation
+  const [deleteArticle] = useDeleteArticleMutation();
 
-  const post: BlogPost = {
-    title: "5 Benefits of Zumba for Weight Loss",
-    author: "Anna Deer",
+  const handleDelete = async () => {
+    const confirmDelete = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-    content:
-      "Zumba is more than just a dance; it's a high-energy workout that combines fun and fitness. Whether you're a seasoned dancer or a complete beginner, Zumba can be an effective way to shed pounds and get your heart pumping.",
-    image: "/images/blog2.png",
-    benefits: [
-      "Burns Calories Fast: A single Zumba session can burn up to 600 calories, making it one of the most effective workouts for those aiming to lose weight.",
-      "Full Body Workout: The dance movements provide a full-body group helping tone your body while improving overall strength and flexibility.",
-      "Boosts Metabolism: The mix of cardio and interval training keeps your metabolism elevated long after your workout is complete.",
-      "Reduces Stress: Dancing releases endorphins, reducing stress and helping you stay motivated in your fitness journey.",
-    ],
+    if (!confirmDelete.isConfirmed) return;
+
+    try {
+      toast.info("Deleting article, please wait...");
+      const { data } = await deleteArticle(Number(articleId));
+
+      if (data?.success) {
+        Swal.fire("Deleted!", "The article has been deleted.", "success");
+        await refetch();
+        router.push("/dashboard/articles");
+      } else {
+        Swal.fire(
+          "Error!",
+          "Failed to delete article. Please try again.",
+          "error"
+        );
+      }
+    } catch (error) {
+      Swal.fire(
+        "Error!",
+        "An error occurred while deleting the article.",
+        "error"
+      );
+      logger(error, "Error deleting article:");
+    }
   };
+
+  logger(data, "Fetched Article Data");
+
+  if (isLoading) return <p>Loading...</p>;
+  if (!data?.data) return <p>Article not found.</p>;
+
+  const {
+    title,
+    excerpt,
+    content,
+    min_to_read,
+    feature_image,
+    category,
+    expert,
+  } = data.data;
 
   return (
     <div className='min-h-screen bg-secondary-100 p-6 md:p-8'>
@@ -50,32 +92,33 @@ export default function BlogPost() {
           <div className='relative'>
             <div className='relative aspect-square overflow-hidden rounded-lg'>
               <Image
-                src={post.image}
-                alt={post.title}
+                src={`${BASE_URL}/${feature_image}`}
+                alt={title}
                 fill
                 className='object-cover'
                 priority
               />
             </div>
             <div className='absolute top-4 left-4 flex gap-2'>
-              <Button
-                variant='brown'
-                sizeOfButton='sm'
+              <ButtonLink
+                href={`/dashboard/articles/${articleId}/edit`}
+                variant='light'
                 className='bg-background/80 backdrop-blur-sm'>
                 <Edit className='w-4 h-4 mr-2' />
                 Edit
-              </Button>
+              </ButtonLink>
               <Button
                 variant='brown'
                 sizeOfButton='sm'
-                className='bg-background/80 backdrop-blur-sm'>
+                className='bg-background/80 backdrop-blur-sm'
+                onClick={handleDelete}>
                 <Trash2 className='w-4 h-4 mr-2' />
                 Delete
               </Button>
             </div>
           </div>
 
-          {/* Right Column - Content */}
+          {/* Right Column - Article Content */}
           <div className='space-y-6'>
             <div>
               <Text
@@ -84,63 +127,71 @@ export default function BlogPost() {
                 weight='bold'
                 tagName='h1'
                 classNames='mb-1'>
-                {post.title}
+                {title}
               </Text>
 
               <Text variant='thirtery' size='sm' tagName='p'>
-                3 min read
+                {min_to_read} min read
               </Text>
 
-              <Text
-                variant='secondary'
-                size='lg'
-                tagName='h4'
-                classNames='mt-3'>
-                {post.author}
+              {/* Category Display */}
+              {category && (
+                <div className='flex items-center gap-2 mt-2'>
+                  <Image
+                    src={`${BASE_URL}/${category.icon}`}
+                    alt={category.name}
+                    width={24}
+                    height={24}
+                    className='rounded-full'
+                  />
+                  <Text variant='secondary' size='lg' tagName='p'>
+                    {category.name}
+                  </Text>
+                </div>
+              )}
+
+              <Separator
+                orientation='horizontal'
+                color='muted'
+                thickness='medium'
+                className='bg-text-3 my-4'
+              />
+
+              <Text variant='secondary' size='lg' tagName='h4'>
+                {excerpt}
               </Text>
-              <Text variant='thirtery' size='sm' tagName='p'>
-                Fitness Coach
-              </Text>
+
+              <div
+                className='prose prose-gray max-w-none mt-4'
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
             </div>
 
-            <Separator
-              orientation='horizontal'
-              color='muted'
-              thickness='medium'
-              className='bg-text-3'
-            />
+            {/* Expert Section */}
+            {expert && (
+              <div className='flex items-center gap-4 mt-6 p-4 border rounded-lg bg-background shadow'>
+                <Image
+                  src={`${BASE_URL}/${expert.profile_picture}`}
+                  alt={expert.name}
+                  width={64}
+                  height={64}
+                  className='rounded-full'
+                />
+                <div>
+                  <Text variant='main' size='lg' weight='bold'>
+                    {expert.name}
+                  </Text>
+                  <Text variant='thirtery' size='sm'>
+                    {expert.designation}
+                  </Text>
+                  <Text variant='secondary' size='sm' classNames='mt-2'>
+                    {expert.about}
+                  </Text>
+                </div>
+              </div>
+            )}
 
-            <div className='prose prose-gray max-w-none'>
-              <Text variant='secondary' size='sm' tagName='p' classNames='mt-3'>
-                {post.content}
-              </Text>
-
-              <Text
-                variant='main'
-                weight='bold'
-                size='lg'
-                tagName='h3'
-                classNames='mt-3'>
-                Benefits of Zumba
-              </Text>
-              <h2 className='text-xl font-semibold  mt-6 mb-4'></h2>
-
-              <ul className='space-y-4 list-none pl-0'>
-                {post.benefits.map((benefit, index) => (
-                  <li key={index} className='flex gap-2'>
-                    <span className='font-medium text-main-brown'>•</span>
-                    <Text
-                      variant='secondary'
-                      size='sm'
-                      tagName='p'
-                      classNames=''>
-                      {benefit}
-                    </Text>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
+            {/* Back Button */}
             <div className='pt-6'>
               <Link href='/dashboard/articles'>
                 <Button variant='brown'>

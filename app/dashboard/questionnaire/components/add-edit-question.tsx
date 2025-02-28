@@ -7,11 +7,11 @@ import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
 import Input from "@/components/input/Input";
-import CustomSelect from "@/components/select/Select";
 import { Switch } from "@/components/switch/switch";
 import TagInput from "@/components/tagInput/TagInput";
 import Text from "@/components/text/Text";
 
+import CategorySelect from "@/app/_app-components/getCategories";
 import { useGetCategoriesQuery } from "@/redux/api/categories-api";
 import {
   useAddQuestionMutation,
@@ -21,7 +21,6 @@ import {
 
 import { Category } from "@/types/categories-types";
 import { Question } from "@/types/questions";
-import CategorySelect from "@/app/_app-components/getCategories";
 
 export default function AddQuestion({
   editingQuestion,
@@ -156,6 +155,9 @@ export default function AddQuestion({
   const resetForm = () => {
     setNewQuestion("");
     setOptions([{ name: "", tags: [], tagInput: "" }]);
+    setCategories(undefined); // Reset category selection
+    setAllowMultipleSelection(false); // Reset switch to default
+    setIsQuestioner(true); // Reset switch to default
     setIsEditing(false);
     setEditId(null);
   };
