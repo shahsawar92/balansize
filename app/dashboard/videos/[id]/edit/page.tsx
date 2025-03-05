@@ -1,45 +1,187 @@
 "use client";
 
 import { Play } from "lucide-react";
-import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback,useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
+import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
 import { Card } from "@/components/cards/card";
+import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
 import CustomSelect from "@/components/select/Select";
+import TagInput from "@/components/tagInput/TagInput";
 
-export default function CreateVideo() {
-  const [formData, setFormData] = useState({
+import CategorySelect from "@/app/_app-components/getCategories";
+import ExpertSelect from "@/app/_app-components/getExperts";
+import { useGetCoursesQuery } from "@/redux/api/courses-api";
+import {
+  useGetVideoQuery,
+  useUpdateVideoMutation,
+} from "@/redux/api/videos-api";
+import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
+
+import { Category } from "@/types/categories-types";
+import { Expert } from "@/types/experts";
+
+type FormState = {
+  title: string;
+  link: File | string;
+  type: string;
+  category: Category;
+  thumbnail: File | string;
+  tags: string[];
+  expert: Expert;
+};
+
+export default function EditVideo() {
+  const role = useSelector(selectUserRole);
+  const user = useSelector(selectCurrentUser);
+  const { id } = useParams();
+  const { data: videoData, isLoading: videoLoading } = useGetVideoQuery(
+    Array.isArray(id) ? id[0] : id
+  );
+  const router = useRouter();
+  const { refetch } = useGetCoursesQuery();
+  const [updateVideo, { isLoading }] = useUpdateVideoMutation();
+  logger(videoData, "videoDataaaaaaaa");
+  const [formData, setFormData] = useState<FormState>({
     title: "",
-    description: "",
-    tags: "",
-    category: "",
-    video: null as File | null,
+    link: "", // Initially, a string (URL) from API
+    type: "",
+    tags: [],
+    category: { id: 0, name: "", icon: "", translations: [] },
+    thumbnail: "", // Initially, a string (URL) from API
+    expert: user
+      ? {
+          expert_id: user.id ?? 0,
+          expert_name: user.name ?? "",
+          about: user.about ?? "",
+          designation: user.designation ?? "",
+          profile_picture: user.profile_picture ?? "",
+        }
+      : {
+          expert_id: 0,
+          expert_name: "",
+          about: "",
+          designation: "",
+          profile_picture: "",
+        },
   });
+
+  useEffect(() => {
+    if (videoData?.data) {
+      const localData = videoData.data;
+      setFormData({
+        title: localData.title,
+        link: localData.link, // URL from API
+        type: localData.type,
+        tags: localData.tags || [],
+        category: {
+          id: localData.category.id,
+          name: localData.category.name,
+          icon: "",
+          translations: [],
+        },
+        thumbnail: localData.thumbnail,
+        expert: {
+          expert_id: localData.expert.id,
+          expert_name: localData.expert.name,
+          about: "",
+          designation: "",
+          profile_picture: "",
+        },
+      });
+    }
+  }, [videoData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
-  };
+    if (isLoading) {
+      toast.info("Please wait, updating video...");
+      return;
+    }
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData((prev) => ({ ...prev, video: e.target.files![0] }));
+    if (!formData.title || !formData.category?.id) {
+      toast.error("Please fill all required fields!");
+      return;
+    }
+
+    try {
+      const videoFormData = new FormData();
+      videoFormData.append("title", formData.title);
+      videoFormData.append("type", formData.type);
+      videoFormData.append("categoryId", formData.category.id.toString());
+      videoFormData.append("expertId", formData.expert.expert_id.toString());
+      formData.tags.forEach((tag) => {
+        videoFormData.append("tags[]", tag);
+      });
+
+      if (formData.link instanceof File) {
+        videoFormData.append("link", formData.link);
+      } else {
+        videoFormData.append("link_url", formData.link);
+      }
+
+      if (formData.thumbnail instanceof File) {
+        videoFormData.append("thumbnail", formData.thumbnail);
+      } else {
+        videoFormData.append("thumbnail_url", formData.thumbnail);
+      }
+
+      toast.info("Updating video, please wait...");
+      await updateVideo({
+        id: Number(Array.isArray(id) ? id[0] : id),
+        data: videoFormData,
+      });
+
+      toast.success("Video updated successfully!");
+      refetch();
+      router.push(`/dashboard/videos`);
+    } catch (error) {
+      logger(error, "Error updating video:");
+      toast.error("Failed to update video. Please try again.");
     }
   };
 
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "link" | "thumbnail"
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData((prev) => ({ ...prev, [field]: file }));
+    }
+  };
+
+  const handleChange = useCallback(
+    <K extends keyof FormState>(field: K, value: FormState[K]) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
+
   return (
     <div>
-      <Card className=' min-h-screen bg-secondary-100 p-10 rounded-2xl'>
+      <Card className='min-h-screen bg-secondary-100 p-10 rounded-2xl'>
         <form
           onSubmit={handleSubmit}
-          className='grid md:grid-cols-[400px,1fr] gap-8'>
+          className='grid lg:grid-cols-[400px,1fr] gap-8'>
           {/* Video Upload Section */}
           <div className='space-y-6'>
             <div className='relative aspect-video bg-[#EAE9EA] rounded-2xl flex items-center justify-center'>
-              {formData.video ? (
+              {formData.link && typeof formData.link === "string" ? (
                 <video
-                  src={URL.createObjectURL(formData.video)}
+                  src={formData.link}
+                  className='w-full h-full object-cover rounded-2xl'
+                  controls
+                />
+              ) : formData.link instanceof File ? (
+                <video
+                  src={URL.createObjectURL(formData.link)}
                   className='w-full h-full object-cover rounded-2xl'
                   controls
                 />
@@ -48,10 +190,9 @@ export default function CreateVideo() {
                   <Input
                     type='file'
                     accept='video/*'
-                    onChange={handleVideoUpload}
+                    onChange={(e) => handleFileChange(e, "link")}
                     className='hidden'
                     id='video-upload'
-                    classNames={{ container: "shadow-md " }}
                   />
                   <button
                     type='button'
@@ -65,69 +206,70 @@ export default function CreateVideo() {
                 </div>
               )}
             </div>
-            <CustomSelect
-              label='Choose an option'
-              value={formData.category}
-              onChange={(value: string) =>
-                setFormData((prev) => ({ ...prev, category: value }))
+
+            <ImageUploader
+              imageUrl={
+                typeof formData.thumbnail === "string"
+                  ? formData.thumbnail
+                  : URL.createObjectURL(formData.thumbnail)
               }
-              options={[
-                { label: "Option 1", value: "option_1" },
-                { label: "Option 2", value: "option_2" },
-                { label: "Option 3", value: "option_3" },
-              ]}
-              placeholder='Category'
-              variant='light'
-              size='large'
-              withBorder={true}
-              classNames={{
-                trigger: "w-full rounded-2xl",
-                selected: "text-opacity-80",
-              }}
+              onFileChange={(file) =>
+                setFormData((prev) => ({ ...prev, thumbnail: file }))
+              }
+              buttonText='Upload Thumbnail'
             />
           </div>
 
           {/* Form Fields Section */}
           <div className='space-y-6'>
-            {/* Title Input */}
             <Input
               placeholder='Title'
               value={formData.title}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, title: e.target.value }))
-              }
+              onChange={(e) => handleChange("title", e.target.value)}
               variant='light'
               sizeOfInput='large'
-              className='w-full rounded-2xl '
+              className='w-full rounded-2xl'
             />
+            <div onClick={(e) => e.preventDefault()}>
+              <CustomSelect
+                label='Choose Type'
+                value={formData.type}
+                onChange={(value) => handleChange("type", value)}
+                options={[
+                  { label: "general", value: "general" },
+                  { label: "meditation", value: "meditation" },
+                  { label: "recipe", value: "recipe" },
+                ]}
+                placeholder='Type'
+                variant='light'
+                size='base'
+                withBorder={true}
+                classNames={{
+                  trigger: "w-full flex rounded-full border ",
+                  selected: "text-opacity-80",
+                }}
+              />
+            </div>
 
-            {/* Description */}
-            <textarea
-              value={formData.description}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  description: e.target.value,
-                }))
-              }
-              placeholder='Description'
-              className='w-full p-3 border border-secondary-500  rounded-2xl  focus:ring-secondary-500'
-              rows={6}
+            <TagInput
+              tags={formData.tags}
+              onTagsChange={(newTags) => handleChange("tags", newTags)}
             />
+            <div onClick={(e) => e.preventDefault()}>
+              <CategorySelect
+                selectedCategory={formData.category}
+                onChange={(category) =>
+                  category && handleChange("category", category)
+                }
+              />
+            </div>
+            <div onClick={(e) => e.preventDefault()}>
+              <ExpertSelect
+                selectedExpert={formData.expert}
+                onChange={(expert) => expert && handleChange("expert", expert)}
+              />
+            </div>
 
-            {/* Tags */}
-            <Input
-              placeholder='Tags'
-              value={formData.tags}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, tags: e.target.value }))
-              }
-              variant='light'
-              sizeOfInput='large'
-              className='w-full rounded-2xl '
-            />
-
-            {/* Submit Button */}
             <div className='flex justify-end'>
               <Button
                 type='submit'

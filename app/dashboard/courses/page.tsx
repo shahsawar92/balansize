@@ -2,19 +2,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/buttons/Button";
 import { Card, CardContent } from "@/components/cards/card";
 import CustomSelect from "@/components/select/Select";
 import Text from "@/components/text/Text";
-import { useGetCoursesQuery } from "@/redux/api/courses-api";
+
 import { BASE_URL } from "@/constant/env";
+import { useGetCoursesQuery } from "@/redux/api/courses-api";
 
 export default function CoursesPage() {
   const { data, error, isLoading } = useGetCoursesQuery();
   const [formData, setFormData] = useState({ category: "" });
-
+  const router = useRouter();
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error fetching courses.</p>;
 
@@ -47,6 +49,9 @@ export default function CoursesPage() {
           type='submit'
           className='max-w-72 items-center justify-center rounded-full'
           sizeOfButton='large'
+          onClick={() => {
+            router.push("/dashboard/courses/new");
+          }}
           variant='brown'>
           Upload new course
         </Button>

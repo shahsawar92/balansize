@@ -1,11 +1,12 @@
 "use client";
 
 import { Edit, Trash2, Upload } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
+
 import Button from "@/components/buttons/Button";
 import { Card } from "@/components/cards/card";
 import Separator from "@/components/seperator/Seperator";
-import Image from "next/image";
 
 interface Lesson {
   day: number;

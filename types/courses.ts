@@ -1,3 +1,5 @@
+import { Category } from "./categories-types";
+
 export interface Course {
   course_id: number;
   title: string;
@@ -6,7 +8,7 @@ export interface Course {
     id: number;
     name: string;
   };
-  category: string | null;
+  category: Category;
   tags: string[];
 }
 

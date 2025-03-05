@@ -25,7 +25,7 @@ export default function BlogPage() {
     return (
       <div className='min-h-screen bg-secondary-100 rounded-2xl p-6 md:p-8'>
         <div className='text-center text-gray-500'>
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6'>
             <Card className='group h-40 mt-4 bg-transparent'>
               <Link href='/dashboard/articles/new' className='block h-full'>
                 <CardContent className='flex flex-col items-center justify-center h-full p-6'>
@@ -45,7 +45,7 @@ export default function BlogPage() {
   }
   return (
     <div className='min-h-screen bg-secondary-100 rounded-2xl p-6 md:p-8'>
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-6'>
         <Card className='group h-40 mt-4 bg-transparent'>
           <Link href='/dashboard/articles/new' className='block h-full'>
             <CardContent className='flex flex-col items-center justify-center h-full p-6'>

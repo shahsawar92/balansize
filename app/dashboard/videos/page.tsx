@@ -1,18 +1,22 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
+import Button from "@/components/buttons/Button";
 import { Card, CardContent } from "@/components/cards/card";
 import CustomSelect from "@/components/select/Select";
-import Button from "@/components/buttons/Button";
-import { useState } from "react";
-import { mockVideos } from "@/data/mock-videos";
+
+import { BASE_URL } from "@/constant/env";
+import { useGetVideosQuery } from "@/redux/api/videos-api";
 
 export default function BlogPage() {
   const [formData, setFormData] = useState({ category: "" });
-  // Sample blog posts data
+  const { data, error, isLoading } = useGetVideosQuery();
+
+  if (isLoading) return <p>Loading videos...</p>;
+  if (error) return <p>Error loading videos.</p>;
 
   return (
     <div className='min-h-screen bg-secondary-100 rounded-2xl p-6 md:p-8'>
@@ -45,31 +49,31 @@ export default function BlogPage() {
         </Button>
       </div>
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6'>
-        {mockVideos.map((post, index) => (
+        {data?.data.map((video) => (
           <Card
-            key={index}
-            className='group  overflow-hidden p-0 bg-transparent rounded-lg shadow-none border-none'>
+            key={video.video_id}
+            className='group overflow-hidden p-0 bg-transparent rounded-lg shadow-none border-none'>
             <Link
-              href={`/dashboard/videos/${post.slug}/view`}
+              href={`/dashboard/videos/${video.video_id}/view`}
               className='block h-full'>
               <CardContent className='p-0 rounded-none'>
                 <div className='relative h-48 w-full'>
                   <Image
-                    src={post.video}
-                    alt={post.title}
+                    src={`${BASE_URL}/${video.thumbnail}`}
+                    alt={video.title}
                     fill
                     className='object-contain'
                   />
                 </div>
                 <div className='p-1'>
                   <h3 className='font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors text-main-black'>
-                    {post.title}
+                    {video.title}
                   </h3>
                   <p className='text-sm text-muted-foreground mb-4 line-clamp-2 text-text-2'>
-                    {post.description}
+                    {video.type}
                   </p>
                   <p className='text-xs text-muted-foreground text-text-3'>
-                    {post.category}
+                    {video.category.name}
                   </p>
                 </div>
               </CardContent>

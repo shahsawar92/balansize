@@ -10,7 +10,7 @@ interface ImageUploaderProps {
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({
-  imageUrl = "/default-avatar.png",
+  imageUrl = "/images/placeholder.png",
   onFileChange,
   buttonText = "Upload Photo",
 }) => {

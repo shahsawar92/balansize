@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -15,9 +15,11 @@ import TagInput from "@/components/tagInput/TagInput";
 
 import CategorySelect from "@/app/_app-components/getCategories";
 import ExpertSelect from "@/app/_app-components/getExperts";
+import { BASE_URL } from "@/constant/env";
 import {
-  useAddCourseMutation,
+  useGetCourseQuery,
   useGetCoursesQuery,
+  useUpdateCourseMutation,
 } from "@/redux/api/courses-api";
 import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
@@ -28,7 +30,7 @@ type FormState = {
   title: string;
   tags: string[];
   category: Category;
-  featured_image: File | null;
+  featured_image: File | string | null;
   expert: Expert;
 };
 
@@ -37,30 +39,58 @@ export default function CreateBlog() {
   logger(role, "role");
   const user = useSelector(selectCurrentUser);
   const router = useRouter();
+  const [addCourse, { isLoading: courseLoading }] = useUpdateCourseMutation();
+  const { id } = useParams();
+  const { data, isLoading } = useGetCourseQuery(Array.isArray(id) ? id[0] : id);
   const { refetch } = useGetCoursesQuery();
+  logger(data, "data");
+  useEffect(() => {
+    if (data?.data) {
+      const { featured_image, expert, ...restData } = data.data;
+      const mappedExpert: Expert = {
+        expert_id: expert.id,
+        expert_name: expert.name,
+        about: "",
+        designation: "",
+        profile_picture: "",
+        ...expert,
+      };
+      setFormData((prev) => ({
+        ...prev,
+        ...restData,
+        expert: mappedExpert,
+        featured_image: featured_image,
+      }));
+    }
+  }, [data]);
 
   const [formData, setFormData] = useState<FormState>({
     title: "",
     tags: [],
     category: { id: 0, name: "", icon: "", translations: [] },
     featured_image: null,
-    expert: user || {
-      id: 0,
-      name: "",
-      about: "",
-      designation: "",
-      profile_picture: "",
-    },
+    expert: user
+      ? {
+          expert_id: user.id ?? 0,
+          expert_name: user.name ?? "",
+          about: user.about ?? "",
+          designation: user.designation ?? "",
+          profile_picture: user.profile_picture ?? "",
+        }
+      : {
+          expert_id: 0,
+          expert_name: "",
+          about: "",
+          designation: "",
+          profile_picture: "",
+        },
   });
-
-  const [addCourse, { isLoading }] = useAddCourseMutation();
 
   logger(formData, "formData");
   useEffect(() => {
     if (role === "Expert" || role === "User") {
-      const udata = JSON.parse(user);
-      toast.info(`${udata?.name}, you are creating an article as ${role}`);
-      setFormData((prev) => ({ ...prev, expert: udata as Expert }));
+      toast.info(`${user?.name}, you are creating an article as ${role}`);
+      setFormData((prev) => ({ ...prev, expert: user }));
     }
   }, [role, user]);
 
@@ -71,7 +101,11 @@ export default function CreateBlog() {
       return;
     }
 
-    if (!formData.title || !formData.category?.id) {
+    if (
+      !formData.title ||
+      !formData.category?.id ||
+      !formData.expert?.expert_id
+    ) {
       toast.error("Please fill all required fields!");
       return;
     }
@@ -79,21 +113,25 @@ export default function CreateBlog() {
     try {
       const articleData = new FormData();
       articleData.append("title", formData.title);
-
-      articleData.append("expertId", formData?.expert?.expert_id.toString());
+      articleData.append(
+        "expertId",
+        (formData.expert.expert_id ?? 0).toString()
+      );
+      articleData.append("categoryId", formData.category.id.toString());
 
       if (formData.featured_image) {
         articleData.append("featured_image", formData.featured_image);
       }
-
-      articleData.append("categoryId", formData.category.id.toString());
 
       formData.tags.forEach((tag) => {
         articleData.append("tags[]", tag);
       });
 
       toast.info("Creating article, please wait...");
-      const response = await addCourse(articleData).unwrap();
+      const response = await addCourse({
+        id: parseInt(Array.isArray(id) ? id[0] : id),
+        data: articleData,
+      });
 
       toast.success("Article created successfully!");
       logger(response, "Article created successfully");
@@ -105,7 +143,6 @@ export default function CreateBlog() {
       toast.error("Failed to create article. Please try again.");
     }
   };
-
 
   const handleChange = useCallback(
     <K extends keyof FormState>(field: K, value: FormState[K]) => {
@@ -134,13 +171,15 @@ export default function CreateBlog() {
 
           <ImageUploader
             imageUrl={
-              formData.featured_image
+              formData.featured_image instanceof File
                 ? URL.createObjectURL(formData.featured_image)
-                : "/images/placeholder.png"
+                : BASE_URL + "/" + formData.featured_image ||
+                  "/images/placeholder.png"
             }
             onFileChange={(file) =>
               setFormData((prev) => ({ ...prev, featured_image: file }))
             }
+            buttonText='Upload Featured Image'
           />
 
           <div onClick={(e) => e.preventDefault()}>
