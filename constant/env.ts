@@ -17,3 +17,6 @@ export const BASE_URL = isProd
   : usingNGROK
     ? "https://8zrc3pcc-4000.inc1.devtunnels.ms"
     : "https://staging.balansize.com";
+
+export const editorKey = "9t2013wyl9fddg51poprfagpmv9n4ms1va1c9qiff2xlqt74";
+// teh key fsbnr3zlo2q5fwqpmqb4jdwe24d8to5v8jtu00dbh87piwca

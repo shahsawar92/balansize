@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import { Editor as TinyMCEEditorType } from "tinymce";
+import { editorKey } from "@/constant/env";
 
 type TinyMCEEditorProps = {
   initialValue: string;
@@ -20,7 +21,7 @@ export const TextEditor = ({
   return (
     <>
       <Editor
-        apiKey='fsbnr3zlo2q5fwqpmqb4jdwe24d8to5v8jtu00dbh87piwca'
+        apiKey={editorKey}
         onInit={(_, editor) => (editorRef.current = editor)}
         value={initialValue}
         init={{

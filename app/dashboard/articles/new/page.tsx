@@ -26,6 +26,7 @@ import { Category } from "@/types/categories-types";
 import { Expert } from "@/types/experts";
 import CustomSelect from "@/components/select/Select";
 import { useRouter } from "next/navigation";
+import ImageUploader from "@/components/ImageUploader/ImageUploader";
 
 type FormState = {
   title: string;
@@ -144,7 +145,6 @@ export default function CreateBlog() {
           <h1 className='text-2xl font-bold text-gray-900 mb-8'>
             Create New Article
           </h1>
-
           <Input
             placeholder='Title'
             value={formData.title}
@@ -154,7 +154,6 @@ export default function CreateBlog() {
             className='w-full'
             required
           />
-
           <Input
             placeholder='Excerpt'
             value={formData.excerpt}
@@ -163,29 +162,17 @@ export default function CreateBlog() {
             sizeOfInput='base'
             className='w-full'
           />
-
-          <div className='flex gap-4 items-center'>
-            <input
-              type='file'
-              accept='image/*'
-              onChange={handleImageUpload}
-              className='hidden'
-              id='image-upload'
-            />
-            <Button
-              type='button'
-              variant='light'
-              className='w-full md:w-auto'
-              onClick={() => document.getElementById("image-upload")?.click()}>
-              <Upload className='w-4 h-4 mr-2' />
-              Upload Featured Image
-            </Button>
-            {formData.feature_image && (
-              <span className='text-sm text-gray-500'>
-                {formData.feature_image.name}
-              </span>
-            )}
-          </div>
+          {/* imageUrl = "/images/placeholder.png", onFileChange, buttonText =
+          "Upload Photo", */}
+          <ImageUploader
+            imageUrl={
+              formData.feature_image
+                ? URL.createObjectURL(formData.feature_image)
+                : "/images/placeholder.png"
+            }
+            onFileChange={(file) => handleChange("feature_image", file)}
+            buttonText='Upload Featured Image'
+          />
 
           <div onClick={(e) => e.preventDefault()}>
             <TextEditor
@@ -194,7 +181,6 @@ export default function CreateBlog() {
               onChange={(content) => handleChange("content", content)}
             />
           </div>
-
           <div onClick={(e) => e.preventDefault()}>
             <CustomSelect
               label='Type'
@@ -214,14 +200,12 @@ export default function CreateBlog() {
               }}
             />
           </div>
-
           <div onClick={(e) => e.preventDefault()}>
             <TagInput
               tags={formData.tags}
               onTagsChange={(newTags) => handleChange("tags", newTags)}
             />
           </div>
-
           <div onClick={(e) => e.preventDefault()}>
             <CategorySelect
               selectedCategory={formData.category}
@@ -230,14 +214,12 @@ export default function CreateBlog() {
               }
             />
           </div>
-
           <div onClick={(e) => e.preventDefault()}>
             <ExpertSelect
               selectedExpert={formData.expert}
               onChange={(expert) => expert && handleChange("expert", expert)}
             />
           </div>
-
           <div className='flex justify-end'>
             <Button
               type='submit'
