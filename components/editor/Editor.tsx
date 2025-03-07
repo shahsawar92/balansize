@@ -7,12 +7,14 @@ import { editorKey } from "@/constant/env";
 
 type TinyMCEEditorProps = {
   initialValue: string;
+  placeholder?: string;
   height: number;
   onChange: (content: string, editor: TinyMCEEditorType) => void;
 };
 
 export const TextEditor = ({
   initialValue,
+  placeholder,
   height,
   onChange,
 }: TinyMCEEditorProps): JSX.Element => {
@@ -25,9 +27,10 @@ export const TextEditor = ({
         onInit={(_, editor) => (editorRef.current = editor)}
         value={initialValue}
         init={{
+          placeholder: placeholder,
           height,
           menubar: false,
-          directionality: "ltr", // Ensure left-to-right typing
+          directionality: "ltr",
           plugins: [
             "directionality",
             "advlist",

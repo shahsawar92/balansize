@@ -147,6 +147,14 @@ export default function QuestionnairePage() {
     }
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const questionsPerPage = 5;
+  const totalPages = Math.ceil(questions.length / questionsPerPage);
+
+  const paginatedQuestions = questions.slice(
+    (currentPage - 1) * questionsPerPage,
+    currentPage * questionsPerPage
+  );
   return (
     <div className='w-full bg-secondary-100 rounded-2xl py-5 px-5 mx-auto'>
       <AddQuestion editingQuestion={editingQuestion} />
@@ -158,7 +166,7 @@ export default function QuestionnairePage() {
         {isLoading ? (
           <Text>Loading...</Text>
         ) : (
-          questions.map((q) => (
+          paginatedQuestions.map((q) => (
             <QuestionCard
               key={q.id}
               question={q}
@@ -178,21 +186,31 @@ export default function QuestionnairePage() {
             />
           ))
         )}
-
-        {selectedTranslation?.baseOtionsLength && (
-          <TranslationModal
-            isOpen={isModalOpen}
-            onClose={() => {
-              setIsModalOpen(false);
-              setSelectedTranslation(null);
-              setQuestionId(null);
-            }}
-            isLoading={isUpdateLoading}
-            questionId={questionId}
-            translation={selectedTranslation}
-            onSave={handleSaveTranslation}
-          />
-        )}
+      </div>
+      {/* Pagination Controls */}
+      <div className='flex justify-end  gap-2 mt-4'>
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className='px-3 py-1 rounded border disabled:opacity-50'>
+          Previous
+        </button>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <button
+            key={page}
+            onClick={() => setCurrentPage(page)}
+            className={`px-3 py-1 rounded border ${currentPage === page ? "bg-main-brown text-white" : ""}`}>
+            {page}
+          </button>
+        ))}
+        <button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+          disabled={currentPage === totalPages}
+          className='px-3 py-1 rounded border disabled:opacity-50'>
+          Next
+        </button>
       </div>
     </div>
   );

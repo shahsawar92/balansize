@@ -99,16 +99,16 @@ export default function BlogPost() {
                 priority
               />
             </div>
-            <div className='absolute top-4 left-4 flex gap-2'>
+            <div className='absolute top-0  left-0 right-0 px-2 py-2 flex gap-2 bg-slate-800/40'>
               <ButtonLink
                 href={`/dashboard/articles/${articleId}/edit`}
-                variant='light'
+                variant='dark'
                 className='bg-background/80 backdrop-blur-sm'>
-                <Edit className='w-4 h-4 mr-2' />
+                <Edit className='w-4 h-4 mr-2 text-white' />
                 Edit
               </ButtonLink>
               <Button
-                variant='brown'
+                variant='dark'
                 sizeOfButton='sm'
                 className='bg-background/80 backdrop-blur-sm'
                 onClick={handleDelete}>

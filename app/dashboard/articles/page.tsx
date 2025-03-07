@@ -75,7 +75,7 @@ export default function BlogPage() {
                       }
                       alt={post.title}
                       fill
-                      className='object-contain'
+                      className='object-cover'
                     />
                     {/* <Image
                       width={300}

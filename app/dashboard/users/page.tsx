@@ -34,26 +34,26 @@ export default function UsersPage() {
     router.push(`/dashboard/users/${user.id}/edit`);
   };
 
-  const handleDelete = async (user: User) => {
-    try {
-      Swal.fire({
-        title: "Are you sure?",
-        text: "This action cannot be undone!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, delete it!",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          deleteUser(user.id);
-          setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
-        }
-      });
-    } catch (error) {
-      logger(error, "Delete Error");
-    }
-  };
+  // const handleDelete = async (user: User) => {
+  //   try {
+  //     Swal.fire({
+  //       title: "Are you sure?",
+  //       text: "This action cannot be undone!",
+  //       icon: "warning",
+  //       showCancelButton: true,
+  //       confirmButtonColor: "#d33",
+  //       cancelButtonColor: "#3085d6",
+  //       confirmButtonText: "Yes, delete it!",
+  //     }).then((result) => {
+  //       if (result.isConfirmed) {
+  //         deleteUser(user.id);
+  //         setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
+  //       }
+  //     });
+  //   } catch (error) {
+  //     logger(error, "Delete Error");
+  //   }
+  // };
 
   const columns = [
     {
@@ -102,11 +102,11 @@ export default function UsersPage() {
             className='p-2 hover:bg-gray-100 rounded-lg flex items-center gap-2 transition-colors'>
             <PencilSquareIcon className='w-5 h-5 text-main-brown' /> Edit
           </button>
-          <button
+          {/* <button
             onClick={() => handleDelete(user)}
             className='p-2 hover:bg-red-500 text-white rounded-lg transition-colors'>
             <TrashIcon className='w-5 h-5' /> Delete
-          </button>
+          </button> */}
         </div>
       ),
     },

@@ -5,7 +5,7 @@ export const showLogger = isLocal
   ? true
   : process.env.NEXT_PUBLIC_SHOW_LOGGER === "true";
 
-const usingNGROK = true;
+const usingNGROK = false;
 export const API_URL = isProd
   ? "https://staging.balansize.com/api/v1"
   : usingNGROK

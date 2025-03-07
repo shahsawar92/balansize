@@ -2,12 +2,16 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
+import { TextEditor } from "@/components/editor/Editor";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
+import TagInput from "@/components/tagInput/TagInput";
 
 import CategorySelect from "@/app/_app-components/getCategories";
 import { BASE_URL } from "@/constant/env";
@@ -19,9 +23,6 @@ import {
 
 import { Category } from "@/types/categories-types";
 import { Expert } from "@/types/experts";
-import TagInput from "@/components/tagInput/TagInput";
-import Swal from "sweetalert2";
-import { toast } from "react-toastify";
 
 export default function EditExpertPage() {
   const router = useRouter();
@@ -129,13 +130,14 @@ export default function EditExpertPage() {
           />
         </div>
 
-        <Input
-          placeholder='About'
-          variant='light'
-          className='w-full max-w-80'
-          value={expert.about}
-          onChange={(e) => handleChange("about", e.target.value)}
-        />
+        <div onClick={(e) => e.preventDefault()}>
+          <TextEditor
+            initialValue={expert.about}
+            placeholder='About'
+            height={300}
+            onChange={(content) => handleChange("about", content)}
+          />
+        </div>
 
         {/* Category Selection */}
         <div onClick={(e) => e.preventDefault()}>

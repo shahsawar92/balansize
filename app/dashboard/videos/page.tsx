@@ -20,8 +20,8 @@ export default function BlogPage() {
 
   return (
     <div className='min-h-screen bg-secondary-100 rounded-2xl p-6 md:p-8'>
-      <div className='w-full flex flex-col md:flex-row gap-3 justify-between items-center mb-9 '>
-        <CustomSelect
+      <div className='w-full flex flex-col md:flex-row gap-3 justify-end items-center mb-9 '>
+        {/* <CustomSelect
           value={formData.category}
           onChange={(value: string) =>
             setFormData((prev) => ({ ...prev, category: value }))
@@ -40,7 +40,7 @@ export default function BlogPage() {
             selected: "text-opacity-80",
             container: "w-full max-w-72",
           }}
-        />
+        /> */}
         <Button
           className='max-w-72- items-center justify-center rounded-full'
           sizeOfButton='large'
@@ -62,7 +62,7 @@ export default function BlogPage() {
                     src={`${BASE_URL}/${video.thumbnail}`}
                     alt={video.title}
                     fill
-                    className='object-contain'
+                    className='object-cover'
                   />
                 </div>
                 <div className='p-1'>

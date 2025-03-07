@@ -19,6 +19,7 @@ import {
 } from "@/redux/api/expert-api";
 
 import { Expert } from "@/types/experts";
+import UnderlineLink from "@/components/links/UnderlineLink";
 
 export default function ExpertsPage() {
   const [selectedExperts, setSelectedExperts] = useState<Expert[]>([]);
@@ -90,11 +91,23 @@ export default function ExpertsPage() {
       header: "Name",
       accessor: (expert: Expert) => expert.expert_name,
       sortable: true,
+      cell: (user: Expert) => (
+        <UnderlineLink
+          href={`/dashboard/experts/${user.expert_id}/view`}
+          className='text-sm text-main-brown border-none'>
+          {user.expert_name}
+        </UnderlineLink>
+      ),
     },
     {
       header: "Designation",
       accessor: (expert: Expert) => expert.designation,
       sortable: true,
+      cell: (user: Expert) => (
+        <span className='px-2 py-1 rounded-full text-xs max-w-sm text-wrap font-medium line-clamp-3'>
+          {user.designation}
+        </span>
+      ),
     },
     {
       header: "About",
@@ -103,9 +116,13 @@ export default function ExpertsPage() {
       cell: (user: Expert) => (
         <span
           className={cn(
-            "px-2 py-1 rounded-full text-xs max-w-sm text-wrap font-medium"
+            "px-2 py-1 rounded-full text-xs max-w-sm text-wrap font-medium line-clamp-3"
           )}>
-          {typeof window === "undefined" ? "Loading..." : user.about}
+          {typeof window === "undefined"
+            ? "Loading..."
+            : // parse html
+              new DOMParser().parseFromString(user.about, "text/html")
+                .documentElement.textContent}
         </span>
       ),
     },

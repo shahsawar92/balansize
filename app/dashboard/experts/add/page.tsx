@@ -18,6 +18,7 @@ import {
 
 import { Category } from "@/types/categories-types";
 import { toast } from "react-toastify";
+import { TextEditor } from "@/components/editor/Editor";
 
 export default function AddExpertPage() {
   const router = useRouter();
@@ -89,13 +90,14 @@ export default function AddExpertPage() {
           />
         </div>
 
-        <Input
-          placeholder='About'
-          variant='light'
-          className='w-full max-w-80'
-          value={expert.about}
-          onChange={(e) => setExpert({ ...expert, about: e.target.value })}
-        />
+        <div onClick={(e) => e.preventDefault()}>
+          <TextEditor
+            initialValue={expert.about}
+            placeholder='About'
+            height={300}
+            onChange={(content) => handleChange("about", content)}
+          />
+        </div>
 
         {/* Category Selection */}
         <div onClick={(e) => e.preventDefault()}>
