@@ -1,66 +1,71 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { useRef, useState } from "react";
-
-import { mockUsers, plans } from "@/data/mock-users";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import Input from "@/components/input/Input";
 import NextImage from "@/components/NextImage";
-import Text from "@/components/text/Text";
+
+import { BASE_URL } from "@/constant/env";
+import { useGetUserQuery } from "@/redux/api/users-api";
+
+import { User } from "@/types/users";
 
 export default function EditUserPage() {
-  const router = useRouter();
   const { id } = useParams();
-  const [user, setUser] = useState(
-    mockUsers.find((u) => u.id === id) || {
-      firstName: "",
-      lastName: "",
-      email: "",
-      profilePicture: "/images/avatars/avatar-1.png",
-      plan: "Basic Plan (149/Year)",
+  const { data: user, isLoading, isError } = useGetUserQuery(id as string);
+  const [selectedUser, setSelectedUser] = useState<User>();
+
+  useEffect(() => {
+    if (user?.success) {
+      setSelectedUser(user.result);
     }
-  );
+  }, [user]);
+
+  if (isLoading)
+    return <p className='text-center text-gray-700'>Loading user data...</p>;
+  if (isError || !selectedUser)
+    return <p className='text-center text-red-500'>User not found.</p>;
 
   return (
-    <div className='w-full max-w-7xl py-5 px-5 mx-auto bg-secondary-100 rounded-2xl'>
-      <div className='relative '>
-        <div className='absolute right-8 top-0 '>
-          <div className='relative w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:opacity-80 transition-opacity'>
-            <NextImage
-              useSkeleton
-              src={user.profilePicture}
-              alt='Profile Picture'
-              width={126}
-              height={126}
-              className='object-cover w-full h-full'
-              classNames={{
-                image: "object-cover w-full h-full",
-                blur: "bg-gray-200",
-              }}
-            />
-          </div>
+    <div className='w-full max-w-7xl mx-auto bg-secondary-100 rounded-2xl p-6 shadow-md'>
+      <div className='flex flex-col md:flex-row items-center gap-6 md:gap-12'>
+        {/* Profile Image */}
+        <div className='relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden cursor-pointer hover:opacity-80 transition-opacity'>
+          <NextImage
+            useSkeleton
+            src={
+              selectedUser.profile_picture
+                ? `${BASE_URL}/${selectedUser.profile_picture}`
+                : "/images/placeholder.png"
+            }
+            alt='Profile Picture'
+            width={126}
+            height={126}
+            className='object-cover w-full h-full'
+          />
         </div>
 
-        <div className='space-y-6 mt-12 max-w-2xl'>
+        {/* User Information */}
+        <div className='flex flex-col w-full space-y-4'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <Input
               placeholder='First name'
               variant='light'
               sizeOfInput='large'
-              className='w-full max-w-80'
+              className='w-full'
               withBorder={false}
               readOnly
-              value={user.firstName}
+              value={selectedUser.first_name}
             />
             <Input
               placeholder='Last Name'
               variant='light'
-              className='w-full max-w-80'
-              withBorder={false}
               sizeOfInput='large'
+              className='w-full'
+              withBorder={false}
               readOnly
-              value={user.lastName}
+              value={selectedUser.last_name}
             />
           </div>
 
@@ -68,41 +73,12 @@ export default function EditUserPage() {
             placeholder='Email'
             type='email'
             variant='light'
-            className='w-full max-w-80'
-            withBorder={false}
             sizeOfInput='large'
+            className='w-full'
+            withBorder={false}
             readOnly
-            value={user.email}
+            value={selectedUser.email}
           />
-
-          <div className='space-y-4 pb-20'>
-            <h3 className='text-sm font-medium text-gray-700'>Subscriptions</h3>
-            <div className='flex flex-wrap items-center gap-4'>
-              {plans.map((plan) => (
-                <div key={`plan${plan}`} className='flex items-center gap-2'>
-                  <input
-                    type='radio'
-                    name='subscription'
-                    readOnly
-                    id={`plan${plan}`}
-                    value={`plan${plan}`}
-                    checked={user.plan === plan.name}
-                  />
-                  <label htmlFor={`plan${plan}`}>
-                    <Text
-                      variant='main'
-                      size='xs'
-                      weight='semibold'
-                      isCenterAligned={false}
-                      isUppercase={false}
-                      isItalic={false}>
-                      {plan.name}
-                    </Text>
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>

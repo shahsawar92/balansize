@@ -7,6 +7,7 @@ import categoryReducer from "./api/categories-api";
 import courseApiReducer from "./api/courses-api";
 import expertApiReducer from "./api/expert-api";
 import questionReducer from "./api/questionnaire-api";
+import userApiReducer from "./api/users-api";
 import videosApiReducer from "./api/videos-api";
 // Import your reducers here
 // import counterReducer from "./slices/counterSlice";
@@ -23,6 +24,7 @@ export const store = configureStore({
     [expertApiReducer.reducerPath]: expertApiReducer.reducer,
     [courseApiReducer.reducerPath]: courseApiReducer.reducer,
     [videosApiReducer.reducerPath]: videosApiReducer.reducer,
+    [userApiReducer.reducerPath]: userApiReducer.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -32,7 +34,8 @@ export const store = configureStore({
       .concat(articlesReducer.middleware)
       .concat(expertApiReducer.middleware)
       .concat(courseApiReducer.middleware)
-      .concat(videosApiReducer.middleware),
+      .concat(videosApiReducer.middleware)
+      .concat(userApiReducer.middleware),
 });
 
 // Infer types for state and dispatch

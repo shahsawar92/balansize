@@ -3,52 +3,57 @@
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
 import logger from "@/lib/logger";
 import { cn } from "@/lib/utils";
 
-import { mockUsers } from "@/data/mock-users";
-
+import UnderlineLink from "@/components/links/UnderlineLink";
 import Table from "@/components/table/Table";
 
-import { Column, User } from "@/types/user";
-import UnstyledLink from "@/components/links/UnstyledLink";
-import UnderlineLink from "@/components/links/UnderlineLink";
+import { useDeleteUserMutation, useGetUsersQuery } from "@/redux/api/users-api";
+
+import { Column } from "@/types/user";
+import { User } from "@/types/users";
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const { data, isLoading } = useGetUsersQuery();
+  const [deleteUser] = useDeleteUserMutation();
+  const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const router = useRouter();
+
+  useEffect(() => {
+    if (data?.success) {
+      setUsers(data.result);
+    }
+  }, [data]);
 
   const handleEdit = (user: User) => {
     router.push(`/dashboard/users/${user.id}/edit`);
   };
 
-  const handleView = (user: User) => {
-    router.push(``);
+  const handleDelete = async (user: User) => {
+    try {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          deleteUser(user.id);
+          setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
+        }
+      });
+    } catch (error) {
+      logger(error, "Delete Error");
+    }
   };
-  const handleDelete = (user: User) => {
-    logger(user, "delete");
-    setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id)); // Remove user from the state
-  };
-
-  const handleSearch = async (term: string) => {
-    // Simulate an API call with a delay
-    setTimeout(() => {
-      const filteredUsers = mockUsers.filter((user) =>
-        Object.values(user).some((value) =>
-          value.toString().toLowerCase().includes(term.toLowerCase())
-        )
-      );
-      setUsers(filteredUsers);
-    }, 300);
-  };
-
-  useEffect(() => {
-    handleSearch(searchTerm);
-  }, [searchTerm]);
 
   const columns = [
     {
@@ -56,18 +61,18 @@ export default function UsersPage() {
       accessor: "id",
       sortable: false,
       cell: (user: User) => (
-        <span className='text-sm text-gray-600'>{users.indexOf(user) + 1}</span>
+        <span className='text-sm text-gray-600'>{user.id}</span>
       ),
     },
     {
       header: "Name",
-      accessor: "firstName",
+      accessor: "first_name",
       sortable: true,
       cell: (user: User) => (
         <UnderlineLink
           href={`/dashboard/users/${user.id}`}
           className='text-sm text-main-brown border-none'>
-          {user?.firstName + " " + user?.lastName}
+          {user.first_name + " " + user.last_name}
         </UnderlineLink>
       ),
     },
@@ -77,12 +82,12 @@ export default function UsersPage() {
       sortable: true,
     },
     {
-      header: "Plan",
-      accessor: "role",
+      header: "Role",
+      accessor: "user_type",
       sortable: true,
       cell: (user: User) => (
         <span className={cn("px-2 py-1 rounded-full text-xs font-medium")}>
-          {user.plan}
+          {user.user_type}
         </span>
       ),
     },
@@ -91,53 +96,36 @@ export default function UsersPage() {
       accessor: "id",
       sortable: false,
       cell: (user: User) => (
-        <div className='flex items-center gap-3 text-center w-full content-center place-content-center'>
+        <div className='flex items-center gap-3'>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(user);
-            }}
-            className='p-2 hover:bg-gray-100 hover:bg-secondary-500 rounded-lg flex items-center gap-2 transition-colors'>
+            onClick={() => handleEdit(user)}
+            className='p-2 hover:bg-gray-100 rounded-lg flex items-center gap-2 transition-colors'>
             <PencilSquareIcon className='w-5 h-5 text-main-brown' /> Edit
           </button>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(user);
-            }}
-            className='p-2 hover:bg-secondary-500 flex items-center gap-2 rounded-lg transition-colors'>
-            <TrashIcon className='w-5 h-5 text-main-brown ' />
-            Delete
+            onClick={() => handleDelete(user)}
+            className='p-2 hover:bg-red-500 text-white rounded-lg transition-colors'>
+            <TrashIcon className='w-5 h-5' /> Delete
           </button>
         </div>
       ),
     },
   ];
 
-  const handleRowClick = (user: User) => {
-    logger(user, "click");
-  };
-
   return (
-    <div className=' mx-auto'>
-      <Table
-        data={users}
-        columns={columns as Column<User>[]}
-        onRowClick={handleRowClick}
-        selectable={false}
-        onSelectionChange={setSelectedUsers}
-        itemsPerPage={10}
-        isSearchable={false}
-        classes={{
-          table: "w-full",
-          header: "",
-          row: " text-main-brown",
-          cell: "",
-          pagination: "",
-        }}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-      />
+    <div className='mx-auto'>
+      {isLoading ? (
+        <p>Loading users...</p>
+      ) : (
+        <Table
+          data={users}
+          columns={columns as Column<User>[]}
+          selectable={false}
+          itemsPerPage={10}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
+      )}
     </div>
   );
 }

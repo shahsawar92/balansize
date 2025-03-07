@@ -1,15 +1,14 @@
 export interface User {
   id: string;
-  profilePicture: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  plan: string;
+  user_type: string;
 }
 
 export type Column<T> = {
   header: string;
   accessor: keyof T | ((data: T) => string | number);
   sortable: boolean;
-  cell?: (user: User) => JSX.Element;
+  cell?: (data: T) => JSX.Element; // Changed 'user: User' to 'data: T'
 };

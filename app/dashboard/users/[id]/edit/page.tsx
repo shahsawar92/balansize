@@ -3,124 +3,122 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-import { cn } from "@/lib/utils";
-
 import Button from "@/components/buttons/Button";
+import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
 import NextImage from "@/components/NextImage";
 import Text from "@/components/text/Text";
-import { mockUsers, plans } from "@/data/mock-users";
+
+import { BASE_URL } from "@/constant/env";
+import { useGetUserQuery, useUpdateUserMutation } from "@/redux/api/users-api";
+
+import { User } from "@/types/users";
 
 export default function EditUserPage() {
   const router = useRouter();
   const { id } = useParams();
-  const [user, setUser] = useState(
-    mockUsers.find((u) => u.id === id) || {
-      firstName: "",
-      lastName: "",
-      email: "",
-      profilePicture: "/images/avatars/avatar-1.png",
-      plan: "Basic Plan (149/Year)",
-    }
-  );
-  const [selectedPlan, setSelectedPlan] = useState(user?.plan);
-  const [imageUrl, setImageUrl] = useState("/images/placeholder.png");
+  const { data, isLoading, isError } = useGetUserQuery(id as string);
+  const [updateUser] = useUpdateUserMutation();
+
+  const [user, setUser] = useState<User | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState("Basic Plan (149/Year)");
+  const [imageUrl, setImageUrl] = useState<string>("/images/placeholder.png");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Add your fetch user logic here using the id
-    // Example:
-    // const fetchUser = async () => {
-    //   const response = await fetch(`/api/users/${id}`);
-    //   const data = await response.json();
-    //   setUser(data);
-    //   setSelectedPlan(`plan${data.planId}`);
-    // };
-    // fetchUser();
-  }, [id]);
+    if (data?.success) {
+      const userData = data.result;
+      setUser(userData);
+      setSelectedPlan("Basic Plan (149/Year)"); // Set default plan
+      setImageUrl(
+        userData.profile_picture
+          ? `${BASE_URL}/${userData.profile_picture}`
+          : "/images/placeholder.png"
+      );
+    }
+  }, [data]);
+
+  if (isLoading)
+    return <p className='text-center text-gray-700'>Loading user data...</p>;
+  if (isError || !user)
+    return <p className='text-center text-red-500'>User not found.</p>;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
-      // Add your update logic here
-      // Example:
-      // await fetch(`/api/users/${id}`, {
-      //   method: 'PUT',
-      //   body: JSON.stringify({ ...user, planId: selectedPlan }),
-      // });
+      const formData = new FormData();
+      formData.append("first_name", user.first_name);
+      formData.append("last_name", user.last_name);
+      formData.append("email", user.email);
+      if (user.profile_picture instanceof File) {
+        formData.append("profile_picture", user.profile_picture);
+      }
+
+      await updateUser({ id: user.id, data: formData });
       router.push("/dashboard/users");
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.log("Error updating user:", error);
     }
-  };
-
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
+  }; 
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Create a preview URL for immediate display
       const objectUrl = URL.createObjectURL(file);
       setImageUrl(objectUrl);
-
-      // Here you can also implement your image upload logic
-      // Example:
-      // const formData = new FormData();
-      // formData.append('image', file);
-      // await fetch('/api/upload', { method: 'POST', body: formData });
+      // Upload logic can be added here
     }
   };
 
   return (
-    <div className='w-full max-w-7xl py-5 px-5 mx-auto bg-secondary-100 rounded-2xl'>
-      <div className='relative '>
-        <div className='absolute right-8 top-0 '>
-          <div
-            onClick={handleImageClick}
-            className='relative w-12 h-12 rounded-full overflow-hidden cursor-pointer hover:opacity-80 transition-opacity'>
-            <NextImage
-              useSkeleton
-              src={user?.profilePicture}
-              alt='Profile Picture'
-              width={126}
-              height={126}
-              className='object-cover w-full h-full'
-              classNames={{
-                image: "object-cover w-full h-full",
-                blur: "bg-gray-200",
-              }}
-            />
-            <input
-              type='file'
-              ref={fileInputRef}
-              onChange={handleImageChange}
-              accept='image/*'
-              className='hidden'
-            />
-          </div>
-        </div>
+    <div className='w-full max-w-4xl mx-auto bg-secondary-100 rounded-2xl p-6 shadow-md'>
+      <div className='flex flex-col md:flex-row items-center gap-6'>
+        {/* Profile Picture */}
+        {/* <div className='relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden cursor-pointer hover:opacity-80 transition-opacity'> */}
+        <ImageUploader
+          imageUrl={imageUrl}
+          onFileChange={(file) => setUser({ ...user, profile_picture: file })}
+          buttonText='Upload Photo'
+        />
+        {/* 
+          <NextImage
+            useSkeleton
+            src={imageUrl}
+            alt='Profile Picture'
+            width={126}
+            height={126}
+            className='object-cover w-full h-full'
+          />
+          <input
+            type='file'
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            accept='image/*'
+            className='hidden'
+          />
+        </div> */}
 
-        <form onSubmit={handleSubmit} className='space-y-6 mt-12 max-w-2xl'>
+        {/* User Form */}
+        <form
+          onSubmit={handleSubmit}
+          className='flex flex-col w-full space-y-4'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <Input
-              placeholder='First name'
+              placeholder='First Name'
               variant='light'
-              sizeOfInput='large'
-              className='w-full max-w-80'
+              className='w-full'
               withBorder={false}
-              value={user.firstName}
-              onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+              value={user.first_name}
+              onChange={(e) => setUser({ ...user, first_name: e.target.value })}
             />
             <Input
               placeholder='Last Name'
               variant='light'
-              className='w-full max-w-80'
+              className='w-full'
               withBorder={false}
-              sizeOfInput='large'
-              value={user.lastName}
-              onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+              value={user.last_name}
+              onChange={(e) => setUser({ ...user, last_name: e.target.value })}
             />
           </div>
 
@@ -128,35 +126,30 @@ export default function EditUserPage() {
             placeholder='Email'
             type='email'
             variant='light'
-            className='w-full max-w-80'
+            className='w-full'
             withBorder={false}
-            sizeOfInput='large'
             value={user.email}
             onChange={(e) => setUser({ ...user, email: e.target.value })}
           />
 
-          <div className='space-y-4 pb-20'>
-            <h3 className='text-sm font-medium text-gray-700'>Subscriptions</h3>
+          {/* Subscription Plan */}
+          <div className='space-y-4'>
+            <h3 className='text-sm font-medium text-gray-700'>
+              Subscription Plan
+            </h3>
             <div className='flex flex-wrap items-center gap-4'>
-              {plans.map((plan) => (
-                <div key={`plan${plan}`} className='flex items-center gap-2'>
+              {["Basic Plan", "Premium Plan", "Enterprise Plan"].map((plan) => (
+                <div key={plan} className='flex items-center gap-2'>
                   <input
                     type='radio'
                     name='subscription'
-                    id={`plan${plan}`}
-                    value={`plan${plan}`}
-                    checked={selectedPlan === plan.name}
-                    onChange={(e) => setSelectedPlan(e.target.value)}
+                    id={plan}
+                    checked={selectedPlan === plan}
+                    onChange={() => setSelectedPlan(plan)}
                   />
-                  <label htmlFor={`plan${plan}`}>
-                    <Text
-                      variant='main'
-                      size='xs'
-                      weight='semibold'
-                      isCenterAligned={false} // Updated since alignment should be flexible
-                      isUppercase={false}
-                      isItalic={false}>
-                      {plan.name}
+                  <label htmlFor={plan}>
+                    <Text variant='main' size='xs' weight='semibold'>
+                      {plan}
                     </Text>
                   </label>
                 </div>
@@ -164,11 +157,11 @@ export default function EditUserPage() {
             </div>
           </div>
 
-          <div className='absolute bottom-0  right-0 '>
+          {/* Submit Button */}
+          <div className='flex justify-end'>
             <Button
               type='submit'
-              className='w-full max-w-28 items-center justify-center rounded-full'
-              sizeOfButton='large'
+              className='px-6 py-2 rounded-full'
               variant='brown'>
               Save
             </Button>
