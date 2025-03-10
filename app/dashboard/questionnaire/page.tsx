@@ -159,9 +159,11 @@ export default function QuestionnairePage() {
     <div className='w-full bg-secondary-100 rounded-2xl py-5 px-5 mx-auto'>
       <AddQuestion editingQuestion={editingQuestion} />
 
-      <Text variant='main' size='2xl' weight='bold' classNames='mb-6'>
-        Questions List
-      </Text>
+      {questions.length > 0 && (
+        <Text variant='main' size='2xl' weight='bold' classNames='mb-6'>
+          Questions List
+        </Text>
+      )}
       <div className='bg-secondary-100 rounded-2xl p-6'>
         {isLoading ? (
           <Text>Loading...</Text>
@@ -188,30 +190,32 @@ export default function QuestionnairePage() {
         )}
       </div>
       {/* Pagination Controls */}
-      <div className='flex justify-end  gap-2 mt-4'>
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className='px-3 py-1 rounded border disabled:opacity-50'>
-          Previous
-        </button>
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+      {questions.length > 0 && (
+        <div className='flex justify-end  gap-2 mt-4'>
           <button
-            key={page}
-            onClick={() => setCurrentPage(page)}
-            className={`px-3 py-1 rounded border ${currentPage === page ? "bg-main-brown text-white" : ""}`}>
-            {page}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className='px-3 py-1 rounded border disabled:opacity-50'>
+            Previous
           </button>
-        ))}
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-          className='px-3 py-1 rounded border disabled:opacity-50'>
-          Next
-        </button>
-      </div>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`px-3 py-1 rounded border ${currentPage === page ? "bg-main-brown text-white" : ""}`}>
+              {page}
+            </button>
+          ))}
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className='px-3 py-1 rounded border disabled:opacity-50'>
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

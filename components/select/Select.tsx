@@ -50,7 +50,7 @@ const CustomSelect: React.FC<SelectProps> = ({
   };
 
   return (
-    <div className={cn("flex flex-col gap-1.5", classNames?.container)}>
+    <div className={cn("flex flex-col gap-1.5 mt-4", classNames?.container)}>
       {label && (
         <label
           className={cn(
@@ -64,7 +64,6 @@ const CustomSelect: React.FC<SelectProps> = ({
         <button
           onClick={toggleDropdown}
           className={cn(
-            
             "flex items-center justify-between rounded font-medium focus:outline-none focus:ring-2 transition-all duration-75 ",
             [
               size === "large" && "px-4 py-2",

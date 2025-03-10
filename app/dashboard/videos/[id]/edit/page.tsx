@@ -2,7 +2,7 @@
 
 import { Play } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback,useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
@@ -26,10 +26,12 @@ import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
 import { Category } from "@/types/categories-types";
 import { Expert } from "@/types/experts";
+import FileUploader from "@/app/_app-components/fileUploader";
+import { BASE_URL } from "@/constant/env";
 
 type FormState = {
   title: string;
-  link: File | string;
+  link: string;
   type: string;
   category: Category;
   thumbnail: File | string;
@@ -120,11 +122,11 @@ export default function EditVideo() {
         videoFormData.append("tags[]", tag);
       });
 
-      if (formData.link instanceof File) {
-        videoFormData.append("link", formData.link);
-      } else {
-        videoFormData.append("link_url", formData.link);
-      }
+      // if (formData.link instanceof File) {
+      //   videoFormData.append("link", formData.link);
+      // } else {
+      //   videoFormData.append("link_url", formData.link);
+      // }
 
       if (formData.thumbnail instanceof File) {
         videoFormData.append("thumbnail", formData.thumbnail);
@@ -173,44 +175,18 @@ export default function EditVideo() {
           {/* Video Upload Section */}
           <div className='space-y-6'>
             <div className='relative aspect-video bg-[#EAE9EA] rounded-2xl flex items-center justify-center'>
-              {formData.link && typeof formData.link === "string" ? (
-                <video
-                  src={formData.link}
-                  className='w-full h-full object-cover rounded-2xl'
-                  controls
-                />
-              ) : formData.link instanceof File ? (
-                <video
-                  src={URL.createObjectURL(formData.link)}
-                  className='w-full h-full object-cover rounded-2xl'
-                  controls
-                />
-              ) : (
-                <div className='text-center'>
-                  <Input
-                    type='file'
-                    accept='video/*'
-                    onChange={(e) => handleFileChange(e, "link")}
-                    className='hidden'
-                    id='video-upload'
-                  />
-                  <button
-                    type='button'
-                    onClick={() =>
-                      document.getElementById("video-upload")?.click()
-                    }
-                    className='flex flex-col items-center gap-2 text hover:text-gray-700'>
-                    <Play className='w-12 h-12' />
-                    <span>Upload Video</span>
-                  </button>
-                </div>
-              )}
+              <FileUploader
+                onUploadSuccess={(url) => {
+                  handleChange("link", url);
+                  toast.success("You can now fill in the video details.");
+                }}
+              />
             </div>
 
             <ImageUploader
               imageUrl={
                 typeof formData.thumbnail === "string"
-                  ? formData.thumbnail
+                  ? BASE_URL+ "/"+ formData.thumbnail
                   : URL.createObjectURL(formData.thumbnail)
               }
               onFileChange={(file) =>

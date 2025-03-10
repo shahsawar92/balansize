@@ -1,10 +1,10 @@
 "use client";
 
-import { Play } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import logger from "@/lib/logger";
 
@@ -15,6 +15,7 @@ import Input from "@/components/input/Input";
 import CustomSelect from "@/components/select/Select";
 import TagInput from "@/components/tagInput/TagInput";
 
+import FileUploader from "@/app/_app-components/fileUploader";
 import CategorySelect from "@/app/_app-components/getCategories";
 import ExpertSelect from "@/app/_app-components/getExperts";
 import { useGetCoursesQuery } from "@/redux/api/courses-api";
@@ -23,11 +24,10 @@ import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
 import { Category } from "@/types/categories-types";
 import { Expert } from "@/types/experts";
-import Swal from "sweetalert2";
 
 type FormState = {
   title: string;
-  link: File | null;
+  link: string;
   type: string;
   category: Category;
   thumbnail: File | null;
@@ -41,10 +41,10 @@ export default function CreateVideo() {
   const router = useRouter();
   const { refetch } = useGetCoursesQuery();
   const [addVideo, { isLoading }] = useAddVideoMutation();
-
+  const [canAddMoreInfo, setCanAddMoreInfo] = useState(false);
   const [formData, setFormData] = useState<FormState>({
     title: "",
-    link: null,
+    link: "",
     type: "",
     tags: [],
     category: { id: 0, name: "", icon: "", translations: [] },
@@ -114,16 +114,16 @@ export default function CreateVideo() {
     }
   };
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 15 * 1024 * 1024) {
-        toast.error("Video size must be 15MB or less!");
-        return;
-      }
-      setFormData((prev) => ({ ...prev, link: file }));
-    }
-  };
+  // const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     if (file.size > 15 * 1024 * 1024) {
+  //       toast.error("Video size must be 15MB or less!");
+  //       return;
+  //     }
+  //     setFormData((prev) => ({ ...prev, link: file }));
+  //   }
+  // };
 
   const handleChange = useCallback(
     <K extends keyof FormState>(field: K, value: FormState[K]) => {
@@ -132,17 +132,17 @@ export default function CreateVideo() {
     []
   );
 
-  const videoPreview = useMemo(() => {
-    return formData.link ? URL.createObjectURL(formData.link) : null;
-  }, [formData.link]);
+  // const videoPreview = useMemo(() => {
+  //   return formData.link ? URL.createObjectURL(formData.link) : null;
+  // }, [formData.link]);
 
-    useEffect(() => {
-    return () => {
-      if (videoPreview) {
-        URL.revokeObjectURL(videoPreview);
-      }
-    };
-  }, [videoPreview]);
+  // useEffect(() => {
+  //   return () => {
+  //     if (videoPreview) {
+  //       URL.revokeObjectURL(videoPreview);
+  //     }
+  //   };
+  // }, [videoPreview]);
 
   return (
     <div>
@@ -152,51 +152,32 @@ export default function CreateVideo() {
           className='grid lg:grid-cols-[400px,1fr] gap-8'>
           {/* Video Upload Section */}
           <div className='space-y-6'>
-            <div className='relative aspect-video bg-[#EAE9EA] rounded-2xl flex items-center justify-center'>
-              {videoPreview ? (
-                <video
-                  src={videoPreview}
-                  className='w-full h-full object-cover rounded-2xl'
-                  controls
-                />
-              ) : (
-                <div className='text-center'>
-                  <Input
-                    type='file'
-                    accept='video/*'
-                    onChange={handleVideoUpload}
-                    className='hidden'
-                    id='video-upload'
-                    classNames={{ container: "shadow-md" }}
-                  />
-                  <button
-                    type='button'
-                    onClick={() =>
-                      document.getElementById("video-upload")?.click()
-                    }
-                    className='flex flex-col items-center gap-2 text hover:text-gray-700'>
-                    <Play className='w-12 h-12' />
-                    <span>Upload Video</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <ImageUploader
-              imageUrl={
-                formData.thumbnail
-                  ? URL.createObjectURL(formData.thumbnail)
-                  : "/images/placeholder.png"
-              }
-              onFileChange={(file) =>
-                setFormData((prev) => ({ ...prev, thumbnail: file }))
-              }
-              buttonText='Upload Thumbnail'
+            <FileUploader
+              onUploadSuccess={(url) => {
+                handleChange("link", url);
+                setCanAddMoreInfo(true); // Enable form fields
+                toast.success("You can now fill in the video details.");
+              }}
             />
+            <div
+              className={`space-y-6 ${!canAddMoreInfo ? "opacity-50 pointer-events-none" : ""}`}>
+              <ImageUploader
+                imageUrl={
+                  formData.thumbnail
+                    ? URL.createObjectURL(formData.thumbnail)
+                    : "/images/placeholder.png"
+                }
+                onFileChange={(file) =>
+                  setFormData((prev) => ({ ...prev, thumbnail: file }))
+                }
+                buttonText='Upload Thumbnail'
+              />
+            </div>
           </div>
-
           {/* Form Fields Section */}
-          <div className='space-y-6'>
+          <div
+            className={`space-y-6 ${!canAddMoreInfo ? "opacity-50 pointer-events-none" : ""}`}
+            onClick={(e) => e.preventDefault()}>
             <Input
               placeholder='Title'
               value={formData.title}
@@ -204,8 +185,11 @@ export default function CreateVideo() {
               variant='light'
               sizeOfInput='large'
               className='w-full rounded-2xl'
+              disabled={!canAddMoreInfo}
             />
-            <div className='space-y-6' onClick={(e) => e.preventDefault()}>
+
+            {/* Disable interactions when `canAddMoreInfo` is false */}
+            <div>
               <CustomSelect
                 label='Choose Type'
                 value={formData.type}
@@ -216,8 +200,15 @@ export default function CreateVideo() {
                   { label: "recipe", value: "recipe" },
                 ]}
                 placeholder='Type'
+                classNames={{
+                  trigger: "w-full flex rounded-full border ",
+                  selected: "text-opacity-80",
+                }}
               />
 
+              <div className='flex justify-between items-center mt-4 text-sm font-medium text-gray-700'>
+                Tags
+              </div>
               <TagInput
                 tags={formData.tags}
                 onTagsChange={(newTags) => handleChange("tags", newTags)}
@@ -235,13 +226,15 @@ export default function CreateVideo() {
                 onChange={(expert) => expert && handleChange("expert", expert)}
               />
             </div>
-            <div className='flex justify-end'>
-              <Button
-                type='submit'
-                className='bg-black text-white hover:bg-gray-800 rounded-lg px-8'>
-                Save
-              </Button>
-            </div>
+          </div>
+          <div className='flex justify-end'>
+            <Button
+              type='submit'
+              className='bg-black text-white hover:bg-gray-800 rounded-lg px-8'
+              disabled={!canAddMoreInfo} // Disable the submit button until the file is uploaded
+            >
+              Save
+            </Button>
           </div>
         </form>
       </Card>

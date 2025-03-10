@@ -38,6 +38,7 @@ export default function CategorySelect({
       size='base'
       withBorder={true}
       classNames={{
+        
         trigger: "w-full flex rounded-full border ",
         selected: "text-opacity-80",
       }}
