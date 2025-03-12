@@ -7,14 +7,17 @@ import { toast } from "react-toastify";
 import Button from "@/components/buttons/Button";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 
-import { useAddPartnerMutation } from "@/redux/api/partners-api";
+import {
+  useAddPartnerMutation,
+  useGetPartnersQuery,
+} from "@/redux/api/partners-api";
 
 export default function AddPartnerPage() {
   const router = useRouter();
   const [link, setlink] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [addPartner, { isLoading }] = useAddPartnerMutation();
-
+  const { refetch } = useGetPartnersQuery();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -31,6 +34,7 @@ export default function AddPartnerPage() {
       const response = await addPartner(formData).unwrap();
       if (response.success) {
         toast.success("Partner added successfully!");
+        refetch();
         router.push("/dashboard/partners");
       } else {
         toast.error("Failed to add partner.");
