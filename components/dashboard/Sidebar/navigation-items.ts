@@ -4,7 +4,9 @@ import {
   CreditCardIcon,
   HomeIcon,
   QuestionMarkCircleIcon,
+  RectangleGroupIcon,
   TvIcon,
+  UserGroupIcon,
   UserIcon,
   UsersIcon,
   VideoCameraIcon,
@@ -42,9 +44,14 @@ export const navigationItems = [
     icon: AcademicCapIcon,
   },
   {
-    label: "Quiz",
-    path: "/dashboard/quiz",
-    icon: QuestionMarkCircleIcon,
+    label: "Tags",
+    path: "/dashboard/tags",
+    icon: RectangleGroupIcon,
+  },
+  {
+    label: "Partners",
+    path: "/dashboard/partners",
+    icon: UserGroupIcon,
   },
   {
     label: "Experts",

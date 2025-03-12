@@ -4,13 +4,15 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import articlesReducer from "./api/articles-api";
 import authApi from "./api/auth-api";
 import categoryReducer from "./api/categories-api";
+import courseDetailsApiReducer from "./api/course-detail-api";
 import courseApiReducer from "./api/courses-api";
 import expertApiReducer from "./api/expert-api";
+import partnerApiReducer from "./api/partners-api";
 import questionReducer from "./api/questionnaire-api";
+import tagsApiReducer from "./api/tags-api";
+import uploadApiReducer from "./api/uploads-api";
 import userApiReducer from "./api/users-api";
 import videosApiReducer from "./api/videos-api";
-import uploadApiReducer from "./api/uploads-api";
-import tagsApiReducer from "./api/tags-api";
 // Import your reducers here
 // import counterReducer from "./slices/counterSlice";
 import authReducer from "./features/auth-slice";
@@ -29,6 +31,8 @@ export const store = configureStore({
     [userApiReducer.reducerPath]: userApiReducer.reducer,
     [uploadApiReducer.reducerPath]: uploadApiReducer.reducer,
     [tagsApiReducer.reducerPath]: tagsApiReducer.reducer,
+    [courseDetailsApiReducer.reducerPath]: courseDetailsApiReducer.reducer,
+    [partnerApiReducer.reducerPath]: partnerApiReducer.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -41,7 +45,9 @@ export const store = configureStore({
       .concat(videosApiReducer.middleware)
       .concat(userApiReducer.middleware)
       .concat(uploadApiReducer.middleware)
-      .concat(tagsApiReducer.middleware),
+      .concat(tagsApiReducer.middleware)
+      .concat(courseDetailsApiReducer.middleware)
+      .concat(partnerApiReducer.middleware),
 });
 
 // Infer types for state and dispatch
