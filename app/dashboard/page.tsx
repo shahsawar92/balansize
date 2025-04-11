@@ -14,10 +14,15 @@ import {
 import React from "react";
 import { Bar, Doughnut, Line, Pie } from "react-chartjs-2";
 
+import logger from "@/lib/logger";
+
 import { Card, CardContent, CardTitle } from "@/components/cards/card";
 import Text from "@/components/text/Text";
 
-import { useGetDashboardHomeQuery } from "@/redux/api/home-api";
+import {
+  DashboardHomeResponse,
+  useGetDashboardHomeQuery,
+} from "@/redux/api/home-api";
 
 ChartJS.register(
   CategoryScale,
@@ -33,25 +38,44 @@ ChartJS.register(
 
 export default function DashboardPage() {
   const { data, isLoading, isError } = useGetDashboardHomeQuery();
+  logger(data, "Dashboard API Response");
+
+  const counters = (data as DashboardHomeResponse)?.result?.counters ?? {};
+  const monthlyUsers = data?.result?.monthlyUsers || [];
+  const articleCategories = data?.result?.articleCategories || [];
 
   const stats = [
-    { label: "Users", value: data?.results?.counters?.users ?? 0 },
-    {
-      label: "Subscriptions",
-      value: data?.results?.counters?.subscriptions ?? 0,
-    },
-    { label: "Experts", value: data?.results?.counters?.experts ?? 0 },
-    { label: "Courses", value: data?.results?.counters?.courses ?? 0 },
-    { label: "Lessons", value: data?.results?.counters?.lessons ?? 0 },
+    { label: "Users", value: counters.users ?? 0 },
+    { label: "Subscriptions", value: counters.subscriptions ?? 0 },
+    { label: "Experts", value: counters.experts ?? 0 },
+    { label: "Courses", value: counters.courses ?? 0 },
+    { label: "Lessons", value: counters.lessons ?? 0 },
   ];
 
   const barChartData = {
-    labels: data?.results?.monthlyUsers.map((d: any) => d.monthName) ?? [],
+    labels: monthlyUsers.map((d: any) => d.monthname.trim()),
     datasets: [
       {
-        label: "Users",
-        data: data?.results?.monthlyUsers.map((d: any) => d.count) ?? [],
+        label: "Monthly Users",
+        data: monthlyUsers.map((d: any) => Number(d.count)),
         backgroundColor: "#3b82f6",
+      },
+    ],
+  };
+
+  const pieChartData = {
+    labels: articleCategories.map((c: any) => c.categoryName),
+    datasets: [
+      {
+        label: "Articles by Category",
+        data: articleCategories.map((c: any) => Number(c.count)),
+        backgroundColor: [
+          "#3b82f6",
+          "#10b981",
+          "#f59e0b",
+          "#ef4444",
+          "#6366f1",
+        ],
       },
     ],
   };
@@ -103,7 +127,7 @@ export default function DashboardPage() {
             options={{ responsive: true, maintainAspectRatio: true }}
           />
         </div>
-        {/* You can hook live data to other charts similarly */}
+
         <div className='bg-white shadow-sm rounded-lg p-6'>
           <Text
             tagName='h3'
@@ -111,13 +135,14 @@ export default function DashboardPage() {
             weight='bold'
             variant='main'
             classNames='mb-4'>
-            Weekly Users (Static for now)
+            Monthly Growth (Line)
           </Text>
           <Line
             data={barChartData}
             options={{ responsive: true, maintainAspectRatio: true }}
           />
         </div>
+
         <div className='bg-white shadow-sm rounded-lg p-6'>
           <Text
             tagName='h3'
@@ -125,13 +150,14 @@ export default function DashboardPage() {
             weight='bold'
             variant='main'
             classNames='mb-4'>
-            Subscription Distribution (Static)
+            Articles by Category
           </Text>
           <Pie
-            data={barChartData}
+            data={pieChartData}
             options={{ responsive: true, maintainAspectRatio: true }}
           />
         </div>
+
         <div className='bg-white shadow-sm rounded-lg p-6'>
           <Text
             tagName='h3'
@@ -139,10 +165,10 @@ export default function DashboardPage() {
             weight='bold'
             variant='main'
             classNames='mb-4'>
-            Lesson Types (Static)
+            Category Distribution
           </Text>
           <Doughnut
-            data={barChartData}
+            data={pieChartData}
             options={{ responsive: true, maintainAspectRatio: true }}
           />
         </div>

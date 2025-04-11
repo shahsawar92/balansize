@@ -1,13 +1,13 @@
-// homeApi.ts - API slice for dashboard home data
-
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
 import { API_URL } from "@/constant/env";
+
 import { selectCurrentToken } from "../features/auth-slice";
 import { RootState } from "../store";
 
 // Response type for home dashboard
 export type DashboardHomeResponse = {
-  results: {
+  result: {
     counters: {
       users: number;
       subscriptions: number;
@@ -16,9 +16,14 @@ export type DashboardHomeResponse = {
       lessons: number;
     };
     monthlyUsers: {
-      month: number;
-      monthName: string;
-      count: number;
+      month: string; // e.g., "2"
+      monthname: string; // e.g., "February "
+      count: string; // e.g., "5" — returned as string in the API
+    }[];
+    articleCategories: {
+      categoryId: number;
+      categoryName: string;
+      count: string; // also a string in the API
     }[];
   };
 };
