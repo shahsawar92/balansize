@@ -86,7 +86,7 @@ export default function EditExpertPage() {
       formData.append("name", expert.expert_name);
       formData.append("designation", expert.designation);
       formData.append("about", expert.about);
-      formData.append("type", expert.type);
+      formData.append("type", expert?.type || "");
       formData.append("categoryId", (expert.category_id ?? 0).toString());
       (expert?.tags || []).forEach((tag) => formData.append("tags[]", tag));
 
