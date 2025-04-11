@@ -14,13 +14,13 @@ import CustomSelect from "@/components/select/Select";
 import TagInput from "@/components/tagInput/TagInput";
 
 import CategorySelect from "@/app/_app-components/getCategories";
+import { EXPERTS_DESIGNATION } from "@/constant/data/expert-designations";
 import {
   useAddExpertMutation,
   useGetExpertsQuery,
 } from "@/redux/api/expert-api";
 
 import { Category } from "@/types/categories-types";
-import { EXPERTS_DESIGNATION } from "@/constant/data/expert-designations";
 
 export default function AddExpertPage() {
   const router = useRouter();
@@ -34,6 +34,7 @@ export default function AddExpertPage() {
     designation: "",
     about: "",
     profile_picture: "",
+    type: "",
     tags: [],
     categoryId: 0,
   });
@@ -46,6 +47,7 @@ export default function AddExpertPage() {
       formData.append("name", expert.name);
       formData.append("designation", expert.designation);
       formData.append("about", expert.about);
+      formData.append("type", expert.type);
       formData.append("categoryId", (expert.categoryId ?? 0).toString());
       expert.tags.forEach((tag) => formData.append("tags[]", tag));
 
@@ -81,23 +83,31 @@ export default function AddExpertPage() {
             value={expert.name}
             onChange={(e) => setExpert({ ...expert, name: e.target.value })}
           />
-          <div onClick={(e) => e.preventDefault()}>
-            <CustomSelect
-              options={EXPERTS_DESIGNATION}
-              value={expert.designation}
-              onChange={(value) => handleChange("designation", value)}
-              placeholder='Select Designation'
-              variant='light'
-              classNames={{
-                container: "w-full max-w-80 mt-0",
-                trigger: "rounded-full w-full",
-              }}
-              size='base'
-              withBorder
-            />
-          </div>
+          <Input
+            placeholder='Designation'
+            variant='light'
+            className='w-full max-w-80'
+            value={expert.designation}
+            onChange={(e) =>
+              setExpert({ ...expert, designation: e.target.value })
+            }
+          />
         </div>
-
+        <div onClick={(e) => e.preventDefault()}>
+          <CustomSelect
+            options={EXPERTS_DESIGNATION}
+            value={expert.type}
+            onChange={(value) => handleChange("type", value)}
+            placeholder='Select Type'
+            variant='light'
+            classNames={{
+              container: "w-full  mt-0",
+              trigger: "rounded-full w-full",
+            }}
+            size='base'
+            withBorder
+          />
+        </div>
         <div onClick={(e) => e.preventDefault()}>
           <TextEditor
             initialValue={expert.about}

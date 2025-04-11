@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import logger from "@/lib/logger";
 import { cn } from "@/lib/utils";
 
+import UnderlineLink from "@/components/links/UnderlineLink";
 import Table from "@/components/table/Table";
 
 import { BASE_URL } from "@/constant/env";
@@ -19,7 +20,6 @@ import {
 } from "@/redux/api/expert-api";
 
 import { Expert } from "@/types/experts";
-import UnderlineLink from "@/components/links/UnderlineLink";
 
 export default function ExpertsPage() {
   const [selectedExperts, setSelectedExperts] = useState<Expert[]>([]);
@@ -74,10 +74,9 @@ export default function ExpertsPage() {
     },
     {
       header: "Profile Picture",
-      accessor: (expert: Expert) =>
-        expert.profile_picture ? expert.profile_picture.toString() : "",
+      accessor: (expert: Expert) => expert.profile_picture?.toString() ?? "",
       sortable: false,
-      cell: (user: Expert | any) => (
+      cell: (user: Expert) => (
         <Image
           width={40}
           height={40}
@@ -87,6 +86,7 @@ export default function ExpertsPage() {
         />
       ),
     },
+
     {
       header: "Name",
       accessor: (expert: Expert) => expert.expert_name,
@@ -101,7 +101,7 @@ export default function ExpertsPage() {
     },
     {
       header: "Designation",
-      accessor: (expert: Expert) => expert.designation,
+      accessor: (expert: Expert) => expert.designation ?? "",
       sortable: true,
       cell: (user: Expert) => (
         <span className='px-2 py-1 rounded-full text-xs max-w-sm text-wrap font-medium line-clamp-3'>
@@ -110,8 +110,18 @@ export default function ExpertsPage() {
       ),
     },
     {
+      header: "Type",
+      accessor: (expert: Expert) => expert.type ?? "",
+      sortable: true,
+      cell: (user: Expert) => (
+        <span className='px-2 py-1 rounded-full text-xs max-w-sm text-wrap font-medium line-clamp-3'>
+          {user.type}
+        </span>
+      ),
+    },
+    {
       header: "About",
-      accessor: (expert: Expert) => expert.designation || "",
+      accessor: (expert: Expert) => expert.about ?? "",
       sortable: true,
       cell: (user: Expert) => (
         <span
@@ -120,8 +130,7 @@ export default function ExpertsPage() {
           )}>
           {typeof window === "undefined"
             ? "Loading..."
-            : // parse html
-              new DOMParser().parseFromString(user.about, "text/html")
+            : new DOMParser().parseFromString(user.about, "text/html")
                 .documentElement.textContent}
         </span>
       ),
@@ -161,6 +170,7 @@ export default function ExpertsPage() {
   if (isLoading) return <p>Loading experts...</p>;
   if (error) return <p>Error loading experts</p>;
 
+  logger(users, "users");
   return (
     <div className='max-w-7xl mx-auto'>
       <Table

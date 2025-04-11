@@ -7,6 +7,7 @@ export interface Expert {
   category_id?: number;
   category_name?: string;
   tags?: string[];
+  type?: string;
 }
 
 export interface ExpertResponse {

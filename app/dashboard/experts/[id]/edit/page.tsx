@@ -125,23 +125,29 @@ export default function EditExpertPage() {
             value={expert.expert_name}
             onChange={(e) => handleChange("expert_name", e.target.value)}
           />
-          <div onClick={(e) => e.preventDefault()}>
-            <CustomSelect
-              options={EXPERTS_DESIGNATION}
-              value={expert.designation}
-              onChange={(value) => handleChange("designation", value)}
-              placeholder='Select Designation'
-              variant='light'
-              classNames={{
-                container: "w-full max-w-80 mt-0",
-                trigger: "rounded-full w-full",
-              }}
-              size='base'
-              withBorder
-            />
-          </div>
+          <Input
+            placeholder='Designation'
+            variant='light'
+            className='w-full max-w-80'
+            value={expert.designation}
+            onChange={(e) => handleChange("designation", e.target.value)}
+          />
         </div>
-
+        <div onClick={(e) => e.preventDefault()}>
+          <CustomSelect
+            options={EXPERTS_DESIGNATION}
+            value={expert?.type || "Select Type"}
+            onChange={(value) => handleChange("type", value)}
+            placeholder='Select Type'
+            variant='light'
+            classNames={{
+              container: "w-full mt-0",
+              trigger: "rounded-full w-full",
+            }}
+            size='base'
+            withBorder
+          />
+        </div>
         <div onClick={(e) => e.preventDefault()}>
           <TextEditor
             initialValue={expert.about}

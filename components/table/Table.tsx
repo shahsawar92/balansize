@@ -14,7 +14,7 @@ interface Column<T> {
   header: string;
   accessor: keyof T | ((data: T) => string | number);
   sortable?: boolean;
-  cell?: (data: T) => React.ReactNode;
+  cell?: (data: T) => JSX.Element;
   onView?: (row: T) => void;
 }
 
