@@ -1,15 +1,13 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import Swal from "sweetalert2";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import { Card, CardContent } from "@/components/cards/card";
 
-import { BASE_URL } from "@/constant/env";
-import { useGetTagsQuery, useDeleteTagMutation } from "@/redux/api/tags-api";
+import { useDeleteTagMutation,useGetTagsQuery } from "@/redux/api/tags-api";
 
 export default function TagsPage() {
   const { data, isLoading, refetch } = useGetTagsQuery();

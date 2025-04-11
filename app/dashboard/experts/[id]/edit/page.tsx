@@ -11,9 +11,11 @@ import Button from "@/components/buttons/Button";
 import { TextEditor } from "@/components/editor/Editor";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
+import CustomSelect from "@/components/select/Select";
 import TagInput from "@/components/tagInput/TagInput";
 
 import CategorySelect from "@/app/_app-components/getCategories";
+import { EXPERTS_DESIGNATION } from "@/constant/data/expert-designations";
 import { BASE_URL } from "@/constant/env";
 import {
   useGetExpertQuery,
@@ -45,6 +47,8 @@ export default function EditExpertPage() {
     tags: [] as string[],
     category_id: 0,
   });
+
+  logger(expert, "expertsssssssssss");
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
@@ -121,13 +125,21 @@ export default function EditExpertPage() {
             value={expert.expert_name}
             onChange={(e) => handleChange("expert_name", e.target.value)}
           />
-          <Input
-            placeholder='Designation'
-            variant='light'
-            className='w-full max-w-80'
-            value={expert.designation}
-            onChange={(e) => handleChange("designation", e.target.value)}
-          />
+          <div onClick={(e) => e.preventDefault()}>
+            <CustomSelect
+              options={EXPERTS_DESIGNATION}
+              value={expert.designation}
+              onChange={(value) => handleChange("designation", value)}
+              placeholder='Select Designation'
+              variant='light'
+              classNames={{
+                container: "w-full max-w-80 mt-0",
+                trigger: "rounded-full w-full",
+              }}
+              size='base'
+              withBorder
+            />
+          </div>
         </div>
 
         <div onClick={(e) => e.preventDefault()}>

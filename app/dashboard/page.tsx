@@ -14,16 +14,10 @@ import {
 import React from "react";
 import { Bar, Doughnut, Line, Pie } from "react-chartjs-2";
 
-import {
-  barData,
-  doughnutData,
-  lineData,
-  pieData,
-  stats,
-} from "@/data/mock-home";
-
 import { Card, CardContent, CardTitle } from "@/components/cards/card";
 import Text from "@/components/text/Text";
+
+import { useGetDashboardHomeQuery } from "@/redux/api/home-api";
 
 ChartJS.register(
   CategoryScale,
@@ -38,6 +32,34 @@ ChartJS.register(
 );
 
 export default function DashboardPage() {
+  const { data, isLoading, isError } = useGetDashboardHomeQuery();
+
+  const stats = [
+    { label: "Users", value: data?.results?.counters?.users ?? 0 },
+    {
+      label: "Subscriptions",
+      value: data?.results?.counters?.subscriptions ?? 0,
+    },
+    { label: "Experts", value: data?.results?.counters?.experts ?? 0 },
+    { label: "Courses", value: data?.results?.counters?.courses ?? 0 },
+    { label: "Lessons", value: data?.results?.counters?.lessons ?? 0 },
+  ];
+
+  const barChartData = {
+    labels: data?.results?.monthlyUsers.map((d: any) => d.monthName) ?? [],
+    datasets: [
+      {
+        label: "Users",
+        data: data?.results?.monthlyUsers.map((d: any) => d.count) ?? [],
+        backgroundColor: "#3b82f6",
+      },
+    ],
+  };
+
+  if (isLoading) return <div className='p-6'>Loading...</div>;
+  if (isError)
+    return <div className='p-6 text-red-500'>Error loading data.</div>;
+
   return (
     <div className='mx-auto p-6 overflow-hidden bg-secondary-100 rounded-2xl'>
       {/* Stat Cards */}
@@ -74,13 +96,14 @@ export default function DashboardPage() {
             weight='bold'
             variant='main'
             classNames='mb-4'>
-            Monthly Subscriptions
+            Monthly Users
           </Text>
           <Bar
-            data={barData}
+            data={barChartData}
             options={{ responsive: true, maintainAspectRatio: true }}
           />
         </div>
+        {/* You can hook live data to other charts similarly */}
         <div className='bg-white shadow-sm rounded-lg p-6'>
           <Text
             tagName='h3'
@@ -88,10 +111,10 @@ export default function DashboardPage() {
             weight='bold'
             variant='main'
             classNames='mb-4'>
-            Weekly Users
+            Weekly Users (Static for now)
           </Text>
           <Line
-            data={lineData}
+            data={barChartData}
             options={{ responsive: true, maintainAspectRatio: true }}
           />
         </div>
@@ -102,10 +125,10 @@ export default function DashboardPage() {
             weight='bold'
             variant='main'
             classNames='mb-4'>
-            Subscription Distribution
+            Subscription Distribution (Static)
           </Text>
           <Pie
-            data={pieData}
+            data={barChartData}
             options={{ responsive: true, maintainAspectRatio: true }}
           />
         </div>
@@ -116,10 +139,10 @@ export default function DashboardPage() {
             weight='bold'
             variant='main'
             classNames='mb-4'>
-            Lesson Types
+            Lesson Types (Static)
           </Text>
           <Doughnut
-            data={doughnutData}
+            data={barChartData}
             options={{ responsive: true, maintainAspectRatio: true }}
           />
         </div>

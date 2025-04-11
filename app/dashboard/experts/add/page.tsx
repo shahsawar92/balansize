@@ -20,20 +20,8 @@ import {
 } from "@/redux/api/expert-api";
 
 import { Category } from "@/types/categories-types";
-const designationOptions = [
-  { value: "Psychologist", label: "Psychologist" },
-  { value: "Doctors", label: "Doctors" },
-  { value: "Life Coach", label: "Life Coach" },
-  { value: "Business Coach", label: "Business Coach" },
-  { value: "Fitness Experts", label: "Fitness Experts" },
-  { value: "Beauty Experts", label: "Beauty Experts" },
-  { value: "Nutritionist", label: "Nutritionist" },
-  { value: "Mindset Coach", label: "Mindset Coach" },
-  { value: "Transformational Coach", label: "Transformational Coach" },
-  { value: "Spiritual Experts", label: "Spiritual Experts" },
-  { value: "Executive Coach", label: "Executive Coach" },
-  { value: "Relationship Experts", label: "Relationship Experts" },
-];
+import { EXPERTS_DESIGNATION } from "@/constant/data/expert-designations";
+
 export default function AddExpertPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -95,7 +83,7 @@ export default function AddExpertPage() {
           />
           <div onClick={(e) => e.preventDefault()}>
             <CustomSelect
-              options={designationOptions}
+              options={EXPERTS_DESIGNATION}
               value={expert.designation}
               onChange={(value) => handleChange("designation", value)}
               placeholder='Select Designation'
