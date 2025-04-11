@@ -2,12 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { toast } from "react-toastify";
 
 import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
+import { TextEditor } from "@/components/editor/Editor";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
+import CustomSelect from "@/components/select/Select";
 import TagInput from "@/components/tagInput/TagInput";
 
 import CategorySelect from "@/app/_app-components/getCategories";
@@ -17,9 +20,20 @@ import {
 } from "@/redux/api/expert-api";
 
 import { Category } from "@/types/categories-types";
-import { toast } from "react-toastify";
-import { TextEditor } from "@/components/editor/Editor";
-
+const designationOptions = [
+  { value: "Psychologist", label: "Psychologist" },
+  { value: "Doctors", label: "Doctors" },
+  { value: "Life Coach", label: "Life Coach" },
+  { value: "Business Coach", label: "Business Coach" },
+  { value: "Fitness Experts", label: "Fitness Experts" },
+  { value: "Beauty Experts", label: "Beauty Experts" },
+  { value: "Nutritionist", label: "Nutritionist" },
+  { value: "Mindset Coach", label: "Mindset Coach" },
+  { value: "Transformational Coach", label: "Transformational Coach" },
+  { value: "Spiritual Experts", label: "Spiritual Experts" },
+  { value: "Executive Coach", label: "Executive Coach" },
+  { value: "Relationship Experts", label: "Relationship Experts" },
+];
 export default function AddExpertPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,15 +93,21 @@ export default function AddExpertPage() {
             value={expert.name}
             onChange={(e) => setExpert({ ...expert, name: e.target.value })}
           />
-          <Input
-            placeholder='Designation'
-            variant='light'
-            className='w-full max-w-80'
-            value={expert.designation}
-            onChange={(e) =>
-              setExpert({ ...expert, designation: e.target.value })
-            }
-          />
+          <div onClick={(e) => e.preventDefault()}>
+            <CustomSelect
+              options={designationOptions}
+              value={expert.designation}
+              onChange={(value) => handleChange("designation", value)}
+              placeholder='Select Designation'
+              variant='light'
+              classNames={{
+                container: "w-full max-w-80 mt-0",
+                trigger: "rounded-full w-full",
+              }}
+              size='base'
+              withBorder
+            />
+          </div>
         </div>
 
         <div onClick={(e) => e.preventDefault()}>

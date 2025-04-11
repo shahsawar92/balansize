@@ -70,7 +70,7 @@ export default function CreateBlog() {
   logger(formData, "formData");
   useEffect(() => {
     if (role === "Expert" || role === "User") {
-      const udata = JSON.parse(user);
+      const udata = user;
       toast.info(`${udata?.name}, you are creating an article as ${role}`);
       setFormData((prev) => ({ ...prev, expert: udata as Expert }));
     }
