@@ -11,6 +11,7 @@ import {
   UsersIcon,
   VideoCameraIcon,
 } from "@heroicons/react/24/outline";
+import { Table } from "lucide-react";
 
 export const navigationItems = [
   {
@@ -52,6 +53,11 @@ export const navigationItems = [
     label: "Partners",
     path: "/dashboard/partners",
     icon: UserGroupIcon,
+  },
+  {
+    label: "Onboarding",
+    path: "/dashboard/onboarding",
+    icon: Table,
   },
   {
     label: "Experts",

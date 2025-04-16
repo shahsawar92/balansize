@@ -9,20 +9,23 @@ import Swal from "sweetalert2";
 
 import logger from "@/lib/logger";
 
-import UnderlineLink from "@/components/links/UnderlineLink";
 import Table from "@/components/table/Table";
+import Text from "@/components/text/Text";
 
 import { BASE_URL } from "@/constant/env";
-import {
-  useDeletePartnerMutation,
-  useGetPartnersQuery,
-} from "@/redux/api/partners-api";
 
-import { Partner } from "@/types/partners";
+import { OnboardingPartner } from "@/types/onboarding";
+import {
+  useDeleteOnboardingPartnerMutation,
+  useGetOnboardingPartnersQuery,
+} from "@/redux/api/onboarding-api";
+import { Edit } from "lucide-react";
 
 export default function PartnersPage() {
-  const [selectedPartners, setSelectedPartners] = useState<Partner[]>([]);
-  const [partners, setPartners] = useState<Partner[]>([]);
+  const [selectedPartners, setSelectedPartners] = useState<OnboardingPartner[]>(
+    []
+  );
+  const [partners, setPartners] = useState<OnboardingPartner[]>([]);
   logger(partners, "Partners");
   const router = useRouter();
   const {
@@ -30,16 +33,16 @@ export default function PartnersPage() {
     error,
     isLoading,
     refetch,
-  } = useGetPartnersQuery();
-  const [deletePartner] = useDeletePartnerMutation();
-
+  } = useGetOnboardingPartnersQuery();
+  const [deletePartner] = useDeleteOnboardingPartnerMutation();
+  logger(partnersData, "partnersData");
   useEffect(() => {
-    if (partnersData && Array.isArray(partnersData.result)) {
-      setPartners(partnersData.result);
+    if (partnersData && Array.isArray(partnersData)) {
+      setPartners(partnersData);
     }
   }, [partnersData]);
 
-  const handleDelete = async (partner: Partner) => {
+  const handleDelete = async (partner: OnboardingPartner) => {
     const result = await Swal.fire({
       title: "Are you sure?",
       text: `You are about to delete this partner. This action cannot be undone!`,
@@ -67,45 +70,71 @@ export default function PartnersPage() {
   const columns = [
     {
       header: "#",
-      accessor: (partner: Partner) => partner.id.toString(),
+      accessor: (partner: OnboardingPartner) => partner.id.toString(),
       sortable: false,
     },
     {
-      header: "Logo",
-      accessor: (partner: Partner) => partner.logo,
+      header: "Image",
+      accessor: (partner: OnboardingPartner) => partner.image,
       sortable: false,
-      cell: (partner: Partner) => (
+      cell: (partner: OnboardingPartner) => (
         <div className='flex items-center gap-3 justify-center'>
           <Image
             width={40}
             height={40}
-            src={BASE_URL + "/" + partner.logo}
-            alt='Partner Logo'
+            src={BASE_URL + "/" + partner.image}
+            alt='Partner image'
             className='w-10 h-10 rounded-full'
           />
         </div>
       ),
     },
     {
-      header: "Website Link",
-      accessor: (partner: Partner) => partner.link,
+      header: "Title",
+      accessor: (partner: OnboardingPartner) => partner.title,
       sortable: true,
-      cell: (partner: Partner) => (
+      cell: (partner: OnboardingPartner) => (
         <div className='flex items-center gap-3 justify-center'>
-          <UnderlineLink
-            href={partner.link ?? "#"}
-            target='_blank'
-            className='text-sm text-main-brown border-none'>
-            {partner.link}
-          </UnderlineLink>
+          <Text variant='main' className='text-sm text-main-brown border-none'>
+            {partner.title}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      header: "Description",
+      accessor: (partner: OnboardingPartner) => partner.description,
+      sortable: true,
+      cell: (partner: OnboardingPartner) => (
+        <div className='flex items-center gap-3 justify-center'>
+          <Text
+            variant='main'
+            className='text-sm text-main-brown border-none w-40 line-clamp-2'>
+            {partner.description}
+          </Text>
+        </div>
+      ),
+    },
+    {
+      header: "Status",
+      accessor: (partner: OnboardingPartner) =>
+        partner.isActive ? "Active" : "Inactive",
+      sortable: true,
+      cell: (partner: OnboardingPartner) => (
+        <div className='flex items-center gap-3 justify-center'>
+          <Text
+            variant='main'
+            className='text-sm text-main-brown border-none w-40 line-clamp-2'>
+            {partner.isActive ? "Active" : "Inactive"}
+          </Text>
         </div>
       ),
     },
     {
       header: "Actions",
-      accessor: (partner: Partner) => partner.id.toString(),
+      accessor: (partner: OnboardingPartner) => partner.id.toString(),
       sortable: false,
-      cell: (partner: Partner) => (
+      cell: (partner: OnboardingPartner) => (
         <div className='flex items-center gap-3 justify-center'>
           <button
             onClick={(e) => {
@@ -114,6 +143,14 @@ export default function PartnersPage() {
             }}
             className='p-2 hover:bg-secondary-500 flex items-center gap-2 rounded-lg transition-colors'>
             <TrashIcon className='w-5 h-5 text-main-brown' /> Delete
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/dashboard/onboarding/${partner.id}/edit`);
+            }}
+            className='p-2 hover:bg-secondary-500 flex items-center gap-2 rounded-lg transition-colors'>
+            <Edit className='w-5 h-5 text-main-brown' /> Edit
           </button>
         </div>
       ),
@@ -131,7 +168,7 @@ export default function PartnersPage() {
         isSearchable={false}
         headerButton={{
           title: "Add Partner",
-          link: "/dashboard/partners/add",
+          link: "/dashboard/onboarding/add",
         }}
         onRowClick={(partner) => logger(partner, "click")}
         selectable={false}

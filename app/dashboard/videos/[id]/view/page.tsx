@@ -16,6 +16,7 @@ import { useGetCoursesQuery } from "@/redux/api/courses-api";
 import {
   useDeleteVideoMutation,
   useGetVideoQuery,
+  useGetVideosQuery,
 } from "@/redux/api/videos-api";
 
 export default function ViewVideo() {
@@ -24,6 +25,7 @@ export default function ViewVideo() {
   const [deleteVideo] = useDeleteVideoMutation();
   const [isPlaying, setIsPlaying] = useState(false);
   const { refetch } = useGetCoursesQuery();
+  const { refetch: refetchVideos } = useGetVideosQuery();
 
   const videoId = path.split("/")[3];
   const { data, error, isLoading } = useGetVideoQuery(videoId);
@@ -47,6 +49,7 @@ export default function ViewVideo() {
         deleteVideo(Number(videoId));
         toast.success("Video deleted successfully");
         refetch();
+        refetchVideos();
         router.push("/dashboard/videos");
       } else {
         toast.error("Failed to delete video");

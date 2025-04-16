@@ -73,7 +73,11 @@ export default function CreateVideo() {
       return;
     }
 
-    if (!formData.title || !formData.category?.id) {
+    if (
+      !formData.title ||
+      !formData.category?.id ||
+      !formData.expert.expert_id
+    ) {
       toast.error("Please fill all required fields!");
       return;
     }
@@ -100,30 +104,18 @@ export default function CreateVideo() {
       articleData.append("expertId", formData?.expert?.expert_id.toString());
 
       toast.info("Creating video, please wait...");
-      const response = await addVideo(articleData).unwrap();
-
+      await addVideo(articleData).unwrap();
       Swal.close();
       toast.success("Video created successfully!");
-      logger(response, "Video created successfully");
 
       await refetch();
       router.push(`/dashboard/videos`);
     } catch (error) {
+      Swal.close();
       logger(error, "Error uploading video:");
       toast.error("Failed to upload video. Please try again.");
     }
   };
-
-  // const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     if (file.size > 15 * 1024 * 1024) {
-  //       toast.error("Video size must be 15MB or less!");
-  //       return;
-  //     }
-  //     setFormData((prev) => ({ ...prev, link: file }));
-  //   }
-  // };
 
   const handleChange = useCallback(
     <K extends keyof FormState>(field: K, value: FormState[K]) => {
@@ -131,18 +123,6 @@ export default function CreateVideo() {
     },
     []
   );
-
-  // const videoPreview = useMemo(() => {
-  //   return formData.link ? URL.createObjectURL(formData.link) : null;
-  // }, [formData.link]);
-
-  // useEffect(() => {
-  //   return () => {
-  //     if (videoPreview) {
-  //       URL.revokeObjectURL(videoPreview);
-  //     }
-  //   };
-  // }, [videoPreview]);
 
   return (
     <div>

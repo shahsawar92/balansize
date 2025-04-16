@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAddTagMutation, useGetTagsQuery } from "@/redux/api/tags-api";
 import Button from "@/components/buttons/Button";
 import { toast } from "react-toastify";
+import logger from "@/lib/logger";
 
 export default function AddTagPage() {
   const [name, setName] = useState("");
@@ -39,8 +40,11 @@ export default function AddTagPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await addTag({ name, translations }).unwrap();
-      toast.success("Tag added successfully");
+      const res = await addTag({ name, translations }).unwrap();
+      logger(res, "response");
+      if (res.success) toast.success("Tag added successfully");
+      else toast.error("Tag already exists");
+      if (!res.success) return;
       refetch();
       router.push("/dashboard/tags");
     } catch (error) {

@@ -14,6 +14,8 @@ import uploadApiReducer from "./api/uploads-api";
 import userApiReducer from "./api/users-api";
 import videosApiReducer from "./api/videos-api";
 import homeApiReducer from "./api/home-api";
+import onboardingApiReducer from "./api/onboarding-api";
+
 // Import your reducers here
 // import counterReducer from "./slices/counterSlice";
 import authReducer from "./features/auth-slice";
@@ -35,6 +37,7 @@ export const store = configureStore({
     [courseDetailsApiReducer.reducerPath]: courseDetailsApiReducer.reducer,
     [partnerApiReducer.reducerPath]: partnerApiReducer.reducer,
     [homeApiReducer.reducerPath]: homeApiReducer.reducer,
+    [onboardingApiReducer.reducerPath]: onboardingApiReducer.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -50,7 +53,8 @@ export const store = configureStore({
       .concat(tagsApiReducer.middleware)
       .concat(courseDetailsApiReducer.middleware)
       .concat(partnerApiReducer.middleware)
-      .concat(homeApiReducer.middleware),
+      .concat(homeApiReducer.middleware)
+      .concat(onboardingApiReducer.middleware),
 });
 
 // Infer types for state and dispatch

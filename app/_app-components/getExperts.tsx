@@ -3,12 +3,13 @@
 
 import { useMemo } from "react";
 
+import logger from "@/lib/logger";
+
 import CustomSelect from "@/components/select/Select";
 
 import { useGetExpertsQuery } from "@/redux/api/expert-api";
 
 import { Expert } from "@/types/experts";
-import logger from "@/lib/logger";
 
 interface CategorySelectProps {
   selectedExpert: Expert | undefined;
@@ -41,7 +42,7 @@ export default function ExpertSelect({
         value: t.expert_name,
         label: t.expert_name,
       }))}
-      placeholder={isLoading ? "Loading..." : "Categories"}
+      placeholder={isLoading ? "Loading..." : "Experts"}
       variant='light'
       size='base'
       withBorder={true}

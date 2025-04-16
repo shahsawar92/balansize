@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import Button from "@/components/buttons/Button";
 import { Card, CardContent } from "@/components/cards/card";
@@ -19,7 +20,6 @@ import {
   useGetCourseQuery,
   useGetCoursesQuery,
 } from "@/redux/api/courses-api";
-import Swal from "sweetalert2";
 
 export default function SingleCoursePage() {
   const { id } = useParams();
@@ -59,7 +59,10 @@ export default function SingleCoursePage() {
         toast.info("Deleting video...");
         await deleteVideo(videoId);
         toast.success("Video deleted successfully.");
-
+        if (
+          courseVideosData?.result.details) {
+          setSelectedVideo(null);
+        }
         refetchVideos();
       } catch (error) {
         toast.error("Failed to delete video.");
@@ -147,15 +150,6 @@ export default function SingleCoursePage() {
         <div className='md:col-span-2'>
           {selectedVideo ? (
             <div className='relative w-full aspect-video bg-black rounded-lg overflow-hidden shadow-md'>
-              {/* <iframe
-                width='100%'
-                height='100%'
-                src={selectedVideo.link.replace("watch?v=", "embed/")}
-                title={selectedVideo.title}
-                allowFullScreen
-                className='w-full h-full'
-              /> */}
-
               <video
                 controls
                 className='w-full h-full'
@@ -189,16 +183,6 @@ export default function SingleCoursePage() {
                       ? "bg-gray-200"
                       : "hover:bg-gray-100"
                   }`}>
-                  {/* <div
-                    className='w-20 h-12 relative'
-                    onClick={() => setSelectedVideo(video)}>
-                    <Image
-                      src='/images/video-thumbnail.png'
-                      alt={video.title}
-                      layout='fill'
-                      className='object-cover rounded-md'
-                    />
-                  </div> */}
                   <div
                     className='flex-1'
                     onClick={() => setSelectedVideo(video)}>

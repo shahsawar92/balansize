@@ -10,21 +10,17 @@ import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
 import { Card } from "@/components/cards/card";
-import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
-import CustomSelect from "@/components/select/Select";
-import TagInput from "@/components/tagInput/TagInput";
 
 import FileUploader from "@/app/_app-components/fileUploader";
-import CategorySelect from "@/app/_app-components/getCategories";
-import ExpertSelect from "@/app/_app-components/getExperts";
-import { useGetCoursesQuery } from "@/redux/api/courses-api";
-import { useAddVideoMutation } from "@/redux/api/videos-api";
+import {
+  useAddCourseVideoMutation,
+  useGetCourseVideosQuery,
+} from "@/redux/api/course-detail-api";
+import { useGetCourseQuery, useGetCoursesQuery } from "@/redux/api/courses-api";
 import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
-import { Category } from "@/types/categories-types";
 import { Expert } from "@/types/experts";
-import { useAddCourseVideoMutation } from "@/redux/api/course-detail-api";
 
 type FormState = {
   title: string;
@@ -38,6 +34,9 @@ export default function CreateVideo() {
   const { id } = useParams();
   const router = useRouter();
   const { refetch } = useGetCoursesQuery();
+  const { refetch: refetchVideos } = useGetCourseVideosQuery(
+    Number(Array.isArray(id) ? id[0] : id)
+  );
   const [addVideo, { isLoading }] = useAddCourseVideoMutation();
   const [canAddMoreInfo, setCanAddMoreInfo] = useState(false);
   const [formData, setFormData] = useState<FormState>({
@@ -68,6 +67,11 @@ export default function CreateVideo() {
       return;
     }
 
+    if (!formData.title) {
+      toast.error("Please add title for video!");
+      return;
+    }
+
     try {
       Swal.fire({
         title: "Uploading...",
@@ -90,8 +94,10 @@ export default function CreateVideo() {
       logger(response, "Video created successfully");
 
       await refetch();
+      refetchVideos();
       router.push(`/dashboard/courses/${id}`);
     } catch (error) {
+      Swal.close();
       logger(error, "Error uploading video:");
       toast.error("Failed to upload video. Please try again.");
     }

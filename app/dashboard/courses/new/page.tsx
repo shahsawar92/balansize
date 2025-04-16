@@ -55,7 +55,6 @@ export default function CreateBlog() {
 
   const [addCourse, { isLoading }] = useAddCourseMutation();
 
-  logger(formData, "formData");
   useEffect(() => {
     if (role === "Expert" || role === "User") {
       const udata = JSON.parse(user);
@@ -71,7 +70,11 @@ export default function CreateBlog() {
       return;
     }
 
-    if (!formData.title || !formData.category?.id) {
+    if (
+      !formData.title ||
+      !formData.category?.id ||
+      !formData.expert.expert_id
+    ) {
       toast.error("Please fill all required fields!");
       return;
     }
@@ -105,7 +108,6 @@ export default function CreateBlog() {
       toast.error("Failed to create article. Please try again.");
     }
   };
-
 
   const handleChange = useCallback(
     <K extends keyof FormState>(field: K, value: FormState[K]) => {
