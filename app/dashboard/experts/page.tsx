@@ -180,6 +180,10 @@ export default function ExpertsPage() {
           title: "Add Expert",
           link: "/dashboard/experts/add",
         }}
+        headerButton2={{
+          title: "Expert Types",
+          link: "/dashboard/experts/type",
+        }}
         onRowClick={handleRowClick}
         selectable={false}
         onSelectionChange={setSelectedExperts}

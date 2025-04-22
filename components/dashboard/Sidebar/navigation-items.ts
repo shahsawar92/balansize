@@ -12,6 +12,8 @@ import {
   VideoCameraIcon,
 } from "@heroicons/react/24/outline";
 import { Table } from "lucide-react";
+import path from "path";
+import { RiNotification2Fill, RiNotification2Line } from "react-icons/ri";
 
 export const navigationItems = [
   {
@@ -73,5 +75,10 @@ export const navigationItems = [
     label: "Courses and Lessons",
     path: "/dashboard/courses",
     icon: TvIcon,
+  },
+  {
+    label: "Notifications",
+    path: "/dashboard/notifications",
+    icon: RiNotification2Line,
   },
 ];

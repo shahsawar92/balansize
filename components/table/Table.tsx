@@ -26,6 +26,10 @@ interface TableProps<T> {
     title: string;
     link: string;
   };
+  headerButton2?: {
+    title: string;
+    link: string;
+  };
   classes?: {
     container?: string;
     table?: string;
@@ -49,6 +53,7 @@ export default function Table<T extends { id: string | number }>({
   selectable = false,
   onSelectionChange,
   headerButton,
+  headerButton2,
   classes,
   itemsPerPage = 10,
   searchTerm = "",
@@ -121,15 +126,28 @@ export default function Table<T extends { id: string | number }>({
           headerButton?.title ? "justify-between" : "justify-end"
         )}>
         {headerButton?.title && (
-          <ButtonLink href={headerButton.link} variant='light' size='sm'>
-            <Text
-              variant='main'
-              size='sm'
-              weight='normal'
-              className='cursor-pointer'>
-              {headerButton.title}
-            </Text>
-          </ButtonLink>
+          <div className='flex items-center gap-2'>
+            <ButtonLink href={headerButton.link} variant='light' size='sm'>
+              <Text
+                variant='main'
+                size='sm'
+                weight='normal'
+                className='cursor-pointer'>
+                {headerButton.title}
+              </Text>
+            </ButtonLink>
+            {headerButton2 && (
+              <ButtonLink href={headerButton2.link} variant='light' size='sm'>
+                <Text
+                  variant='main'
+                  size='sm'
+                  weight='normal'
+                  className='cursor-pointer'>
+                  {headerButton2.title}
+                </Text>
+              </ButtonLink>
+            )}
+          </div>
         )}
         {isSearchable && (
           <Input

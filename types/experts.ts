@@ -28,3 +28,24 @@ export interface singleExpertResponse {
   message: string;
   result: Expert;
 }
+
+export interface ExpertType {
+  id: number;
+  type: string;
+}
+
+export interface ExpertTypeResponse {
+  success: boolean;
+  message: string;
+  result: ExpertType[];
+}
+
+export interface SingleExpertTypeResponse {
+  success: boolean;
+  message: string;
+  result: ExpertType;
+}
+
+export interface ExpertTypeRequest {
+  type: string;
+}

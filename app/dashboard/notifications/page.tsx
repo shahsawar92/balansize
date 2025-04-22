@@ -15,37 +15,41 @@ import Text from "@/components/text/Text";
 
 import { BASE_URL } from "@/constant/env";
 import {
-  useDeleteOnboardingPartnerMutation,
-  useGetOnboardingPartnersQuery,
-} from "@/redux/api/onboarding-api";
+  useDeleteNotificationMutation,
+  useGetNotificationsQuery,
+} from "@/redux/api/notifications-api";
 
-import { OnboardingPartner } from "@/types/onboarding";
+import { Notification } from "@/types/notifications";
 
-export default function PartnersPage() {
-  const [selectedPartners, setSelectedPartners] = useState<OnboardingPartner[]>(
-    []
-  );
-  const [partners, setPartners] = useState<OnboardingPartner[]>([]);
-  logger(partners, "Partners");
+export default function NotificationsPage() {
+  const [selectedNotifications, setSelectedNotifications] = useState<
+    Notification[]
+  >([]);
+  const [notifications, setnotifications] = useState<Notification[]>([]);
+  logger(notifications, "notifications");
   const router = useRouter();
   const {
-    data: partnersData,
+    data: notificationData,
     error,
     isLoading,
     refetch,
-  } = useGetOnboardingPartnersQuery();
-  const [deletePartner] = useDeleteOnboardingPartnerMutation();
-  logger(partnersData, "partnersData");
+  } = useGetNotificationsQuery();
+  const [deletenotification] = useDeleteNotificationMutation();
+  logger(notificationData, "notificationData");
   useEffect(() => {
-    if (partnersData && Array.isArray(partnersData)) {
-      setPartners(partnersData);
+    if (notificationData?.result && Array.isArray(notificationData?.result)) {
+      setnotifications(
+        notificationData.result.filter(
+          (n): n is Notification & { id: number } => n.id !== undefined
+        )
+      );
     }
-  }, [partnersData]);
+  }, [notificationData?.result]);
 
-  const handleDelete = async (partner: OnboardingPartner) => {
+  const handleDelete = async (notification: Notification) => {
     const result = await Swal.fire({
       title: "Are you sure?",
-      text: `You are about to delete this partner. This action cannot be undone!`,
+      text: `You are about to delete this notification. This action cannot be undone!`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -54,15 +58,18 @@ export default function PartnersPage() {
     });
 
     if (result.isConfirmed) {
-      toast.info(`Deleting partner...`);
+      toast.info(`Deleting notification...`);
       try {
-        const res = await deletePartner(partner.id).unwrap();
+        if (!notification.id) {
+          throw new Error("Notification ID is required");
+        }
+        const res = await deletenotification(notification.id).unwrap();
         if (res.success === true) {
           refetch();
         }
-        toast.success(`Partner has been deleted successfully!`);
+        toast.success(`notification has been deleted successfully!`);
       } catch (error) {
-        toast.error("Failed to delete partner. Please try again.");
+        toast.error("Failed to delete notification. Please try again.");
       }
     }
   };
@@ -70,20 +77,21 @@ export default function PartnersPage() {
   const columns = [
     {
       header: "#",
-      accessor: (partner: OnboardingPartner) => partner.id.toString(),
+      accessor: (notification: Notification) =>
+        notification.id?.toString() ?? "",
       sortable: false,
     },
     {
       header: "Image",
-      accessor: (partner: OnboardingPartner) => partner.image,
+      accessor: (notification: Notification) => notification.icon,
       sortable: false,
-      cell: (partner: OnboardingPartner) => (
+      cell: (notification: Notification) => (
         <div className='flex items-center gap-3 justify-center'>
           <Image
             width={40}
             height={40}
-            src={BASE_URL + "/" + partner.image}
-            alt='Partner image'
+            src={BASE_URL + "/" + notification.icon}
+            alt='notification image'
             className='w-10 h-10 rounded-full'
           />
         </div>
@@ -91,55 +99,56 @@ export default function PartnersPage() {
     },
     {
       header: "Title",
-      accessor: (partner: OnboardingPartner) => partner.title,
+      accessor: (notification: Notification) => notification.title,
       sortable: true,
-      cell: (partner: OnboardingPartner) => (
+      cell: (notification: Notification) => (
         <div className='flex items-center gap-3 justify-center'>
           <Text variant='main' className='text-sm text-main-brown border-none'>
-            {partner.title}
+            {notification.title}
           </Text>
         </div>
       ),
     },
     {
       header: "Description",
-      accessor: (partner: OnboardingPartner) => partner.description,
+      accessor: (notification: Notification) => notification.message,
       sortable: true,
-      cell: (partner: OnboardingPartner) => (
+      cell: (notification: Notification) => (
         <div className='flex items-center gap-3 justify-center'>
           <Text
             variant='main'
             className='text-sm text-main-brown border-none w-40 line-clamp-2'>
-            {partner.description}
+            {notification.message}
           </Text>
         </div>
       ),
     },
     {
       header: "Status",
-      accessor: (partner: OnboardingPartner) =>
-        partner.isActive ? "Active" : "Inactive",
+      accessor: (notification: Notification) =>
+        notification.isActive ? "Active" : "Inactive",
       sortable: true,
-      cell: (partner: OnboardingPartner) => (
+      cell: (notification: Notification) => (
         <div className='flex items-center gap-3 justify-center'>
           <Text
             variant='main'
             className='text-sm text-main-brown border-none w-40 line-clamp-2'>
-            {partner.isActive ? "Active" : "Inactive"}
+            {notification.isActive ? "Active" : "Inactive"}
           </Text>
         </div>
       ),
     },
     {
       header: "Actions",
-      accessor: (partner: OnboardingPartner) => partner.id.toString(),
+      accessor: (notification: Notification) =>
+        notification?.id?.toString() ?? "",
       sortable: false,
-      cell: (partner: OnboardingPartner) => (
+      cell: (notification: Notification) => (
         <div className='flex items-center gap-3 justify-center'>
           <button
             onClick={(e) => {
               e.stopPropagation();
-              handleDelete(partner);
+              handleDelete(notification);
             }}
             className='p-2 hover:bg-secondary-500 flex items-center gap-2 rounded-lg transition-colors'>
             <TrashIcon className='w-5 h-5 text-main-brown' /> Delete
@@ -147,7 +156,7 @@ export default function PartnersPage() {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              router.push(`/dashboard/onboarding/${partner.id}/edit`);
+              router.push(`/dashboard/notifications/${notification.id}/edit`);
             }}
             className='p-2 hover:bg-secondary-500 flex items-center gap-2 rounded-lg transition-colors'>
             <Edit className='w-5 h-5 text-main-brown' /> Edit
@@ -157,22 +166,24 @@ export default function PartnersPage() {
     },
   ];
 
-  if (isLoading) return <p>Loading partners...</p>;
-  if (error) return <p>Error loading partners</p>;
+  if (isLoading) return <p>Loading notifications...</p>;
+  if (error) return <p>Error loading notifications</p>;
 
   return (
     <div className='max-w-7xl mx-auto'>
       <Table
-        data={partners}
+        data={notifications.filter(
+          (n): n is Notification & { id: number } => n.id !== undefined
+        )}
         columns={columns}
         isSearchable={false}
         headerButton={{
-          title: "Add Partner",
-          link: "/dashboard/onboarding/add",
+          title: "Add Notification",
+          link: "/dashboard/notifications/add",
         }}
-        onRowClick={(partner) => logger(partner, "click")}
+        onRowClick={(notification) => logger(notification, "click")}
         selectable={false}
-        onSelectionChange={setSelectedPartners}
+        onSelectionChange={setSelectedNotifications}
         itemsPerPage={10}
       />
     </div>

@@ -10,7 +10,10 @@ import { RootState } from "../store";
 import {
   ExpertRequest,
   ExpertResponse,
+  ExpertTypeRequest,
+  ExpertTypeResponse,
   singleExpertResponse,
+  SingleExpertTypeResponse,
 } from "@/types/experts";
 
 export const expertApi = createApi({
@@ -71,6 +74,41 @@ export const expertApi = createApi({
         };
       },
     }),
+
+    getExpertTypes: builder.query<ExpertTypeResponse, void>({
+      query: () => {
+        return {
+          url: "/expert-types",
+          method: "GET",
+        };
+      },
+    }),
+    getSingleExpertType: builder.query<SingleExpertTypeResponse, string>({
+      query: (id) => {
+        return {
+          url: `/expert-types/${id}`,
+          method: "GET",
+        };
+      },
+    }),
+    addExpertType: builder.mutation<ExpertTypeResponse, ExpertTypeRequest>({
+      query: (credentials) => {
+        return {
+          url: "/expert-types",
+          method: "POST",
+          body: credentials,
+        };
+      },
+    }),
+
+    deleteExpertType: builder.mutation<ExpertTypeResponse, number>({
+      query: (id) => {
+        return {
+          url: `/expert-types/${id}`,
+          method: "DELETE",
+        };
+      },
+    }),
   }),
 });
 
@@ -81,5 +119,10 @@ export const {
   useGetExpertQuery,
   useUpdateExpertMutation,
   useDeleteExpertMutation,
+
+  useGetExpertTypesQuery,
+  useGetSingleExpertTypeQuery,
+  useAddExpertTypeMutation,
+  useDeleteExpertTypeMutation,
 } = expertApi;
 export default expertApi;
