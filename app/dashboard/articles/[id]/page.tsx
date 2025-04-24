@@ -185,7 +185,7 @@ export default function BlogPost() {
                     {expert.designation}
                   </Text>
                   <Text variant='secondary' size='sm' classNames='mt-2'>
-                    {expert.about}
+                    <div dangerouslySetInnerHTML={{ __html: expert.about }} />
                   </Text>
                 </div>
               </div>

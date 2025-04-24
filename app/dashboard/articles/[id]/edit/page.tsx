@@ -107,7 +107,7 @@ export default function CreateBlog() {
   logger(formData, "formData");
   useEffect(() => {
     if (role === "Expert" || role === "User") {
-      const udata = JSON.parse(user);
+      const udata = user;
       toast.info(`${udata?.name}, you are creating an article as ${role}`);
       setFormData((prev) => ({
         ...prev,
@@ -151,7 +151,7 @@ export default function CreateBlog() {
 
       toast.success("Article updated successfully!");
       logger(response, "Article updated successfully");
- 
+
       await refetch();
       router.push("/dashboard/articles");
     } catch (error) {
@@ -271,28 +271,16 @@ export default function CreateBlog() {
                 designation: formData.expert.designation,
                 profile_picture: formData.expert.profile_picture,
               }}
-              onChange={
-                (expert) =>
-                  expert &&
-                  logger(
-                    {
-                      ...expert,
-
-                      id: expert.expert_id,
-                      name: expert.expert_name,
-                      about: expert.about,
-                      designation: expert.designation,
-                      profile_picture: expert.profile_picture,
-                    },
-                    "selected expert"
-                  )
-                // handleChange("expert", {
-                //   expert_id: expert.id,
-                //   name: expert.expert_name,
-                //   about: expert.about,
-                //   designation: expert.designation,
-                //   profile_picture: expert.profile_picture,
-                // })
+              onChange={(expert) =>
+                expert &&
+           
+                handleChange("expert", {
+                  id: expert.expert_id,
+                  name: expert.expert_name,
+                  about: expert.about,
+                  designation: expert.designation,
+                  profile_picture: expert.profile_picture,
+                })
               }
             />
           </div>
