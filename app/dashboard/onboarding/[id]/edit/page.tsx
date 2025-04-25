@@ -8,6 +8,7 @@ import Button from "@/components/buttons/Button";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 
 import {
+  useGetOnboardingPartnersQuery,
   useGetSingleOnboardingPartnerQuery,
   useUpdateOnboardingPartnerMutation,
 } from "@/redux/api/onboarding-api";
@@ -22,6 +23,7 @@ export default function EditOnboardingPage() {
     useGetSingleOnboardingPartnerQuery(id);
   const [updateOnboarding, { isLoading: isUpdating }] =
     useUpdateOnboardingPartnerMutation();
+  const { refetch } = useGetOnboardingPartnersQuery();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -62,6 +64,7 @@ export default function EditOnboardingPage() {
       }).unwrap();
       if (response.success) {
         toast.success("Onboarding updated successfully!");
+        refetch();
         router.push("/dashboard/onboarding");
       } else {
         toast.error("Failed to update onboarding.");

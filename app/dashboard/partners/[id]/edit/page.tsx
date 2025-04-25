@@ -10,6 +10,7 @@ import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import { BASE_URL } from "@/constant/env";
 import {
   useGetPartnerQuery,
+  useGetPartnersQuery,
   useUpdatePartnerMutation,
 } from "@/redux/api/partners-api";
 import logger from "@/lib/logger";
@@ -22,6 +23,7 @@ export default function EditOnboardingPage() {
   const { data, isLoading: isFetching } = useGetPartnerQuery(id);
   logger(data, "Onboarding Data");
   const [updatePartner, { isLoading: isUpdating }] = useUpdatePartnerMutation();
+  const { refetch } = useGetPartnersQuery();
 
   const [link, setlink] = useState("");
   const [description, setDescription] = useState("");
@@ -59,6 +61,7 @@ export default function EditOnboardingPage() {
       }).unwrap();
       if (response.success) {
         toast.success("Partners updated successfully!");
+        refetch();
         router.push("/dashboard/partners");
       } else {
         toast.error("Failed to update partner.");
