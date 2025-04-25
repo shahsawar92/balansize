@@ -1,6 +1,7 @@
 "use client";
 
 import { TrashIcon } from "@heroicons/react/24/outline";
+import { Edit } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -86,6 +87,7 @@ export default function PartnersPage() {
         </div>
       ),
     },
+
     {
       header: "Website Link",
       accessor: (partner: Partner) => partner.link,
@@ -102,11 +104,29 @@ export default function PartnersPage() {
       ),
     },
     {
+      header: "Description",
+      accessor: (partner: Partner) => partner.description,
+      sortable: true,
+      cell: (partner: Partner) => (
+        <div className='flex items-center gap-3 justify-center'>
+          <p className='text-sm text-main-brown'>{partner.description}</p>
+        </div>
+      ),
+    },
+    {
       header: "Actions",
       accessor: (partner: Partner) => partner.id.toString(),
       sortable: false,
       cell: (partner: Partner) => (
         <div className='flex items-center gap-3 justify-center'>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/dashboard/partners/${partner.id}/edit`);
+            }}
+            className='p-2 hover:bg-secondary-500 flex items-center gap-2 rounded-lg transition-colors'>
+            <Edit className='w-5 h-5 text-main-brown' /> Edit
+          </button>
           <button
             onClick={(e) => {
               e.stopPropagation();

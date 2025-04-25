@@ -19,6 +19,7 @@ export interface QuestionText {
 export interface Question {
   id: number | null;
   is_questioner: boolean;
+  is_for_expert: boolean;
   is_multiple: boolean;
   category_id: number;
   question_texts: QuestionText[];

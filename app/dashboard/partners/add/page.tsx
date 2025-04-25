@@ -7,16 +7,18 @@ import { toast } from "react-toastify";
 import Button from "@/components/buttons/Button";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 
-import { useAddPartnerMutation, useGetPartnersQuery } from "@/redux/api/partners-api";
+import {
+  useAddPartnerMutation,
+  useGetPartnersQuery,
+} from "@/redux/api/partners-api";
 
 export default function AddPartnerPage() {
   const router = useRouter();
   const [link, setlink] = useState("");
+  const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [addPartner, { isLoading }] = useAddPartnerMutation();
- const {
-refetch,
-  } = useGetPartnersQuery();
+  const { refetch } = useGetPartnersQuery();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -27,6 +29,7 @@ refetch,
 
     const formData = new FormData();
     formData.append("link", link);
+    formData.append("description", description);
     formData.append("logo", imageFile);
 
     try {
@@ -58,7 +61,15 @@ refetch,
             required
           />
         </div>
-
+        <div>
+          <label className='block font-medium mb-1'>Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className='w-full border px-4 py-2 rounded-lg'
+            placeholder='Enter partner description'
+            rows={4}></textarea>
+        </div>
         <div>
           <label className='block font-medium mb-1'>Logo</label>
           <ImageUploader

@@ -7,6 +7,7 @@ export interface Partner {
   id: number;
   link: string;
   logo: string;
+  description: string;
 }
 
 export interface PartnerResponse {
@@ -18,5 +19,5 @@ export interface PartnerResponse {
 export interface SinglePartnerResponse {
   success: boolean;
   message: string;
-  result: Partner;
+  data: Partner;
 }

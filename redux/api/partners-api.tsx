@@ -54,7 +54,7 @@ export const partnerApi = createApi({
     >({
       query: ({ id, data }) => ({
         url: `/partners/${id}`,
-        method: "PUT",
+        method: "PATCH",
         body: data,
       }),
     }),
