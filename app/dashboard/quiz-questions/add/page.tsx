@@ -6,7 +6,7 @@ import Input from "@/components/input/Input";
 import Text from "@/components/text/Text";
 
 import CategorySelect from "@/app/_app-components/getCategories";
-import { useAddQuizQuestionMutation } from "@/redux/api/quiz-questions";
+import { useAddQuizQuestionMutation, useUpdateQuizQuestionMutation } from "@/redux/api/quiz-questions";
 
 import { Category } from "@/types/categories-types";
 import logger from "@/lib/logger";
@@ -24,6 +24,9 @@ function Page() {
   const [categories, setCategories] = useState<Category | undefined>();
 
   const [addQuestion, { isLoading, error }] = useAddQuizQuestionMutation();
+  // update api useUpdateQuizQuestionMutation
+
+
 
   const handleSubmit = async () => {
     if (

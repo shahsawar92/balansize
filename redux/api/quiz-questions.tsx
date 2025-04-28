@@ -60,7 +60,7 @@ export const quizQuestionApi = createApi({
     >({
       query: ({ id, data }) => ({
         url: `/quiz/question/${id}`,
-        method: "PATCH",
+        method: "PUT",
         body: data,
       }),
     }),

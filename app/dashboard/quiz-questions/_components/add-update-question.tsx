@@ -7,7 +7,10 @@ import Input from "@/components/input/Input";
 import Text from "@/components/text/Text";
 
 import CategorySelect from "@/app/_app-components/getCategories";
-import { useAddQuizQuestionMutation } from "@/redux/api/quiz-questions";
+import {
+  useAddQuizQuestionMutation,
+  useUpdateQuizQuestionMutation,
+} from "@/redux/api/quiz-questions";
 
 import { Category } from "@/types/categories-types";
 import { QuizQuestion } from "@/types/quiz-questions";
@@ -31,6 +34,8 @@ function QuizQuestionComponent({ editQuestion, onCompleted }: Props) {
   const { data: categoriesData } = useGetCategoriesQuery();
 
   const [addQuestion, { isLoading, error }] = useAddQuizQuestionMutation();
+  const [updateQuestion, { isLoading: updateLoading, error: updateError }] =
+    useUpdateQuizQuestionMutation();
 
   useEffect(() => {
     if (editQuestion) {
@@ -61,7 +66,7 @@ function QuizQuestionComponent({ editQuestion, onCompleted }: Props) {
       !correctOption ||
       !categories
     ) {
-      alert("Please fill all fields");
+      toast.info("Please fill all fields");
       return;
     }
 
@@ -77,12 +82,19 @@ function QuizQuestionComponent({ editQuestion, onCompleted }: Props) {
     toast.info(editQuestion ? "Updating question..." : "Adding question...");
 
     try {
-      const res = await addQuestion(payload).unwrap();
-      toast.success(
-        editQuestion
-          ? "Question updated successfully!"
-          : "Question added successfully!"
-      );
+      if (editQuestion) {
+        if (!editQuestion.id) {
+          throw new Error("Question ID is required for update");
+        }
+        await updateQuestion({
+          id: editQuestion.id,
+          data: payload,
+        }).unwrap();
+        toast.success("Question updated successfully!");
+      } else {
+        await addQuestion(payload).unwrap();
+        toast.success("Question added successfully!");
+      }
       setNewQuestion("");
       setOptions([{ name: "" }, { name: "" }, { name: "" }, { name: "" }]);
       setCorrectOption("");
