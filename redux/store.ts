@@ -19,6 +19,7 @@ import videosApiReducer from "./api/videos-api";
 // Import your reducers here
 // import counterReducer from "./slices/counterSlice";
 import authReducer from "./features/auth-slice";
+import quizQuestionApiReducer from "./api/quiz-questions";
 
 export const store = configureStore({
   reducer: {
@@ -39,6 +40,7 @@ export const store = configureStore({
     [homeApiReducer.reducerPath]: homeApiReducer.reducer,
     [onboardingApiReducer.reducerPath]: onboardingApiReducer.reducer,
     [notificationApiReducer.reducerPath]: notificationApiReducer.reducer,
+    [quizQuestionApiReducer.reducerPath]: quizQuestionApiReducer.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -56,7 +58,8 @@ export const store = configureStore({
       .concat(partnerApiReducer.middleware)
       .concat(homeApiReducer.middleware)
       .concat(onboardingApiReducer.middleware)
-      .concat(notificationApiReducer.middleware),
+      .concat(notificationApiReducer.middleware)
+      .concat(quizQuestionApiReducer.middleware),
 });
 
 // Infer types for state and dispatch

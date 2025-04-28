@@ -11,9 +11,15 @@ import {
   UsersIcon,
   VideoCameraIcon,
 } from "@heroicons/react/24/outline";
-import { Table } from "lucide-react";
+import { FileQuestion, Table } from "lucide-react";
 import path from "path";
-import { RiNotification2Fill, RiNotification2Line } from "react-icons/ri";
+import {
+  RiNotification2Fill,
+  RiNotification2Line,
+  RiQuestionAnswerLine,
+  RiQuestionLine,
+  RiQuestionnaireLine,
+} from "react-icons/ri";
 
 export const navigationItems = [
   {
@@ -35,6 +41,11 @@ export const navigationItems = [
     label: "Questionnaire",
     path: "/dashboard/questionnaire",
     icon: QuestionMarkCircleIcon,
+  },
+  {
+    label: "Quiz Questions",
+    path: "/dashboard/quiz-questions",
+    icon: FileQuestion,
   },
   {
     label: "Categories",
