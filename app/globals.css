@@ -25,3 +25,25 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Add in your globals.css or anywhere imported */
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 6px; /* super thin */
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* or light background */
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2); /* lightly visible */
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* For Firefox */
+.sidebar-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}

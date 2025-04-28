@@ -70,7 +70,7 @@ export const quizQuestionApi = createApi({
         return {
           url: `/quiz/question/${id}`,
           method: "DELETE",
-        };
+        }; 
       },
     }),
   }),

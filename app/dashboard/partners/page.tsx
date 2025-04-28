@@ -108,8 +108,10 @@ export default function PartnersPage() {
       accessor: (partner: Partner) => partner.description,
       sortable: true,
       cell: (partner: Partner) => (
-        <div className='flex items-center gap-3 justify-center'>
-          <p className='text-sm text-main-brown'>{partner.description}</p>
+        <div className='flex items-center gap-3 justify-center w-80 text-wrap overflow-hidden'>
+          <p
+            className='text-sm text-main-brown'
+            dangerouslySetInnerHTML={{ __html: partner.description }}></p>
         </div>
       ),
     },

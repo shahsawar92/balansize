@@ -11,6 +11,7 @@ import {
   useAddPartnerMutation,
   useGetPartnersQuery,
 } from "@/redux/api/partners-api";
+import { TextEditor } from "@/components/editor/Editor";
 
 export default function AddPartnerPage() {
   const router = useRouter();
@@ -63,12 +64,18 @@ export default function AddPartnerPage() {
         </div>
         <div>
           <label className='block font-medium mb-1'>Description</label>
-          <textarea
+          {/* <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className='w-full border px-4 py-2 rounded-lg'
             placeholder='Enter partner description'
-            rows={4}></textarea>
+            rows={4}></textarea> */}
+          <TextEditor
+            initialValue={description}
+            placeholder='Enter partner description'
+            height={200}
+            onChange={(content) => setDescription(content)}
+          />
         </div>
         <div>
           <label className='block font-medium mb-1'>Logo</label>

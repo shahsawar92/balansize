@@ -22,7 +22,7 @@ export default function DashboardSidebar() {
   return (
     <aside
       className={clsx(
-        "bg-secondary-100 border-r overflow-hidden min-h-dvh  rounded-2xl border-secondary-300 transition-all duration-300",
+        "bg-secondary-100 border-r   rounded-2xl border-secondary-300 transition-all duration-300 sidebar-scrollbar",
         isCollapsed ? "w-16" : "w-64"
       )}>
       {/* Logo */}
@@ -32,10 +32,10 @@ export default function DashboardSidebar() {
             useSkeleton
             src='/images/logo.png'
             alt='Logo'
-            width={90}
-            height={68}
+            width={390}
+            height={168}
             className={clsx(
-              "transition-all duration-300",
+              "transition-all duration-300 ",
               isCollapsed ? "w-8" : "w-32"
             )}
           />
@@ -43,7 +43,7 @@ export default function DashboardSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className='p-2 h-full'>
+      <nav className='p-2 '>
         {navigationItems.map((item) => (
           <UnstyledLink
             key={item.path}
