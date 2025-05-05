@@ -6,8 +6,10 @@ import Swal from "sweetalert2";
 
 import logger from "@/lib/logger";
 
+import CustomSelect from "@/components/select/Select";
 import Text from "@/components/text/Text";
 
+import { useGetCategoriesQuery } from "@/redux/api/categories-api";
 import {
   useDeleteQuestionMutation,
   useGetQuestionsQuery,
@@ -16,7 +18,6 @@ import {
 
 import AddQuestion from "./components/add-edit-question";
 import QuestionCard from "./components/questionCard";
-import TranslationModal from "./components/TranslationModal";
 
 import { Question, QuestionText } from "@/types/questions";
 
@@ -25,12 +26,23 @@ export default function QuestionnairePage() {
   const { data: questionsList, isLoading, refetch } = useGetQuestionsQuery();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-
+  const [filter, setFilter] = useState("");
+  const [filteredQuestions, setFilteredQuestions] =
+    useState<Question[]>(questions);
   const [selectedTranslation, setSelectedTranslation] = useState<{
     question: QuestionText;
     baseOtionsLength: number | undefined;
   } | null>(null);
+  const { data: categoriesData, isLoading: CategoryLoading } =
+    useGetCategoriesQuery();
 
+  useEffect(() => {
+    if (questions.length > 0) {
+      setFilteredQuestions(questions);
+    }
+  }, [questions]);
+
+  logger(categoriesData, "categoriesData");
   const [deleteQuestion, { isLoading: isDeleteLoading }] =
     useDeleteQuestionMutation();
   const [questionId, setQuestionId] = useState<number | null>(null);
@@ -149,21 +161,79 @@ export default function QuestionnairePage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const questionsPerPage = 5;
-  const totalPages = Math.ceil(questions.length / questionsPerPage);
+  const totalPages = Math.ceil(filteredQuestions.length / questionsPerPage);
 
-  const paginatedQuestions = questions.slice(
+  const paginatedQuestions = filteredQuestions.slice(
     (currentPage - 1) * questionsPerPage,
     currentPage * questionsPerPage
   );
+
+  const handleFilterChange = (selectedValue: string) => {
+    if (selectedValue === "all") {
+      setFilteredQuestions(questions);
+    } else if (selectedValue === "expert") {
+      setFilteredQuestions(
+        questions?.filter((each) => each?.is_for_expert === true)
+      );
+    } else if (selectedValue === "questionnaire") {
+      setFilteredQuestions(
+        questions.filter((each) => each.is_questioner === true)
+      );
+    } else {
+      const categoryByName = categoriesData?.result.find(
+        (e) =>
+          e.name.replace(/\s+/g, "").toLowerCase() ===
+          selectedValue.toLowerCase()
+      );
+
+      setFilteredQuestions(
+        questions?.filter((each) => each.category_id === categoryByName?.id)
+      );
+
+      logger(categoryByName, "selected Category");
+      logger("haha");
+    }
+  };
+
   return (
     <div className='w-full bg-secondary-100 rounded-2xl py-5 px-5 mx-auto'>
       <AddQuestion editingQuestion={editingQuestion} />
-
       {questions.length > 0 && (
-        <Text variant='main' size='2xl' weight='bold' classNames='mb-6'>
-          Questions List
-        </Text>
+        <div className='w-full flex justify-between items-center flex-wrap'>
+          <Text variant='main' size='2xl' weight='bold' classNames='mb-6'>
+            Questions List
+          </Text>
+
+          <CustomSelect
+            options={[
+              { label: "All", value: "all" },
+              { label: "Questionnaire", value: "questionnaire" },
+              {
+                label: "Expert's Search questions",
+                value: "expert",
+              },
+              { label: "Nutrition", value: "nutrition" },
+              { label: "Fitness", value: "fitness" },
+              { label: "Self-Care", value: "selfcare" },
+              { label: "Mindfulness", value: "mindfulness" },
+            ]}
+            onChange={(value) => {
+              setFilter(value);
+              handleFilterChange(value); // Call your filter method here
+            }}
+            value={filter}
+            placeholder='Select Filter'
+            variant='light'
+            size='large'
+            classNames={{
+              container: "w-80",
+              trigger: "w-full flex rounded-full border ",
+              selected: "text-opacity-80",
+            }}
+          />
+        </div>
       )}
+
       <div className='bg-secondary-100 rounded-2xl p-6'>
         {isLoading ? (
           <Text>Loading...</Text>
@@ -190,7 +260,7 @@ export default function QuestionnairePage() {
         )}
       </div>
       {/* Pagination Controls */}
-      {questions.length > 0 && (
+      {filteredQuestions.length > 0 && (
         <div className='flex justify-end  gap-2 mt-4'>
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
