@@ -14,6 +14,7 @@ import {
   useUpdatePartnerMutation,
 } from "@/redux/api/partners-api";
 import logger from "@/lib/logger";
+import { TextEditor } from "@/components/editor/Editor";
 
 export default function EditOnboardingPage() {
   const router = useRouter();
@@ -93,13 +94,12 @@ export default function EditOnboardingPage() {
 
         <div>
           <label className='block font-medium mb-1'>Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className='w-full border px-4 py-2 rounded-lg'
-            placeholder='Enter description'
-            rows={4}
-            required
+
+          <TextEditor
+            initialValue={description}
+            placeholder='Enter partner description'
+            height={200}
+            onChange={(content) => setDescription(content)}
           />
         </div>
 
