@@ -187,7 +187,11 @@ export default function QuestionnairePage() {
       );
 
       setFilteredQuestions(
-        questions?.filter((each) => each.category_id === categoryByName?.id)
+        questions?.filter(
+          (each) =>
+            each.category_id === categoryByName?.id &&
+            each.is_questioner === false
+        )
       );
 
       logger(categoryByName, "selected Category");
@@ -207,7 +211,10 @@ export default function QuestionnairePage() {
           <CustomSelect
             options={[
               { label: "All", value: "all" },
-              { label: "Questionnaire", value: "questionnaire" },
+              {
+                label: `Questionnaire`,
+                value: "questionnaire",
+              },
               {
                 label: "Expert's Search questions",
                 value: "expert",
@@ -219,7 +226,7 @@ export default function QuestionnairePage() {
             ]}
             onChange={(value) => {
               setFilter(value);
-              handleFilterChange(value); // Call your filter method here
+              handleFilterChange(value);
             }}
             value={filter}
             placeholder='Select Filter'
