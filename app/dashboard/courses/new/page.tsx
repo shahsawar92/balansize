@@ -11,7 +11,9 @@ import Button from "@/components/buttons/Button";
 import { Card } from "@/components/cards/card";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
+import { Switch } from "@/components/switch/switch";
 import TagInput from "@/components/tagInput/TagInput";
+import Text from "@/components/text/Text";
 
 import CategorySelect from "@/app/_app-components/getCategories";
 import ExpertSelect from "@/app/_app-components/getExperts";
@@ -27,6 +29,7 @@ import { Expert } from "@/types/experts";
 type FormState = {
   title: string;
   tags: string[];
+  is_premium: boolean;
   category: Category;
   featured_image: File | null;
   expert: Expert;
@@ -44,6 +47,7 @@ export default function CreateBlog() {
     tags: [],
     category: { id: 0, name: "", icon: "", translations: [] },
     featured_image: null,
+    is_premium: false,
     expert: user || {
       id: 0,
       name: "",
@@ -84,7 +88,7 @@ export default function CreateBlog() {
       articleData.append("title", formData.title);
 
       articleData.append("expertId", formData?.expert?.expert_id.toString());
-
+      articleData.append("is_premium", formData?.is_premium.toString());
       if (formData.featured_image) {
         articleData.append("featured_image", formData.featured_image);
       }
@@ -166,6 +170,21 @@ export default function CreateBlog() {
               selectedExpert={formData.expert}
               onChange={(expert) => expert && handleChange("expert", expert)}
             />
+          </div>
+          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+            <Switch
+              checked={formData.is_premium}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  is_premium: checked,
+                }))
+              }
+            />
+
+            <Text variant='secondary' size='sm'>
+              Is Premium
+            </Text>
           </div>
 
           <div className='flex justify-end'>

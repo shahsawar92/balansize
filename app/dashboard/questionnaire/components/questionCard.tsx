@@ -1,10 +1,11 @@
-// components/QuestionCard.tsx
+import { LockKeyhole, PencilIcon, TrashIcon } from "lucide-react";
 
-import { PencilIcon, TrashIcon } from "lucide-react";
+import logger from "@/lib/logger";
+
 import Button from "@/components/buttons/Button";
 import Text from "@/components/text/Text";
+
 import { Question } from "@/types/questions";
-import logger from "@/lib/logger";
 
 interface QuestionCardProps {
   question: Question;
@@ -23,6 +24,7 @@ export default function QuestionCard({
     (t) => t.language === "en"
   );
 
+  logger(question, "question");
   return (
     <div className='mb-6 p-4 bg-white rounded-lg shadow-sm'>
       <div className='flex justify-between items-start'>

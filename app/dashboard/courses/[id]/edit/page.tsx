@@ -25,11 +25,14 @@ import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
 import { Category } from "@/types/categories-types";
 import { Expert } from "@/types/experts";
+import { Switch } from "@/components/switch/switch";
+import Text from "@/components/text/Text";
 
 type FormState = {
   title: string;
   tags: string[];
   category: Category;
+  is_premium: boolean;
   featured_image: File | string | null;
   expert: Expert;
 };
@@ -67,6 +70,7 @@ export default function CreateBlog() {
   const [formData, setFormData] = useState<FormState>({
     title: "",
     tags: [],
+    is_premium: false,
     category: { id: 0, name: "", icon: "", translations: [] },
     featured_image: null,
     expert: user
@@ -118,7 +122,7 @@ export default function CreateBlog() {
         (formData.expert.expert_id ?? 0).toString()
       );
       articleData.append("categoryId", formData.category.id.toString());
-
+      articleData.append("is_premium", formData.is_premium.toString());
       if (formData.featured_image) {
         articleData.append("featured_image", formData.featured_image);
       }
@@ -204,7 +208,21 @@ export default function CreateBlog() {
               onChange={(expert) => expert && handleChange("expert", expert)}
             />
           </div>
+          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+            <Switch
+              checked={formData.is_premium}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  is_premium: checked,
+                }))
+              }
+            />
 
+            <Text variant='secondary' size='sm'>
+              Is Premium
+            </Text>
+          </div>
           <div className='flex justify-end'>
             <Button
               type='submit'

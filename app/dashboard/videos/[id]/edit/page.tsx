@@ -1,6 +1,5 @@
 "use client";
 
-import { Play } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -13,10 +12,14 @@ import { Card } from "@/components/cards/card";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
 import CustomSelect from "@/components/select/Select";
+import { Switch } from "@/components/switch/switch";
 import TagInput from "@/components/tagInput/TagInput";
+import Text from "@/components/text/Text";
 
+import FileUploader from "@/app/_app-components/fileUploader";
 import CategorySelect from "@/app/_app-components/getCategories";
 import ExpertSelect from "@/app/_app-components/getExperts";
+import { BASE_URL } from "@/constant/env";
 import { useGetCoursesQuery } from "@/redux/api/courses-api";
 import {
   useGetVideoQuery,
@@ -26,13 +29,13 @@ import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
 import { Category } from "@/types/categories-types";
 import { Expert } from "@/types/experts";
-import FileUploader from "@/app/_app-components/fileUploader";
-import { BASE_URL } from "@/constant/env";
 
 type FormState = {
   title: string;
   link: string;
   type: string;
+  is_premium: boolean;
+
   category: Category;
   thumbnail: File | string;
   tags: string[];
@@ -52,11 +55,12 @@ export default function EditVideo() {
   logger(videoData, "videoDataaaaaaaa");
   const [formData, setFormData] = useState<FormState>({
     title: "",
-    link: "", // Initially, a string (URL) from API
+    link: "",
     type: "",
+    is_premium: false,
     tags: [],
     category: { id: 0, name: "", icon: "", translations: [] },
-    thumbnail: "", // Initially, a string (URL) from API
+    thumbnail: "",
     expert: user
       ? {
           expert_id: user.id ?? 0,
@@ -79,8 +83,9 @@ export default function EditVideo() {
       const localData = videoData.data;
       setFormData({
         title: localData.title,
-        link: localData.link, // URL from API
+        link: localData.link,
         type: localData.type,
+        is_premium: localData.is_premium,
         tags: localData.tags || [],
         category: {
           id: localData.category.id,
@@ -99,7 +104,7 @@ export default function EditVideo() {
       });
     }
   }, [videoData]);
-
+  logger(formData, "video data");
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoading) {
@@ -118,15 +123,13 @@ export default function EditVideo() {
       videoFormData.append("type", formData.type);
       videoFormData.append("categoryId", formData.category.id.toString());
       videoFormData.append("expertId", formData.expert.expert_id.toString());
+      videoFormData.append("is_premium", formData.is_premium.toString());
+
       formData.tags.forEach((tag) => {
         videoFormData.append("tags[]", tag);
       });
 
-      // if (formData.link instanceof File) {
-      //   videoFormData.append("link", formData.link);
-      // } else {
-      //   videoFormData.append("link_url", formData.link);
-      // }
+      videoFormData.append("link", formData.link);
 
       if (formData.thumbnail instanceof File) {
         videoFormData.append("thumbnail", formData.thumbnail);
@@ -149,18 +152,9 @@ export default function EditVideo() {
     }
   };
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: "link" | "thumbnail"
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData((prev) => ({ ...prev, [field]: file }));
-    }
-  };
-
   const handleChange = useCallback(
     <K extends keyof FormState>(field: K, value: FormState[K]) => {
+      logger(value, "link");
       setFormData((prev) => ({ ...prev, [field]: value }));
     },
     []
@@ -186,7 +180,7 @@ export default function EditVideo() {
             <ImageUploader
               imageUrl={
                 typeof formData.thumbnail === "string"
-                  ? BASE_URL+ "/"+ formData.thumbnail
+                  ? BASE_URL + "/" + formData.thumbnail
                   : URL.createObjectURL(formData.thumbnail)
               }
               onFileChange={(file) =>
@@ -245,7 +239,21 @@ export default function EditVideo() {
                 onChange={(expert) => expert && handleChange("expert", expert)}
               />
             </div>
+            <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+              <Switch
+                checked={formData.is_premium}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    is_premium: checked,
+                  }))
+                }
+              />
 
+              <Text variant='secondary' size='sm'>
+                Is Premium
+              </Text>
+            </div>
             <div className='flex justify-end'>
               <Button
                 type='submit'

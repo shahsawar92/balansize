@@ -10,6 +10,8 @@ import CustomSelect from "@/components/select/Select";
 
 import { BASE_URL } from "@/constant/env";
 import { useGetVideosQuery } from "@/redux/api/videos-api";
+import { LockKeyhole } from "lucide-react";
+import logger from "@/lib/logger";
 
 export default function BlogPage() {
   const [formData, setFormData] = useState({ category: "" });
@@ -18,10 +20,10 @@ export default function BlogPage() {
   if (isLoading) return <p>Loading videos...</p>;
   if (error) return <p>Error loading videos.</p>;
 
+  logger(data, "data");
   return (
     <div className='min-h-screen bg-secondary-100 rounded-2xl p-6 md:p-8'>
       <div className='w-full flex flex-col md:flex-row gap-3 justify-end items-center mb-9 '>
-     
         <Button
           className='max-w-72- items-center justify-center rounded-full'
           sizeOfButton='large'
@@ -45,6 +47,11 @@ export default function BlogPage() {
                     fill
                     className='object-cover'
                   />
+                  {video.is_premium && (
+                    <div className='absolute top-2 right-2 text-white bg-black/50 rounded-full p-1'>
+                      <LockKeyhole size={24} />
+                    </div>
+                  )}
                 </div>
                 <div className='p-1'>
                   <h3 className='font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors text-main-black'>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { LockKeyhole, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-toastify";
@@ -9,10 +9,11 @@ import { Card, CardContent } from "@/components/cards/card";
 
 import { BASE_URL } from "@/constant/env";
 import { useGetArticlesQuery } from "@/redux/api/articles-api";
+import logger from "@/lib/logger";
 
 export default function BlogPage() {
   const { data, isLoading } = useGetArticlesQuery();
-
+  logger(data, "articlessssssss data");
   if (isLoading) {
     return (
       <div className='text-center text-gray-500'>
@@ -77,14 +78,14 @@ export default function BlogPage() {
                       fill
                       className='object-cover'
                     />
-                    {/* <Image
-                      width={300}
-                      height={200}
-                      src={`${BASE_URL}/${post.feature_image}`}
-                      alt='blog'
-                      className='absolute inset-0 object-cover w-full h-full'
-                    /> */}
+
+                    {post.is_premium && (
+                      <div className='absolute top-2 right-2 text-white bg-black/50 rounded-full p-1'>
+                        <LockKeyhole size={24} />
+                      </div>
+                    )}
                   </div>
+
                   <div className='p-1'>
                     <h3 className='font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors text-main-black'>
                       {post.title}

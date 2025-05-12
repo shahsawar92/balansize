@@ -21,6 +21,7 @@ type ButtonProps = {
   sizeOfButton?: (typeof ButtonSize)[number];
   leftIcon?: IconType | LucideIcon;
   rightIcon?: IconType | LucideIcon;
+  align?: string;
   classNames?: {
     leftIcon?: string;
     rightIcon?: string;
@@ -34,6 +35,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       className,
       disabled: buttonDisabled,
       isLoading,
+      align = "center",
       variant = "primary",
       sizeOfButton = "base",
       isDarkBg = false,
@@ -55,6 +57,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           "focus-visible:ring-secondary-500 focus:outline-none focus-visible:ring",
           "shadow-sm",
           "transition-colors duration-75",
+          align === "center" && "justify-center",
+          align === "left" && "justify-start",
+          align === "right" && "justify-end",
           [
             sizeOfButton === "large" && ["px-4 py-2", "text-base md:text-lg"],
             sizeOfButton === "base" && ["px-3 py-1.5", "text-sm md:text-base"],

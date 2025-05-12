@@ -21,6 +21,7 @@ import {
 
 import { Category } from "@/types/categories-types";
 import { Question } from "@/types/questions";
+import { check } from "prettier";
 
 export default function AddQuestion({
   editingQuestion,
@@ -33,12 +34,12 @@ export default function AddQuestion({
   >([{ name: "", tags: [], tagInput: "" }]);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-  const [allowMultipleSelection, setAllowMultipleSelection] = useState(false);
-  const [isQuestioner, setIsQuestioner] = useState(true);
-  const [isForExpert, setIsForExpert] = useState(false);
-
+  const [checkBoxes, setCheckBoxes] = useState({
+    allowMultipleSelection: false,
+    isQuestioner: false,
+    isForExpert: false,
+  });
   const [categories, setCategories] = useState<Category>();
-
   const { data: categoriesData } = useGetCategoriesQuery();
   const [addQuestion, { isLoading }] = useAddQuestionMutation();
   const [updateQuestion, { isLoading: isUpdating }] =
@@ -50,9 +51,12 @@ export default function AddQuestion({
       setIsEditing(true);
       setEditId(editingQuestion.id);
       setNewQuestion(editingQuestion.question_texts[0].question_text ?? "");
-      setAllowMultipleSelection(editingQuestion.is_multiple);
-      setIsQuestioner(editingQuestion.is_questioner);
-      setIsForExpert(editingQuestion.is_for_expert ?? false);
+      setCheckBoxes({
+        allowMultipleSelection: editingQuestion.is_multiple,
+        isQuestioner: editingQuestion.is_questioner,
+        isForExpert: editingQuestion.is_for_expert ?? false,
+      });
+
       setCategories({
         id: editingQuestion.category_id,
         name:
@@ -119,9 +123,10 @@ export default function AddQuestion({
 
     const questionData = {
       id: isEditing && editId !== null ? editId : null,
-      is_questioner: isQuestioner,
-      is_multiple: allowMultipleSelection,
-      is_for_expert: isForExpert,
+      is_questioner: checkBoxes.isQuestioner,
+      is_multiple: checkBoxes.allowMultipleSelection,
+      is_for_expert: checkBoxes.isForExpert,
+
       category_id: categories?.id ?? 0,
       question_texts: [
         {
@@ -160,9 +165,11 @@ export default function AddQuestion({
     setNewQuestion("");
     setOptions([{ name: "", tags: [], tagInput: "" }]);
     setCategories(undefined); // Reset category selection
-    setAllowMultipleSelection(false); // Reset switch to default
-    setIsQuestioner(true); // Reset switch to default
-    setIsForExpert(false); // Reset switch to default
+    setCheckBoxes({
+      allowMultipleSelection: false,
+      isQuestioner: false,
+      isForExpert: false,
+    });
     setIsEditing(false);
     setEditId(null);
   };
@@ -230,10 +237,73 @@ export default function AddQuestion({
           className='w-fit rounded-full'>
           Add Option
         </Button>
+
+        <div className='flex items-center gap-4'>
+          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+            <Switch
+              checked={checkBoxes.allowMultipleSelection}
+              onCheckedChange={(checked) =>
+                setCheckBoxes((prev) => ({
+                  ...prev,
+                  allowMultipleSelection: checked,
+                }))
+              }
+            />
+
+            <Text variant='secondary' size='sm'>
+              Allow Multiple Selection
+            </Text>
+          </div>
+          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+            <Switch
+              checked={checkBoxes.isQuestioner}
+              onCheckedChange={(checked) =>
+                setCheckBoxes((prev) => ({
+                  ...prev,
+                  isQuestioner: checked,
+                }))
+              }
+            />
+
+            <Text variant='secondary' size='sm'>
+              Is Questioner
+            </Text>
+          </div>
+          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+            <Switch
+              checked={checkBoxes.isForExpert}
+              onCheckedChange={(checked) =>
+                setCheckBoxes((prev) => ({
+                  ...prev,
+                  isForExpert: checked,
+                }))
+              }
+            />
+
+            <Text variant='secondary' size='sm'>
+              Is For Expert
+            </Text>
+          </div>
+          {/* <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+            <Switch
+              checked={checkBoxes.isPremium}
+              onCheckedChange={(checked) =>
+                setCheckBoxes((prev) => ({
+                  ...prev,
+                  isPremium: checked,
+                }))
+              }
+            />
+
+            <Text variant='secondary' size='sm'>
+              Is Premium
+            </Text>
+          </div> */}
+        </div>
         <Button
           variant='brown'
           sizeOfButton='large'
-          className='w-fit rounded-full'
+          className='w-full text-center rounded-full'
           onClick={handleAddQuestion}
           disabled={isLoading || isUpdating}>
           {isLoading || isUpdating
@@ -242,31 +312,6 @@ export default function AddQuestion({
               ? "Update"
               : "Save"}
         </Button>
-
-        <div className='flex items-center gap-4'>
-          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
-            <Switch
-              checked={allowMultipleSelection}
-              onCheckedChange={setAllowMultipleSelection}
-            />
-            <Text variant='secondary' size='sm'>
-              Allow Multiple Selection
-            </Text>
-          </div>
-          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
-            <Switch checked={isQuestioner} onCheckedChange={setIsQuestioner} />
-            <Text variant='secondary' size='sm'>
-              Is Questioner
-            </Text>
-          </div>
-          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
-            <Switch checked={isForExpert} onCheckedChange={setIsForExpert} />
-
-            <Text variant='secondary' size='sm'>
-              Is For Expert
-            </Text>
-          </div>
-        </div>
       </div>
     </div>
   );

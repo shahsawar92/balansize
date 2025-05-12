@@ -20,6 +20,8 @@ import {
   useGetCourseQuery,
   useGetCoursesQuery,
 } from "@/redux/api/courses-api";
+import { LockKeyhole } from "lucide-react";
+import logger from "@/lib/logger";
 
 export default function SingleCoursePage() {
   const { id } = useParams();
@@ -59,8 +61,7 @@ export default function SingleCoursePage() {
         toast.info("Deleting video...");
         await deleteVideo(videoId);
         toast.success("Video deleted successfully.");
-        if (
-          courseVideosData?.result.details) {
+        if (courseVideosData?.result.details) {
           setSelectedVideo(null);
         }
         refetchVideos();
@@ -87,7 +88,6 @@ export default function SingleCoursePage() {
 
   const course = data?.data;
   if (!course) return <p>Course not found.</p>;
-
   return (
     <div className='min-h-screen bg-secondary-100 rounded-2xl p-6 md:p-8'>
       {/* Course Header */}
@@ -100,6 +100,7 @@ export default function SingleCoursePage() {
               fill
               className='object-cover'
             />
+           
             <Button
               variant='light'
               className='absolute top-2 right-2'

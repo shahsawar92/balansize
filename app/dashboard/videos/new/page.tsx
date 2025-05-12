@@ -24,11 +24,15 @@ import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
 import { Category } from "@/types/categories-types";
 import { Expert } from "@/types/experts";
+import { Switch } from "@/components/switch/switch";
+import Text from "@/components/text/Text";
 
 type FormState = {
   title: string;
   link: string;
   type: string;
+  is_premium: boolean;
+
   category: Category;
   thumbnail: File | null;
   tags: string[];
@@ -45,6 +49,7 @@ export default function CreateVideo() {
   const [formData, setFormData] = useState<FormState>({
     title: "",
     link: "",
+    is_premium: false,
     type: "",
     tags: [],
     category: { id: 0, name: "", icon: "", translations: [] },
@@ -60,7 +65,7 @@ export default function CreateVideo() {
 
   useEffect(() => {
     if (role === "Expert" || role === "User") {
-      const udata = JSON.parse(user);
+      const udata = user;
       toast.info(`${udata?.name}, you are creating an video as ${role}`);
       setFormData((prev) => ({ ...prev, expert: udata as Expert }));
     }
@@ -98,6 +103,7 @@ export default function CreateVideo() {
       if (formData.thumbnail)
         articleData.append("thumbnail", formData.thumbnail);
       articleData.append("categoryId", formData.category.id.toString());
+      articleData.append("is_premium", formData.is_premium.toString());
       formData.tags.forEach((tag) => {
         articleData.append("tags[]", tag);
       });
@@ -135,7 +141,7 @@ export default function CreateVideo() {
             <FileUploader
               onUploadSuccess={(url) => {
                 handleChange("link", url);
-                setCanAddMoreInfo(true); // Enable form fields
+                setCanAddMoreInfo(true);
                 toast.success("You can now fill in the video details.");
               }}
             />
@@ -205,6 +211,21 @@ export default function CreateVideo() {
                 selectedExpert={formData.expert}
                 onChange={(expert) => expert && handleChange("expert", expert)}
               />
+            </div>
+            <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+              <Switch
+                checked={formData.is_premium}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    is_premium: checked,
+                  }))
+                }
+              />
+
+              <Text variant='secondary' size='sm'>
+                Is Premium
+              </Text>
             </div>
           </div>
           <div className='flex justify-end'>

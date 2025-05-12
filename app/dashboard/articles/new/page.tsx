@@ -1,6 +1,6 @@
 "use client";
 
-import { Router, Upload } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -10,9 +10,12 @@ import logger from "@/lib/logger";
 import Button from "@/components/buttons/Button";
 import { Card } from "@/components/cards/card";
 import { TextEditor } from "@/components/editor/Editor";
+import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
-import LoadingOverlay from "@/components/loading/LoadingOverlay";
+import CustomSelect from "@/components/select/Select";
+import { Switch } from "@/components/switch/switch";
 import TagInput from "@/components/tagInput/TagInput";
+import Text from "@/components/text/Text";
 
 import CategorySelect from "@/app/_app-components/getCategories";
 import ExpertSelect from "@/app/_app-components/getExperts";
@@ -24,9 +27,6 @@ import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
 import { Category } from "@/types/categories-types";
 import { Expert } from "@/types/experts";
-import CustomSelect from "@/components/select/Select";
-import { useRouter } from "next/navigation";
-import ImageUploader from "@/components/ImageUploader/ImageUploader";
 
 type FormState = {
   title: string;
@@ -34,6 +34,7 @@ type FormState = {
   excerpt: string;
   tags: string[];
   type: string;
+  is_premium: boolean;
   category: Category;
   min_to_read: number;
   feature_image: File | null;
@@ -46,13 +47,14 @@ export default function CreateBlog() {
   const user = useSelector(selectCurrentUser);
   const router = useRouter();
   const { refetch } = useGetArticlesQuery();
-
+  
   const [formData, setFormData] = useState<FormState>({
     title: "",
     content: "",
     excerpt: "",
     type: "",
     tags: [],
+    is_premium: false,
     category: { id: 0, name: "", icon: "", translations: [] },
     min_to_read: 5,
     feature_image: null,
@@ -93,6 +95,7 @@ export default function CreateBlog() {
       articleData.append("title", formData.title);
       articleData.append("content", formData.content);
       articleData.append("excerpt", formData.excerpt);
+      articleData.append("is_premium", formData.is_premium.toString());
       articleData.append("min_to_read", formData.min_to_read.toString());
       articleData.append("expertId", formData?.expert?.expert_id.toString());
       articleData.append("type", formData.type);
@@ -120,16 +123,6 @@ export default function CreateBlog() {
       toast.error("Failed to create article. Please try again.");
     }
   };
-
-  const handleImageUpload = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        setFormData((prev) => ({ ...prev, feature_image: file }));
-      }
-    },
-    []
-  );
 
   const handleChange = useCallback(
     <K extends keyof FormState>(field: K, value: FormState[K]) => {
@@ -219,6 +212,21 @@ export default function CreateBlog() {
               selectedExpert={formData.expert}
               onChange={(expert) => expert && handleChange("expert", expert)}
             />
+          </div>
+          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+            <Switch
+              checked={formData.is_premium}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  is_premium: checked,
+                }))
+              }
+            />
+
+            <Text variant='secondary' size='sm'>
+              Is Premium
+            </Text>
           </div>
           <div className='flex justify-end'>
             <Button

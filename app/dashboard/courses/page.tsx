@@ -12,6 +12,7 @@ import Text from "@/components/text/Text";
 
 import { BASE_URL } from "@/constant/env";
 import { useGetCoursesQuery } from "@/redux/api/courses-api";
+import { LockKeyhole } from "lucide-react";
 
 export default function CoursesPage() {
   const { data, error, isLoading } = useGetCoursesQuery();
@@ -72,6 +73,11 @@ export default function CoursesPage() {
                     fill
                     className='object-cover'
                   />
+                  {course.is_premium && (
+                    <div className='absolute top-2 right-2 text-white bg-black/50 rounded-full p-1'>
+                      <LockKeyhole size={24} />
+                    </div> 
+                  )}
                   <div
                     className='absolute flex items-center gap-3 bottom-2 left-2 right-2 px-3 py-1 rounded-full'
                     style={{

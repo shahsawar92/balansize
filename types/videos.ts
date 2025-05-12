@@ -3,6 +3,7 @@ export interface Video {
   title: string;
   type: string;
   link: string;
+  is_premium: boolean;
   thumbnail: string;
   category: {
     id: number;
