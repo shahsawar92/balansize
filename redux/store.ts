@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
+import homeMessageApiReducer from "./api/app-message-api";
 import articlesReducer from "./api/articles-api";
 import authApi from "./api/auth-api";
 import categoryReducer from "./api/categories-api";
@@ -11,7 +12,9 @@ import homeApiReducer from "./api/home-api";
 import notificationApiReducer from "./api/notifications-api";
 import onboardingApiReducer from "./api/onboarding-api";
 import partnerApiReducer from "./api/partners-api";
+import planApiReducer from "./api/plan-api";
 import questionReducer from "./api/questionnaire-api";
+import quizQuestionApiReducer from "./api/quiz-questions";
 import tagsApiReducer from "./api/tags-api";
 import uploadApiReducer from "./api/uploads-api";
 import userApiReducer from "./api/users-api";
@@ -19,8 +22,7 @@ import videosApiReducer from "./api/videos-api";
 // Import your reducers here
 // import counterReducer from "./slices/counterSlice";
 import authReducer from "./features/auth-slice";
-import quizQuestionApiReducer from "./api/quiz-questions";
-import homeMessageApiReducer from "./api/app-message-api";
+
 export const store = configureStore({
   reducer: {
     // counter: counterReducer,
@@ -42,6 +44,7 @@ export const store = configureStore({
     [notificationApiReducer.reducerPath]: notificationApiReducer.reducer,
     [quizQuestionApiReducer.reducerPath]: quizQuestionApiReducer.reducer,
     [homeMessageApiReducer.reducerPath]: homeMessageApiReducer.reducer,
+    [planApiReducer.reducerPath]: planApiReducer.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -61,7 +64,8 @@ export const store = configureStore({
       .concat(onboardingApiReducer.middleware)
       .concat(notificationApiReducer.middleware)
       .concat(quizQuestionApiReducer.middleware)
-      .concat(homeMessageApiReducer.middleware),
+      .concat(homeMessageApiReducer.middleware)
+      .concat(planApiReducer.middleware),
 });
 
 // Infer types for state and dispatch
