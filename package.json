@@ -17,6 +17,7 @@
     "clsx": "^2.0.0",
     "date-fns": "^4.1.0",
     "heroicons": "^2.2.0",
+    "isomorphic-dompurify": "^2.24.0",
     "lucide-react": "^0.438.0",
     "next": "14.2.22",
     "react": "^18",
