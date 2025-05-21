@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 
 import Button from "@/components/buttons/Button";
 import { Card, CardContent } from "@/components/cards/card";
+import SanitizeHtmlWidget from "@/components/html-parser/sanitieHtml";
 import Text from "@/components/text/Text";
 
 import { BASE_URL } from "@/constant/env";
@@ -20,7 +21,6 @@ import {
   useGetCourseQuery,
   useGetCoursesQuery,
 } from "@/redux/api/courses-api";
-import { LockKeyhole } from "lucide-react";
 import logger from "@/lib/logger";
 
 export default function SingleCoursePage() {
@@ -85,7 +85,7 @@ export default function SingleCoursePage() {
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error fetching course details.</p>;
-
+  logger(data?.data, "Course Data");
   const course = data?.data;
   if (!course) return <p>Course not found.</p>;
   return (
@@ -100,7 +100,7 @@ export default function SingleCoursePage() {
               fill
               className='object-cover'
             />
-           
+
             <Button
               variant='light'
               className='absolute top-2 right-2'
@@ -136,6 +136,12 @@ export default function SingleCoursePage() {
             {course.category && (
               <p className='text-sm md:text-base text-gray-600 mt-2'>
                 Category: {course.category?.name}
+              </p>
+            )}
+            {course.content && (
+              <p className='text-sm md:text-base text-gray-600 mt-2'>
+                Description:{" "}
+                {SanitizeHtmlWidget({ htmlContent: course.content })}
               </p>
             )}
             <p className='mt-3 text-xs md:text-sm text-gray-500'>

@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
+import { TextEditor } from "@/components/editor/Editor";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
 import Text from "@/components/text/Text";
@@ -18,7 +19,6 @@ import {
 } from "@/redux/api/community-api";
 
 import { Community } from "@/types/community";
-import { TextEditor } from "@/components/editor/Editor";
 
 export default function EditCommunityPage() {
   const router = useRouter();

@@ -4,6 +4,7 @@ export interface Course {
   course_id: number;
   title: string;
   featured_image: string;
+  content: string;
   is_premium: boolean;
   expert: {
     id: number;

@@ -9,6 +9,7 @@ import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
 import { Card } from "@/components/cards/card";
+import { TextEditor } from "@/components/editor/Editor";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
 import { Switch } from "@/components/switch/switch";
@@ -30,6 +31,7 @@ type FormState = {
   title: string;
   tags: string[];
   is_premium: boolean;
+  content: string;
   category: Category;
   featured_image: File | null;
   expert: Expert;
@@ -48,6 +50,7 @@ export default function CreateBlog() {
     category: { id: 0, name: "", icon: "", translations: [] },
     featured_image: null,
     is_premium: false,
+    content: "",
     expert: user || {
       id: 0,
       name: "",
@@ -92,7 +95,7 @@ export default function CreateBlog() {
       if (formData.featured_image) {
         articleData.append("featured_image", formData.featured_image);
       }
-
+      articleData.append("content", formData.content);
       articleData.append("categoryId", formData.category.id.toString());
 
       formData.tags.forEach((tag) => {
@@ -156,6 +159,14 @@ export default function CreateBlog() {
             />
           </div>
 
+          <TextEditor
+            initialValue={formData.content}
+            placeholder='Description'
+            height={300}
+            onChange={(content) =>
+              setFormData((prev) => ({ ...prev, content }))
+            }
+          />
           <div onClick={(e) => e.preventDefault()}>
             <CategorySelect
               selectedCategory={formData.category}
