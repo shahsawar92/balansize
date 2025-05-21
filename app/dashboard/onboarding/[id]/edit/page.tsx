@@ -7,12 +7,12 @@ import { toast } from "react-toastify";
 import Button from "@/components/buttons/Button";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 
+import { BASE_URL } from "@/constant/env";
 import {
   useGetOnboardingPartnersQuery,
   useGetSingleOnboardingPartnerQuery,
   useUpdateOnboardingPartnerMutation,
 } from "@/redux/api/onboarding-api";
-import { BASE_URL } from "@/constant/env";
 
 export default function EditOnboardingPage() {
   const router = useRouter();

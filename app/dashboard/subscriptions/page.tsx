@@ -6,17 +6,15 @@ import Swal from "sweetalert2";
 
 import logger from "@/lib/logger";
 
-import { Card } from "@/components/cards/card";
-import Text from "@/components/text/Text";
 import Button from "@/components/buttons/Button";
+import { Card } from "@/components/cards/card";
 import SanitizeHtmlWidget from "@/components/html-parser/sanitieHtml";
+import Text from "@/components/text/Text";
 
 import { AddPlanForm } from "@/app/dashboard/subscriptions/components/add-plan-form";
 import {
-  useAddPlanMutation,
   useDeletePlanMutation,
   useGetPlansQuery,
-  useUpdatePlanMutation,
 } from "@/redux/api/plan-api";
 
 import { Plan } from "@/types/plans";

@@ -5,6 +5,7 @@ import homeMessageApiReducer from "./api/app-message-api";
 import articlesReducer from "./api/articles-api";
 import authApi from "./api/auth-api";
 import categoryReducer from "./api/categories-api";
+import communityApiReducer from "./api/community-api";
 import courseDetailsApiReducer from "./api/course-detail-api";
 import courseApiReducer from "./api/courses-api";
 import expertApiReducer from "./api/expert-api";
@@ -45,6 +46,7 @@ export const store = configureStore({
     [quizQuestionApiReducer.reducerPath]: quizQuestionApiReducer.reducer,
     [homeMessageApiReducer.reducerPath]: homeMessageApiReducer.reducer,
     [planApiReducer.reducerPath]: planApiReducer.reducer,
+    [communityApiReducer.reducerPath]: communityApiReducer.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -65,7 +67,8 @@ export const store = configureStore({
       .concat(notificationApiReducer.middleware)
       .concat(quizQuestionApiReducer.middleware)
       .concat(homeMessageApiReducer.middleware)
-      .concat(planApiReducer.middleware),
+      .concat(planApiReducer.middleware)
+      .concat(communityApiReducer.middleware),
 });
 
 // Infer types for state and dispatch

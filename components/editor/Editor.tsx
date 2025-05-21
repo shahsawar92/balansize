@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
+import { useRef } from "react";
 import { Editor as TinyMCEEditorType } from "tinymce";
+
 import { editorKey } from "@/constant/env";
 
 type TinyMCEEditorProps = {
