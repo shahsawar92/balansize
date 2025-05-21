@@ -27,12 +27,14 @@ import { Category } from "@/types/categories-types";
 import { Expert } from "@/types/experts";
 import { Switch } from "@/components/switch/switch";
 import Text from "@/components/text/Text";
+import { TextEditor } from "@/components/editor/Editor";
 
 type FormState = {
   title: string;
   tags: string[];
   category: Category;
   is_premium: boolean;
+  content: string;
   featured_image: File | string | null;
   expert: Expert;
 };
@@ -53,6 +55,7 @@ export default function CreateBlog() {
       const mappedExpert: Expert = {
         expert_id: expert.id,
         expert_name: expert.name,
+
         about: "",
         designation: "",
         profile_picture: "",
@@ -62,6 +65,7 @@ export default function CreateBlog() {
         ...prev,
         ...restData,
         expert: mappedExpert,
+
         featured_image: featured_image,
       }));
     }
@@ -73,6 +77,7 @@ export default function CreateBlog() {
     is_premium: false,
     category: { id: 0, name: "", icon: "", translations: [] },
     featured_image: null,
+    content: "",
     expert: user
       ? {
           expert_id: user.id ?? 0,
@@ -126,6 +131,7 @@ export default function CreateBlog() {
       if (formData.featured_image) {
         articleData.append("featured_image", formData.featured_image);
       }
+      articleData.append("content", formData.content);
 
       formData.tags.forEach((tag) => {
         articleData.append("tags[]", tag);
@@ -140,7 +146,7 @@ export default function CreateBlog() {
       toast.success("Article created successfully!");
       logger(response, "Article created successfully");
 
-      await refetch();
+      refetch();
       router.push(`/dashboard/courses`);
     } catch (error) {
       logger(error, "Error creating article:");
@@ -192,6 +198,13 @@ export default function CreateBlog() {
               onTagsChange={(newTags) => handleChange("tags", newTags)}
             />
           </div>
+
+          <TextEditor
+            initialValue={formData?.content ?? ""}
+            onChange={(value) => handleChange("content", value)}
+            placeholder='Write your article content here...'
+            height={300}
+          />
 
           <div onClick={(e) => e.preventDefault()}>
             <CategorySelect
