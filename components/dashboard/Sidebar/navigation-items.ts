@@ -14,6 +14,7 @@ import {
 import { FileQuestion, Table } from "lucide-react";
 import path from "path";
 import {
+  RiCommunityFill,
   RiNotification2Fill,
   RiNotification2Line,
   RiQuestionAnswerLine,
@@ -66,6 +67,11 @@ export const navigationItems = [
     label: "Partners",
     path: "/dashboard/partners",
     icon: UserGroupIcon,
+  },
+  {
+    label: "Community",
+    path: "/dashboard/community",
+    icon: RiCommunityFill,
   },
   {
     label: "Onboarding",
