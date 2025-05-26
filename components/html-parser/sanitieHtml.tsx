@@ -12,7 +12,7 @@ const SanitizeHtmlWidget = ({ htmlContent }: { htmlContent: string }) => {
 
   return (
     <div
-      className='sanitizedHTML font-roboto text-cps-projects text-sm text-muted text-gray-800'
+      className='sanitizedHTML  font-roboto text-cps-projects text-sm text-muted text-gray-800'
       dangerouslySetInnerHTML={{ __html: clean }}
     />
   );

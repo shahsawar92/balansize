@@ -74,11 +74,17 @@ export default function CommunitiesPage() {
       ),
     },
     {
-      header: "Name",
+      header: "Link",
       accessor: (c: Community) => c.link,
       cell: (c: Community) => (
-        <Text variant='main' className='text-sm text-main-brown'>
-          {c.link}
+        <Text variant='main' classNames=''>
+          <a
+            href={c.link}
+            target='_blank'
+            rel='noopener noreferrer'
+            className='text-blue-500 hover:underline'>
+            Link
+          </a>
         </Text>
       ),
     },
@@ -88,7 +94,7 @@ export default function CommunitiesPage() {
       cell: (c: Community) => (
         <Text
           variant='main'
-          className='text-sm text-main-brown max-w-sm text-center'>
+          classNames='max-w-sm break-words whitespace-normal overflow-hidden text-ellipsis'>
           {SanitizeHtmlWidget({ htmlContent: c.description })}
         </Text>
       ),
@@ -100,7 +106,7 @@ export default function CommunitiesPage() {
         <div className='flex gap-2'>
           <button
             onClick={() => router.push(`/dashboard/community/${c.id}/edit`)}
-            className='p-2 hover:bg-secondary-500 rounded-lg flex gap-2 items-center'>
+            className='flex gap-2 items-center p-2 hover:bg-secondary-500 rounded-lg'>
             <Edit className='w-4 h-4 text-main-brown' /> Edit
           </button>
           <button
