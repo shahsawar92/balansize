@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import Select from "react-select";
 import { toast } from "react-toastify";
 
 import logger from "@/lib/logger";
@@ -10,7 +11,6 @@ import Button from "@/components/buttons/Button";
 import { TextEditor } from "@/components/editor/Editor";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
-import CustomSelect from "@/components/select/Select";
 import TagInput from "@/components/tagInput/TagInput";
 
 import CategorySelect from "@/app/_app-components/getCategories";
@@ -72,6 +72,17 @@ export default function AddExpertPage() {
     setExpert({ ...expert, [key]: value });
   };
 
+  const selectedValues = expert.type
+    ? EXPERTS_DESIGNATION.filter((opt) =>
+        expert.type.split(",").includes(opt.value)
+      )
+    : [];
+
+  const handleTypeChange = (selectedOptions: any) => {
+    const values = selectedOptions.map((opt: any) => opt.value).join(",");
+    setExpert((prev) => ({ ...prev, type: values }));
+  };
+
   return (
     <div className='w-full max-w-7xl py-5 px-5 mx-auto bg-secondary-100 rounded-2xl'>
       <form onSubmit={handleSubmit} className='space-y-6 mt-12 max-w-2xl'>
@@ -93,19 +104,15 @@ export default function AddExpertPage() {
             }
           />
         </div>
-        <div onClick={(e) => e.preventDefault()}>
-          <CustomSelect
+        <div className='w-full mt-0'>
+          <Select
+            isMulti
             options={EXPERTS_DESIGNATION}
-            value={expert.type}
-            onChange={(value) => handleChange("type", value)}
+            value={selectedValues}
+            onChange={handleTypeChange}
             placeholder='Select Type'
-            variant='light'
-            classNames={{
-              container: "w-full  mt-0",
-              trigger: "rounded-full w-full",
-            }}
-            size='base'
-            withBorder
+            className='w-full z-10'
+            classNamePrefix='react-select'
           />
         </div>
         <div onClick={(e) => e.preventDefault()}>
