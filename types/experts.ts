@@ -6,6 +6,7 @@ export interface Expert {
   profile_picture: string | File;
   category_id?: number;
   category_name?: string;
+  calendly_link?: string;
   tags?: string[];
   type?: string;
 }

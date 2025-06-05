@@ -37,6 +37,7 @@ export default function AddExpertPage() {
     type: "",
     tags: [],
     categoryId: 0,
+    calendly_link: "",
   });
   const [imageFile, setImageFile] = useState<File | null>(null); // Store the actual file
 
@@ -49,6 +50,7 @@ export default function AddExpertPage() {
       formData.append("about", expert.about);
       formData.append("type", expert.type);
       formData.append("categoryId", (expert.categoryId ?? 0).toString());
+      formData.append("calendly_link", expert.calendly_link);
       expert.tags.forEach((tag) => formData.append("tags[]", tag));
 
       if (imageFile) {
@@ -123,7 +125,17 @@ export default function AddExpertPage() {
             onChange={(content) => handleChange("about", content)}
           />
         </div>
-
+        <div className=''>
+          <Input
+            placeholder='Appointment Link'
+            variant='light'
+            className='w-full '
+            value={expert.calendly_link}
+            onChange={(e) =>
+              setExpert({ ...expert, calendly_link: e.target.value })
+            }
+          />
+        </div>
         {/* Category Selection */}
         <div onClick={(e) => e.preventDefault()}>
           <CategorySelect
