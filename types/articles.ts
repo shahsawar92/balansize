@@ -19,6 +19,7 @@ export interface Article {
   content: string;
   type: string;
   is_premium: boolean;
+  is_publish: boolean;
   min_to_read: number;
   tags?: Tags[];
   feature_image: string | null;

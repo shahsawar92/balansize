@@ -35,6 +35,7 @@ type FormState = {
   tags: string[];
   type: string;
   is_premium: boolean;
+  is_publish: boolean;
   category: Category;
   min_to_read: number;
   feature_image: File | null;
@@ -47,7 +48,7 @@ export default function CreateBlog() {
   const user = useSelector(selectCurrentUser);
   const router = useRouter();
   const { refetch } = useGetArticlesQuery();
-  
+
   const [formData, setFormData] = useState<FormState>({
     title: "",
     content: "",
@@ -55,6 +56,7 @@ export default function CreateBlog() {
     type: "",
     tags: [],
     is_premium: false,
+    is_publish: false,
     category: { id: 0, name: "", icon: "", translations: [] },
     min_to_read: 5,
     feature_image: null,
@@ -96,6 +98,7 @@ export default function CreateBlog() {
       articleData.append("content", formData.content);
       articleData.append("excerpt", formData.excerpt);
       articleData.append("is_premium", formData.is_premium.toString());
+      articleData.append("is_publish", formData.is_publish.toString());
       articleData.append("min_to_read", formData.min_to_read.toString());
       articleData.append("expertId", formData?.expert?.expert_id.toString());
       articleData.append("type", formData.type);
@@ -213,20 +216,37 @@ export default function CreateBlog() {
               onChange={(expert) => expert && handleChange("expert", expert)}
             />
           </div>
-          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
-            <Switch
-              checked={formData.is_premium}
-              onCheckedChange={(checked) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  is_premium: checked,
-                }))
-              }
-            />
+          <div className='flex justify-between items-center gap-4'>
+            <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+              <Switch
+                checked={formData.is_premium}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    is_premium: checked,
+                  }))
+                }
+              />
 
-            <Text variant='secondary' size='sm'>
-              Is Premium
-            </Text>
+              <Text variant='secondary' size='sm'>
+                Is Premium
+              </Text>
+            </div>
+            <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+              <Switch
+                checked={formData.is_publish}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    is_publish: checked,
+                  }))
+                }
+              />
+
+              <Text variant='secondary' size='sm'>
+                Is Published
+              </Text>
+            </div>
           </div>
           <div className='flex justify-end'>
             <Button
