@@ -2,7 +2,7 @@
 
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 
 import logger from "@/lib/logger";
@@ -34,26 +34,26 @@ export default function UsersPage() {
     router.push(`/dashboard/users/${user.id}/edit`);
   };
 
-  // const handleDelete = async (user: User) => {
-  //   try {
-  //     Swal.fire({
-  //       title: "Are you sure?",
-  //       text: "This action cannot be undone!",
-  //       icon: "warning",
-  //       showCancelButton: true,
-  //       confirmButtonColor: "#d33",
-  //       cancelButtonColor: "#3085d6",
-  //       confirmButtonText: "Yes, delete it!",
-  //     }).then((result) => {
-  //       if (result.isConfirmed) {
-  //         deleteUser(user.id);
-  //         setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
-  //       }
-  //     });
-  //   } catch (error) {
-  //     logger(error, "Delete Error");
-  //   }
-  // };
+  const handleDelete = async (user: User) => {
+    try {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          deleteUser(user.id);
+          setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
+        }
+      });
+    } catch (error) {
+      logger(error, "Delete Error");
+    }
+  };
 
   const columns = [
     {
@@ -99,18 +99,27 @@ export default function UsersPage() {
         <div className='flex items-center gap-3'>
           <button
             onClick={() => handleEdit(user)}
-            className='p-2 hover:bg-gray-100 rounded-lg flex items-center gap-2 transition-colors'>
+            className='px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center gap-2 transition-colors'>
             <PencilSquareIcon className='w-5 h-5 text-main-brown' /> Edit
           </button>
-          {/* <button
+          <button
             onClick={() => handleDelete(user)}
-            className='p-2 hover:bg-red-500 text-white rounded-lg transition-colors'>
-            <TrashIcon className='w-5 h-5' /> Delete
-          </button> */}
+            className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg flex transition-colors'>
+            <TrashIcon className='w-5 h-5 ' /> Delete
+          </button>
         </div>
       ),
     },
   ];
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm) return users;
+
+    return users?.filter((user) =>
+      Object.values(user).some((value) =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [users, searchTerm]);
 
   return (
     <div className='mx-auto'>
@@ -118,7 +127,7 @@ export default function UsersPage() {
         <p>Loading users...</p>
       ) : (
         <Table
-          data={users}
+          data={filteredUsers}
           columns={columns as Column<User>[]}
           selectable={false}
           itemsPerPage={10}
