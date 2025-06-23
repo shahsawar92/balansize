@@ -6,9 +6,8 @@ import { cn } from "@/lib/utils";
 import { useViewport } from "@/lib/view-port";
 
 import Input from "../input/Input";
-import Text from "../text/Text";
-import { Link } from "lucide-react";
 import ButtonLink from "../links/ButtonLink";
+import Text from "../text/Text";
 
 interface Column<T> {
   header: string;
@@ -39,6 +38,7 @@ interface TableProps<T> {
     pagination?: string;
   };
   selectable?: boolean;
+  serialno?: boolean;
   onSelectionChange?: (selectedRows: T[]) => void;
   itemsPerPage?: number;
   isSearchable?: boolean;
@@ -51,6 +51,7 @@ export default function Table<T extends { id: string | number }>({
   columns,
   onRowClick,
   selectable = false,
+  serialno = false,
   onSelectionChange,
   headerButton,
   headerButton2,
@@ -184,6 +185,8 @@ export default function Table<T extends { id: string | number }>({
                   />
                 </th>
               )}
+              {/* Sr. No Column Header */}
+              {serialno && <th className='px-6 py-3 text-center'>Sr. No</th>}
               {columns.map((column, index) => (
                 <th
                   key={index}
@@ -263,6 +266,19 @@ export default function Table<T extends { id: string | number }>({
                     />
                   </td>
                 )}
+
+                {serialno && (
+                  <td className='px-6 py-4 whitespace-nowrap text-center'>
+                    <Text
+                      variant='secondary'
+                      size='sm'
+                      tagName='span'
+                      weight='normal'>
+                      {(currentPage - 1) * itemsPerPage + rowIndex + 1}
+                    </Text>
+                  </td>
+                )}
+
                 {columns.map((column, colIndex) => (
                   <td
                     key={colIndex + 1}

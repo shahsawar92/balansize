@@ -15,6 +15,7 @@ import { useDeleteUserMutation, useGetUsersQuery } from "@/redux/api/users-api";
 
 import { Column } from "@/types/user";
 import { User } from "@/types/users";
+import { headers } from "next/headers";
 
 export default function UsersPage() {
   const { data, isLoading } = useGetUsersQuery();
@@ -57,14 +58,6 @@ export default function UsersPage() {
 
   const columns = [
     {
-      header: "#",
-      accessor: "id",
-      sortable: false,
-      cell: (user: User) => (
-        <span className='text-sm text-gray-600'>{user.id}</span>
-      ),
-    },
-    {
       header: "Name",
       accessor: "first_name",
       sortable: true,
@@ -88,6 +81,22 @@ export default function UsersPage() {
       cell: (user: User) => (
         <span className={cn("px-2 py-1 rounded-full text-xs font-medium")}>
           {user.user_type}
+        </span>
+      ),
+    },
+    {
+      header: "Created At",
+      accessor: "createdAt",
+      sortable: true,
+      cell: (user: User) => (
+        <span>
+          {new Date(user.createdAt).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </span>
       ),
     },
@@ -128,6 +137,7 @@ export default function UsersPage() {
       ) : (
         <Table
           data={filteredUsers}
+          serialno={true}
           columns={columns as Column<User>[]}
           selectable={false}
           itemsPerPage={10}
