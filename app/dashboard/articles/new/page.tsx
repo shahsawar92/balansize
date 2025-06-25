@@ -36,6 +36,7 @@ type FormState = {
   type: string;
   is_premium: boolean;
   is_publish: boolean;
+  is_daily_inspiration: boolean;
   category: Category;
   min_to_read: number;
   feature_image: File | null;
@@ -57,6 +58,7 @@ export default function CreateBlog() {
     tags: [],
     is_premium: false,
     is_publish: false,
+    is_daily_inspiration: false,
     category: { id: 0, name: "", icon: "", translations: [] },
     min_to_read: 5,
     feature_image: null,
@@ -92,6 +94,8 @@ export default function CreateBlog() {
       return;
     }
 
+    logger(formData, "Submitting form data");
+
     try {
       const articleData = new FormData();
       articleData.append("title", formData.title);
@@ -99,6 +103,10 @@ export default function CreateBlog() {
       articleData.append("excerpt", formData.excerpt);
       articleData.append("is_premium", formData.is_premium.toString());
       articleData.append("is_publish", formData.is_publish.toString());
+      articleData.append(
+        "is_daily_inspiration",
+        formData.is_daily_inspiration.toString()
+      );
       articleData.append("min_to_read", formData.min_to_read.toString());
       articleData.append("expertId", formData?.expert?.expert_id.toString());
       articleData.append("type", formData.type);
@@ -245,6 +253,21 @@ export default function CreateBlog() {
 
               <Text variant='secondary' size='sm'>
                 Is Published
+              </Text>
+            </div>
+            <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+              <Switch
+                checked={formData.is_daily_inspiration}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    is_daily_inspiration: checked,
+                  }))
+                }
+              />
+
+              <Text variant='secondary' size='sm'>
+                Is Daily Inspiration
               </Text>
             </div>
           </div>

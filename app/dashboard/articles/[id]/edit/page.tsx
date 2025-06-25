@@ -14,7 +14,9 @@ import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
 import LoadingOverlay from "@/components/loading/LoadingOverlay";
 import CustomSelect from "@/components/select/Select";
+import { Switch } from "@/components/switch/switch";
 import TagInput from "@/components/tagInput/TagInput";
+import Text from "@/components/text/Text";
 
 import CategorySelect from "@/app/_app-components/getCategories";
 import ExpertSelect from "@/app/_app-components/getExperts";
@@ -29,8 +31,6 @@ import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
 import { Expert } from "@/types/articles";
 import { Category } from "@/types/categories-types";
-import { Switch } from "@/components/switch/switch";
-import Text from "@/components/text/Text";
 
 export default function CreateBlog() {
   const role = useSelector(selectUserRole);
@@ -52,6 +52,7 @@ export default function CreateBlog() {
     category: Category;
     is_premium: boolean;
     is_publish: boolean;
+    is_daily_inspiration: boolean;
     min_to_read: number;
     feature_image: string | null;
     expert: Expert;
@@ -63,6 +64,7 @@ export default function CreateBlog() {
     tags: [],
     is_premium: false,
     is_publish: false,
+    is_daily_inspiration: false,
     category: {
       id: 0,
       name: "",
@@ -90,6 +92,7 @@ export default function CreateBlog() {
         is_premium,
         min_to_read,
         is_publish,
+        is_daily_inspiration,
         feature_image,
         category,
         tags,
@@ -104,6 +107,7 @@ export default function CreateBlog() {
         type,
         is_premium,
         is_publish,
+        is_daily_inspiration,
         tags: Array.isArray(tags) ? tags.map((tag) => String(tag)) : [],
         min_to_read,
         feature_image,
@@ -143,6 +147,11 @@ export default function CreateBlog() {
       articleData.append("expertId", formData?.expert?.id.toString());
       articleData.append("is_premium", formData?.is_premium?.toString());
       articleData.append("is_publish", formData?.is_publish?.toString());
+      articleData.append(
+        "is_daily_inspiration",
+        formData?.is_daily_inspiration?.toString()
+      );
+
       articleData.append("type", formData.type);
 
       if (formData.feature_image) {
@@ -176,7 +185,7 @@ export default function CreateBlog() {
     content: string;
     excerpt: string;
     is_premium: boolean;
-
+    is_daily_inspiration: boolean;
     type: string;
     tags: string[];
     category: Category;
@@ -193,8 +202,6 @@ export default function CreateBlog() {
     },
     []
   );
-
-  logger(formData.feature_image, "featured image");
 
   return (
     <div className='min-h-screen bg-secondary-100 p-6'>
@@ -296,7 +303,7 @@ export default function CreateBlog() {
               }
             />
           </div>
-          <div className='flex justify-between items-center gap-4'>
+          <div className='flex justify-between items-center gap-4 flex-col md:flex-row'>
             <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
               <Switch
                 checked={formData.is_premium}
@@ -325,6 +332,21 @@ export default function CreateBlog() {
 
               <Text variant='secondary' size='sm'>
                 Is Published
+              </Text>
+            </div>
+            <div className='flex  items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+              <Switch
+                checked={formData.is_daily_inspiration}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    is_daily_inspiration: checked,
+                  }))
+                }
+              />
+
+              <Text variant='secondary' size='sm'>
+                Is Daily Inspiration
               </Text>
             </div>
           </div>

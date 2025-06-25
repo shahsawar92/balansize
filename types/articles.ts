@@ -16,10 +16,12 @@ export interface Article {
   article_id?: number;
   title: string;
   excerpt: string;
+  is_daily_inspiration: boolean;
   content: string;
   type: string;
   is_premium: boolean;
   is_publish: boolean;
+
   min_to_read: number;
   tags?: Tags[];
   feature_image: string | null;

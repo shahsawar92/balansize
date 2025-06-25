@@ -75,7 +75,7 @@ export default function UsersPage() {
       sortable: true,
     },
     {
-      header: "Role",
+      header: "Subscription plan",
       accessor: "user_type",
       sortable: true,
       cell: (user: User) => (
