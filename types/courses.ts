@@ -6,6 +6,7 @@ export interface Course {
   featured_image: string;
   content: string;
   is_premium: boolean;
+  is_publish: boolean;
   expert: {
     id: number;
     name: string;

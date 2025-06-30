@@ -9,9 +9,12 @@ import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
 import { Card } from "@/components/cards/card";
+import { TextEditor } from "@/components/editor/Editor";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
+import { Switch } from "@/components/switch/switch";
 import TagInput from "@/components/tagInput/TagInput";
+import Text from "@/components/text/Text";
 
 import CategorySelect from "@/app/_app-components/getCategories";
 import ExpertSelect from "@/app/_app-components/getExperts";
@@ -25,15 +28,13 @@ import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
 import { Category } from "@/types/categories-types";
 import { Expert } from "@/types/experts";
-import { Switch } from "@/components/switch/switch";
-import Text from "@/components/text/Text";
-import { TextEditor } from "@/components/editor/Editor";
 
 type FormState = {
   title: string;
   tags: string[];
   category: Category;
   is_premium: boolean;
+  is_publish: boolean;
   content: string;
   featured_image: File | string | null;
   expert: Expert;
@@ -65,7 +66,8 @@ export default function CreateBlog() {
         ...prev,
         ...restData,
         expert: mappedExpert,
-
+        is_publish: restData.is_publish ?? false,
+        is_premium: restData.is_premium ?? false,
         featured_image: featured_image,
       }));
     }
@@ -75,6 +77,7 @@ export default function CreateBlog() {
     title: "",
     tags: [],
     is_premium: false,
+    is_publish: false,
     category: { id: 0, name: "", icon: "", translations: [] },
     featured_image: null,
     content: "",
@@ -128,6 +131,7 @@ export default function CreateBlog() {
       );
       articleData.append("categoryId", formData.category.id.toString());
       articleData.append("is_premium", formData.is_premium.toString());
+      articleData.append("is_publish", formData.is_publish.toString());
       if (formData.featured_image) {
         articleData.append("featured_image", formData.featured_image);
       }
@@ -221,20 +225,38 @@ export default function CreateBlog() {
               onChange={(expert) => expert && handleChange("expert", expert)}
             />
           </div>
-          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
-            <Switch
-              checked={formData.is_premium}
-              onCheckedChange={(checked) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  is_premium: checked,
-                }))
-              }
-            />
+          <div className='flex justify-between items-center gap-4 flex-col md:flex-row'>
+            <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+              <Switch
+                checked={formData.is_premium}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    is_premium: checked,
+                  }))
+                }
+              />
 
-            <Text variant='secondary' size='sm'>
-              Is Premium
-            </Text>
+              <Text variant='secondary' size='sm'>
+                Is Premium
+              </Text>
+            </div>
+
+            <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+              <Switch
+                checked={formData.is_publish}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    is_publish: checked,
+                  }))
+                }
+              />
+
+              <Text variant='secondary' size='sm'>
+                Is Published
+              </Text>
+            </div>
           </div>
           <div className='flex justify-end'>
             <Button

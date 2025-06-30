@@ -9,6 +9,8 @@ interface video {
   id: number;
   title: string;
   link: string;
+  thumbnail: string;
+  is_free_lesson: boolean;
 }
 
 export interface CourseVideo {

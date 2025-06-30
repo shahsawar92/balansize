@@ -10,14 +10,17 @@ import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
 import { Card } from "@/components/cards/card";
+import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
+import { Switch } from "@/components/switch/switch";
+import Text from "@/components/text/Text";
 
 import FileUploader from "@/app/_app-components/fileUploader";
 import {
   useAddCourseVideoMutation,
   useGetCourseVideosQuery,
 } from "@/redux/api/course-detail-api";
-import { useGetCourseQuery, useGetCoursesQuery } from "@/redux/api/courses-api";
+import { useGetCoursesQuery } from "@/redux/api/courses-api";
 import { selectCurrentUser, selectUserRole } from "@/redux/features/auth-slice";
 
 import { Expert } from "@/types/experts";
@@ -26,6 +29,8 @@ type FormState = {
   title: string;
   link: string;
   courseId: number;
+  featured_image: File | null;
+  is_free_lesson: boolean;
 };
 
 export default function CreateVideo() {
@@ -42,6 +47,8 @@ export default function CreateVideo() {
   const [formData, setFormData] = useState<FormState>({
     title: "",
     link: "",
+    featured_image: null,
+    is_free_lesson: false,
     courseId: Number(Array.isArray(id) ? id[0] : id),
   });
 
@@ -86,6 +93,15 @@ export default function CreateVideo() {
       articleData.append("courseId", formData.courseId.toString());
       if (formData.link) articleData.append("link", formData.link);
 
+      if (formData.featured_image) {
+        articleData.append("featured_image", formData.featured_image);
+      }
+      if (formData.is_free_lesson !== undefined) {
+        articleData.append(
+          "is_free_lesson",
+          formData.is_free_lesson.toString()
+        );
+      }
       toast.info("Creating video, please wait...");
       const response = await addVideo(articleData).unwrap();
 
@@ -116,6 +132,16 @@ export default function CreateVideo() {
         <form onSubmit={handleSubmit} className='flex flex-col gap-5'>
           {/* Video Upload Section */}
           <div className='space-y-6'>
+            <ImageUploader
+              imageUrl={
+                formData.featured_image
+                  ? URL.createObjectURL(formData.featured_image)
+                  : "/images/placeholder.png"
+              }
+              onFileChange={(file) =>
+                setFormData((prev) => ({ ...prev, featured_image: file }))
+              }
+            />
             <FileUploader
               onUploadSuccess={(url) => {
                 handleChange("link", url);
@@ -138,6 +164,23 @@ export default function CreateVideo() {
               disabled={!canAddMoreInfo}
             />
           </div>
+
+          <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+            <Switch
+              checked={formData.is_free_lesson}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  is_free_lesson: checked,
+                }))
+              }
+            />
+
+            <Text variant='secondary' size='sm'>
+              Is this a free lesson?
+            </Text>
+          </div>
+
           <div className='flex justify-end'>
             <Button
               type='submit'

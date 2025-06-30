@@ -6,6 +6,8 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
+import logger from "@/lib/logger";
+
 import Button from "@/components/buttons/Button";
 import { Card, CardContent } from "@/components/cards/card";
 import SanitizeHtmlWidget from "@/components/html-parser/sanitieHtml";
@@ -21,7 +23,6 @@ import {
   useGetCourseQuery,
   useGetCoursesQuery,
 } from "@/redux/api/courses-api";
-import logger from "@/lib/logger";
 
 export default function SingleCoursePage() {
   const { id } = useParams();
@@ -177,30 +178,42 @@ export default function SingleCoursePage() {
           </h2>
 
           {isVideosLoading && <p>Loading videos...</p>}
-          {/* {videosError && <p>Error loading videos.</p>} */}
-
           <div className='space-y-4'>
             {courseVideosData?.result?.details &&
             courseVideosData.result.details.length > 0 ? (
               courseVideosData.result.details.map((video) => (
                 <div
                   key={video.id}
-                  className={`flex items-center gap-4 p-2 rounded-md cursor-pointer transition ${
+                  className={`flex items-center gap-4 p-2 rounded-md ${
+                    !video.is_free_lesson ? "opacity-75" : "cursor-pointer"
+                  } transition ${
                     selectedVideo?.id === video.id
                       ? "bg-gray-200"
                       : "hover:bg-gray-100"
                   }`}>
+                  <div className='w-24 h-16 relative'>
+                    <Image
+                      src={`${BASE_URL}/${video.thumbnail}`}
+                      alt={video.title}
+                      fill
+                      className='object-cover rounded'
+                    />
+                  </div>
                   <div
-                    className='flex-1'
-                    onClick={() => setSelectedVideo(video)}>
+                    className='flex-1 flex items-center gap-2'
+                    onClick={() =>
+                      video.is_free_lesson && setSelectedVideo(video)
+                    }>
                     <Text
                       variant='main'
                       weight='normal'
                       className='text-gray-800'>
                       {video.title}
                     </Text>
+                    {!video.is_free_lesson && (
+                      <span className='text-amber-600'>🔒</span>
+                    )}
                   </div>
-                  {/* Delete Icon */}
                   <button
                     className='text-red-500 hover:text-red-700 transition'
                     onClick={() => handleDeleteVideo(video.id)}>
