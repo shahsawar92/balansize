@@ -97,8 +97,8 @@ export default function PartnersPage() {
           <UnderlineLink
             href={partner.link ?? "#"}
             target='_blank'
-            className='text-sm text-main-brown border-none'>
-            {partner.link}
+            className='text-sm text-blue-400  border-none max-w-xs overflow-hidden text-ellipsis'>
+            link
           </UnderlineLink>
         </div>
       ),
@@ -108,9 +108,9 @@ export default function PartnersPage() {
       accessor: (partner: Partner) => partner.description,
       sortable: true,
       cell: (partner: Partner) => (
-        <div className='flex items-center gap-3 justify-center w-80 text-wrap overflow-hidden'>
+        <div className='flex items-center gap-3 text-center mx-auto justify-center w-80 text-wrap overflow-hidden'>
           <p
-            className='text-sm text-main-brown'
+            className='text-sm text-main-brown line-clamp-2 px-3'
             dangerouslySetInnerHTML={{ __html: partner.description }}></p>
         </div>
       ),

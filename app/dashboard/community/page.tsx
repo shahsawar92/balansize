@@ -94,7 +94,7 @@ export default function CommunitiesPage() {
       cell: (c: Community) => (
         <Text
           variant='main'
-          classNames='max-w-sm break-words whitespace-normal overflow-hidden text-ellipsis'>
+          classNames='max-w-sm line-clamp-2 break-words  px-2  text-center mx-auto whitespace-normal overflow-hidden text-ellipsis'>
           {SanitizeHtmlWidget({ htmlContent: c.description })}
         </Text>
       ),
