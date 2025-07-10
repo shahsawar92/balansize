@@ -3,14 +3,19 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import logger from "@/lib/logger";
+
 import Button from "@/components/buttons/Button";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 import Input from "@/components/input/Input";
-import NextImage from "@/components/NextImage";
 import Text from "@/components/text/Text";
 
 import { BASE_URL } from "@/constant/env";
-import { useGetUserQuery, useUpdateUserMutation } from "@/redux/api/users-api";
+import {
+  useGetUserQuery,
+  useGetUsersQuery,
+  useUpdateUserMutation,
+} from "@/redux/api/users-api";
 
 import { User } from "@/types/users";
 
@@ -19,6 +24,7 @@ export default function EditUserPage() {
   const { id } = useParams();
   const { data, isLoading, isError } = useGetUserQuery(id as string);
   const [updateUser] = useUpdateUserMutation();
+  const { refetch } = useGetUsersQuery();
 
   const [user, setUser] = useState<User | null>(null);
   const [selectedPlan, setSelectedPlan] = useState("Basic Plan (149/Year)");
@@ -29,7 +35,7 @@ export default function EditUserPage() {
     if (data?.success) {
       const userData = data.result;
       setUser(userData);
-      setSelectedPlan("Basic Plan (149/Year)"); // Set default plan
+      setSelectedPlan("Basic Plan (149/Year)");
       setImageUrl(
         userData.profile_picture
           ? `${BASE_URL}/${userData.profile_picture}`
@@ -54,20 +60,11 @@ export default function EditUserPage() {
       if (user.profile_picture instanceof File) {
         formData.append("profile_picture", user.profile_picture);
       }
-
+      refetch();
       await updateUser({ id: user.id, data: formData });
       router.push("/dashboard/users");
     } catch (error) {
-      console.log("Error updating user:", error);
-    }
-  }; 
-
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setImageUrl(objectUrl);
-      // Upload logic can be added here
+      logger(error, "Update User Error");
     }
   };
 
@@ -75,29 +72,12 @@ export default function EditUserPage() {
     <div className='w-full max-w-4xl mx-auto bg-secondary-100 rounded-2xl p-6 shadow-md'>
       <div className='flex flex-col md:flex-row items-center gap-6'>
         {/* Profile Picture */}
-        {/* <div className='relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden cursor-pointer hover:opacity-80 transition-opacity'> */}
+
         <ImageUploader
           imageUrl={imageUrl}
           onFileChange={(file) => setUser({ ...user, profile_picture: file })}
           buttonText='Upload Photo'
         />
-        {/* 
-          <NextImage
-            useSkeleton
-            src={imageUrl}
-            alt='Profile Picture'
-            width={126}
-            height={126}
-            className='object-cover w-full h-full'
-          />
-          <input
-            type='file'
-            ref={fileInputRef}
-            onChange={handleImageChange}
-            accept='image/*'
-            className='hidden'
-          />
-        </div> */}
 
         {/* User Form */}
         <form
