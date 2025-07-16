@@ -76,11 +76,11 @@ export default function UsersPage() {
     },
     {
       header: "Subscription plan",
-      accessor: "user_type",
+      accessor: "subscription_type",
       sortable: true,
       cell: (user: User) => (
         <span className={cn("px-2 py-1 rounded-full text-xs font-medium")}>
-          {user.user_type}
+          {user.subscription_type}
         </span>
       ),
     },

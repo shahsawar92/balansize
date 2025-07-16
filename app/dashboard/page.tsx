@@ -49,7 +49,6 @@ export default function DashboardPage() {
     { label: "Subscriptions", value: counters.subscriptions ?? 0 },
     { label: "Experts", value: counters.experts ?? 0 },
     { label: "Courses", value: counters.courses ?? 0 },
-    { label: "Lessons", value: counters.lessons ?? 0 },
   ];
 
   const barChartData = {
@@ -87,7 +86,7 @@ export default function DashboardPage() {
   return (
     <div className='mx-auto p-6 overflow-hidden bg-secondary-100 rounded-2xl'>
       {/* Stat Cards */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8'>
         {stats.map((stat, index) => (
           <Card
             key={index}

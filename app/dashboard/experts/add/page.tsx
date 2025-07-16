@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import Select from "react-select";
+import Select, { ActionMeta,MultiValue } from "react-select";
 import { toast } from "react-toastify";
 
 import logger from "@/lib/logger";
@@ -14,10 +14,10 @@ import Input from "@/components/input/Input";
 import TagInput from "@/components/tagInput/TagInput";
 
 import CategorySelect from "@/app/_app-components/getCategories";
-import { EXPERTS_DESIGNATION } from "@/constant/data/expert-designations";
 import {
   useAddExpertMutation,
   useGetExpertsQuery,
+  useGetExpertTypesQuery,
 } from "@/redux/api/expert-api";
 
 import { Category } from "@/types/categories-types";
@@ -26,9 +26,10 @@ export default function AddExpertPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [createExpert, { isLoading }] = useAddExpertMutation();
+  const { data: expertTypes } = useGetExpertTypesQuery();
   const [category, setCategory] = useState<Category | undefined>(undefined);
   const { refetch } = useGetExpertsQuery();
-
+  logger(expertTypes, "Expert Types");
   const [expert, setExpert] = useState({
     name: "",
     designation: "",
@@ -75,15 +76,25 @@ export default function AddExpertPage() {
   };
 
   const selectedValues = expert.type
-    ? EXPERTS_DESIGNATION.filter((opt) =>
-        expert.type.split(",").includes(opt.value)
-      )
+    ? expert.type.split(",").map((type) => ({
+        value: type.trim(),
+        label: type.trim(),
+      }))
     : [];
 
-  const handleTypeChange = (selectedOptions: any) => {
-    const values = selectedOptions.map((opt: any) => opt.value).join(",");
+  const handleTypeChange = (
+    selectedOptions: MultiValue<{ value: string; label: string }>,
+    actionMeta: ActionMeta<{ value: string; label: string }>
+  ) => {
+    if (!selectedOptions) {
+      setExpert((prev) => ({ ...prev, type: "" }));
+      return;
+    }
+    const values = selectedOptions.map((opt) => opt.value).join(",");
     setExpert((prev) => ({ ...prev, type: values }));
   };
+
+  logger(expert, "Expert State");
 
   return (
     <div className='w-full max-w-7xl py-5 px-5 mx-auto bg-secondary-100 rounded-2xl'>
@@ -109,7 +120,10 @@ export default function AddExpertPage() {
         <div className='w-full mt-0'>
           <Select
             isMulti
-            options={EXPERTS_DESIGNATION}
+            options={expertTypes?.result.map((type) => ({
+              value: type.type,
+              label: type.type,
+            }))}
             value={selectedValues}
             onChange={handleTypeChange}
             placeholder='Select Type'
