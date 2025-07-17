@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Select from "react-select";
+import Select, { ActionMeta, MultiValue } from "react-select";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
@@ -20,6 +20,7 @@ import { BASE_URL } from "@/constant/env";
 import {
   useGetExpertQuery,
   useGetExpertsQuery,
+  useGetExpertTypesQuery,
   useUpdateExpertMutation,
 } from "@/redux/api/expert-api";
 
@@ -33,6 +34,8 @@ export default function EditExpertPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: expertData, isLoading } = useGetExpertQuery(id);
+  const { data: expertTypes } = useGetExpertTypesQuery();
+
   const [updateExpert, { isLoading: isUpdating }] = useUpdateExpertMutation();
   logger(expertData, "expertData");
   const { refetch } = useGetExpertsQuery();
@@ -118,13 +121,21 @@ export default function EditExpertPage() {
   };
 
   const selectedValues = expert.type
-    ? EXPERTS_DESIGNATION.filter((opt) =>
-        expert?.type?.split(",").includes(opt.value)
-      )
+    ? expert.type.split(",").map((type) => ({
+        value: type.trim(),
+        label: type.trim(),
+      }))
     : [];
 
-  const handleTypeChange = (selectedOptions: any) => {
-    const values = selectedOptions.map((opt: any) => opt.value).join(",");
+  const handleTypeChange = (
+    selectedOptions: MultiValue<{ value: string; label: string }>,
+    actionMeta: ActionMeta<{ value: string; label: string }>
+  ) => {
+    if (!selectedOptions) {
+      setExpert((prev) => ({ ...prev, type: "" }));
+      return;
+    }
+    const values = selectedOptions.map((opt) => opt.value).join(",");
     setExpert((prev) => ({ ...prev, type: values }));
   };
 
@@ -150,7 +161,10 @@ export default function EditExpertPage() {
         <div className='w-full mt-0'>
           <Select
             isMulti
-            options={EXPERTS_DESIGNATION}
+            options={expertTypes?.result.map((type) => ({
+              value: type.type,
+              label: type.type,
+            }))}
             value={selectedValues}
             onChange={handleTypeChange}
             placeholder='Select Type'
