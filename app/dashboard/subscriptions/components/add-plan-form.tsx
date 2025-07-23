@@ -9,7 +9,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/cards/card";
+import { TextEditor } from "@/components/editor/Editor";
 import Spinner from "@/components/spinner/spinner";
+import { Switch } from "@/components/switch/switch";
+import Text from "@/components/text/Text";
 
 import {
   useAddPlanMutation,
@@ -22,7 +25,6 @@ import Input from "../../../../components/input/Input";
 import Label from "../../../../components/text/Label";
 
 import { Plan } from "@/types/plans";
-import { TextEditor } from "@/components/editor/Editor";
 type AddPlanFormProps = {
   initialData?: Plan | null;
   onCancel?: () => void;
@@ -37,62 +39,53 @@ export const AddPlanForm: React.FC<AddPlanFormProps> = ({
 
   const [planId, setPlanId] = useState<number | null>(null);
   const [update] = useUpdatePlanMutation();
-  const [planName, setPlanName] = useState(initialData?.plan_name || "");
-  const [content, setContent] = useState(initialData?.content || "");
-  const [duration, setDuration] = useState(initialData?.plan_duration || "");
-  const [price, setPrice] = useState(initialData?.plan_price || "");
-  const [androidProductId, setAndroidProductId] = useState(
-    initialData?.andriod_product_id || ""
-  );
-  const [iosProductId, setIosProductId] = useState(
-    initialData?.ios_product_id || ""
-  );
+  const [plan, setPlan] = useState<Plan>({
+    plan_name: initialData?.plan_name || "",
+    content: initialData?.content || "",
+    plan_duration: initialData?.plan_duration || "",
+    plan_price: initialData?.plan_price || "",
+    is_active: initialData?.is_active || true,
+    trial: initialData?.trial || 0,
+    andriod_product_id: initialData?.andriod_product_id || "",
+    ios_product_id: initialData?.ios_product_id || "",
+  });
 
   useEffect(() => {
     if (initialData) {
-      setPlanName(initialData.plan_name || "");
-      setContent(initialData.content || "");
-      setDuration(initialData.plan_duration || "");
-      setPrice(initialData.plan_price || "");
-      setAndroidProductId(initialData.andriod_product_id || "");
-      setIosProductId(initialData.ios_product_id || "");
+      setPlan({
+        plan_name: initialData.plan_name,
+        content: initialData.content,
+        plan_duration: initialData.plan_duration,
+        plan_price: initialData.plan_price,
+        is_active: initialData.is_active,
+        trial: initialData.trial,
+        andriod_product_id: initialData.andriod_product_id,
+        ios_product_id: initialData.ios_product_id,
+      });
 
       // Safely set ID if initialData has one
-      if ("id" in initialData) {
-        setPlanId((initialData as any).id); // 👈 type cast to access id
+      if ("id" in initialData && typeof initialData.id === "number") {
+        setPlanId(initialData.id);
       }
-    } else {
-      setPlanId(null); // new plan
-      setPlanName("");
-      setContent("");
-      setDuration("");
-      setPrice("");
-      setAndroidProductId("");
-      setIosProductId("");
     }
   }, [initialData]);
 
   const resetForm = () => {
-    setPlanName("");
-    setContent("");
-    setDuration("");
-    setPrice("");
-    setAndroidProductId("");
-    setIosProductId("");
+    setPlan({
+      plan_name: "",
+      content: "",
+      plan_duration: "",
+      plan_price: "",
+      is_active: true,
+      trial: 0,
+      andriod_product_id: "",
+      ios_product_id: "",
+    });
     setPlanId(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const plan: Plan = {
-      plan_name: planName,
-      content,
-      plan_duration: duration,
-      plan_price: price,
-      andriod_product_id: androidProductId,
-      ios_product_id: iosProductId,
-    };
 
     try {
       if (planId !== null) {
@@ -133,8 +126,10 @@ export const AddPlanForm: React.FC<AddPlanFormProps> = ({
             <Label htmlFor='plan_name'>Plan Name</Label>
             <Input
               id='plan_name'
-              value={planName}
-              onChange={(e) => setPlanName(e.target.value)}
+              value={plan.plan_name}
+              onChange={(e) =>
+                setPlan((prev) => ({ ...prev, plan_name: e.target.value }))
+              }
               placeholder='Enter plan name'
               required
             />
@@ -144,8 +139,10 @@ export const AddPlanForm: React.FC<AddPlanFormProps> = ({
             <Label htmlFor='content'>Content</Label>
 
             <TextEditor
-              initialValue={content}
-              onChange={(value) => setContent(value)}
+              initialValue={plan.content}
+              onChange={(value) =>
+                setPlan((prev) => ({ ...prev, content: value }))
+              }
               placeholder='Enter Content'
               height={300}
             />
@@ -155,8 +152,10 @@ export const AddPlanForm: React.FC<AddPlanFormProps> = ({
             <Label htmlFor='plan_duration'>Plan Duration</Label>
             <Input
               id='plan_duration'
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
+              value={plan.plan_duration}
+              onChange={(e) =>
+                setPlan((prev) => ({ ...prev, plan_duration: e.target.value }))
+              }
               placeholder='e.g. month'
               required
             />
@@ -166,10 +165,42 @@ export const AddPlanForm: React.FC<AddPlanFormProps> = ({
             <Label htmlFor='plan_price'>Plan Price</Label>
             <Input
               id='plan_price'
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              value={plan.plan_price}
+              onChange={(e) =>
+                setPlan((prev) => ({ ...prev, plan_price: e.target.value }))
+              }
               placeholder='$15'
               required
+            />
+          </div>
+          <div className='flex justify-between items-center gap-4'>
+            <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+              <Switch
+                checked={plan.is_active}
+                onCheckedChange={(checked) =>
+                  setPlan((prev) => ({
+                    ...prev,
+                    is_active: checked,
+                  }))
+                }
+              />
+
+              <Text variant='secondary' size='sm'>
+                Is Active
+              </Text>
+            </div>
+          </div>
+          <div>
+            <Label htmlFor='plan_price'>Plan Trial</Label>
+            <Input
+              id='plan_price'
+              value={plan.trial}
+              onChange={(e) =>
+                setPlan((prev) => ({ ...prev, trial: Number(e.target.value) }))
+              }
+              placeholder='07'
+              required
+              type='number'
             />
           </div>
 
@@ -177,8 +208,13 @@ export const AddPlanForm: React.FC<AddPlanFormProps> = ({
             <Label htmlFor='android_product_id'>Android Product ID</Label>
             <Input
               id='android_product_id'
-              value={androidProductId}
-              onChange={(e) => setAndroidProductId(e.target.value)}
+              value={plan.andriod_product_id}
+              onChange={(e) =>
+                setPlan((prev) => ({
+                  ...prev,
+                  andriod_product_id: e.target.value,
+                }))
+              }
               placeholder='Enter Android product ID'
             />
           </div>
@@ -187,8 +223,10 @@ export const AddPlanForm: React.FC<AddPlanFormProps> = ({
             <Label htmlFor='ios_product_id'>iOS Product ID</Label>
             <Input
               id='ios_product_id'
-              value={iosProductId}
-              onChange={(e) => setIosProductId(e.target.value)}
+              value={plan.ios_product_id}
+              onChange={(e) =>
+                setPlan((prev) => ({ ...prev, ios_product_id: e.target.value }))
+              }
               placeholder='Enter iOS product ID'
             />
           </div>

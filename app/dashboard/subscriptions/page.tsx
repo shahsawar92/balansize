@@ -12,10 +12,7 @@ import SanitizeHtmlWidget from "@/components/html-parser/sanitieHtml";
 import Text from "@/components/text/Text";
 
 import { AddPlanForm } from "@/app/dashboard/subscriptions/components/add-plan-form";
-import {
-  useDeletePlanMutation,
-  useGetPlansQuery,
-} from "@/redux/api/plan-api";
+import { useDeletePlanMutation, useGetPlansQuery } from "@/redux/api/plan-api";
 
 import { Plan } from "@/types/plans";
 
@@ -49,6 +46,7 @@ export default function Page() {
       }
     }
   };
+  logger(plans, "plans");
 
   const renderPlans = () =>
     plans.map((plan) => (
@@ -63,6 +61,10 @@ export default function Page() {
           <p className='text-xl font-bold text-accent'>
             {plan.plan_price} / {plan.plan_duration}
           </p>
+          <div className='text-xs text-gray-500'>
+            <p>Trial Period: {plan.trial || "N/A"} days</p>
+            <p>Status: {plan.is_active ? "Active" : "Inactive"}</p>
+          </div>
           <div className='text-xs text-gray-500'>
             <p>Android ID: {plan.andriod_product_id || "N/A"}</p>
             <p>iOS ID: {plan.ios_product_id || "N/A"}</p>

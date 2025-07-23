@@ -3,6 +3,8 @@ export interface Plan {
   content: string;
   plan_duration: string;
   plan_price: string;
+  is_active: boolean;
+  trial: number;
   andriod_product_id: string;
   ios_product_id: string;
 }
