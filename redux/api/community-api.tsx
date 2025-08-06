@@ -30,6 +30,16 @@ export const communityApi = createApi({
         body: data,
       }),
     }),
+    addImageToCommunity: builder.mutation<
+      CommunityListResponse,
+      { communityId: number; data: FormData }
+    >({
+      query: ({ communityId, data }) => ({
+        url: `/community/add/image/${communityId}`,
+        method: "POST",
+        body: data,
+      }),
+    }),
     getCommunities: builder.query<CommunityListResponse, void>({
       query: () => ({
         url: "/community",
@@ -64,6 +74,15 @@ export const communityApi = createApi({
         method: "DELETE",
       }),
     }),
+    deleteCommunityImage: builder.mutation<
+      { status: string; message: string },
+      { imageId: number }
+    >({
+      query: ({ imageId }) => ({
+        url: `/community/image/remove/${imageId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -73,6 +92,8 @@ export const {
   useGetCommunityQuery,
   useUpdateCommunityMutation,
   useDeleteCommunityMutation,
+  useDeleteCommunityImageMutation,
+  useAddImageToCommunityMutation,
 } = communityApi;
 
 export default communityApi;

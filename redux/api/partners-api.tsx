@@ -32,6 +32,16 @@ export const partnerApi = createApi({
         };
       },
     }),
+    addImageToPartner: builder.mutation<
+      PartnerResponse,
+      { partnerId: number; data: FormData }
+    >({
+      query: ({ partnerId, data }) => ({
+        url: `/partners/add/image/${partnerId}`,
+        method: "POST",
+        body: data,
+      }),
+    }),
     getPartners: builder.query<PartnerResponse, void>({
       query: () => {
         return {
@@ -58,6 +68,15 @@ export const partnerApi = createApi({
         body: data,
       }),
     }),
+    deleteImageFromPartner: builder.mutation<
+      { status: string; message: string },
+      { imageId: number }
+    >({
+      query: ({ imageId }) => ({
+        url: `/partners/image/remove/${imageId}`,
+        method: "DELETE",
+      }),
+    }),
     deletePartner: builder.mutation<PartnerResponse, number>({
       query: (id) => {
         return {
@@ -75,6 +94,8 @@ export const {
   useGetPartnersQuery,
   useGetPartnerQuery,
   useUpdatePartnerMutation,
+  useAddImageToPartnerMutation,
+  useDeleteImageFromPartnerMutation,
   useDeletePartnerMutation,
 } = partnerApi;
 export default partnerApi;

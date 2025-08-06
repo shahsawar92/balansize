@@ -1,125 +1,199 @@
 "use client";
 
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+
+import logger from "@/lib/logger";
 
 import Button from "@/components/buttons/Button";
-import ImageUploader from "@/components/ImageUploader/ImageUploader";
+import { TextEditor } from "@/components/editor/Editor";
+import Input from "@/components/input/Input";
+import Text from "@/components/text/Text";
 
 import { BASE_URL } from "@/constant/env";
 import {
+  useAddImageToPartnerMutation,
+  useDeleteImageFromPartnerMutation,
   useGetPartnerQuery,
-  useGetPartnersQuery,
   useUpdatePartnerMutation,
 } from "@/redux/api/partners-api";
-import logger from "@/lib/logger";
-import { TextEditor } from "@/components/editor/Editor";
 
-export default function EditOnboardingPage() {
+import { Partner } from "@/types/partners";
+
+export default function EditPartnerPage() {
   const router = useRouter();
   const params = useParams();
-  const id = params?.id as string;
+  const id = Number(params?.id);
 
-  const { data, isLoading: isFetching } = useGetPartnerQuery(id);
-  logger(data, "Onboarding Data");
+  const { data, refetch } = useGetPartnerQuery(id.toString());
   const [updatePartner, { isLoading: isUpdating }] = useUpdatePartnerMutation();
-  const { refetch } = useGetPartnersQuery();
+  const [deleteImage] = useDeleteImageFromPartnerMutation();
+  const [addImage] = useAddImageToPartnerMutation();
 
-  const [link, setlink] = useState("");
-  const [description, setDescription] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [existingImage, setExistingImage] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partner>({
+    id,
+    link: "",
+    description: "",
+    images: [],
+  });
 
   useEffect(() => {
     if (data?.data) {
-      const { link, description, logo } = data.data;
-      setlink(link);
-      setDescription(description);
-      setExistingImage(logo);
+      setFormData((prev) => ({
+        ...prev,
+        id: data.data.id,
+        link: data.data.link,
+        description: data.data.description,
+        images: data.data.images || [],
+      }));
     }
-  }, [data]);
+  }, [data?.data]);
+
+  logger(data, "data");
+  logger(formData, "formData");
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!link || !description) {
-      toast.error("Please fill all required fields.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("link", link);
-    formData.append("description", description);
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
+    const body = new FormData();
+    body.append("link", formData.link);
+    body.append("description", formData.description);
 
     try {
-      const response = await updatePartner({
-        id: parseInt(id),
-        data: formData,
-      }).unwrap();
-      if (response.success) {
-        toast.success("Partners updated successfully!");
-        refetch();
-        router.push("/dashboard/partners");
-      } else {
-        toast.error("Failed to update partner.");
-      }
-    } catch (error) {
-      toast.error("Error updating Partner. Please try again.");
+      toast.info("Updating partner...");
+      await updatePartner({ id, data: body }).unwrap();
+      toast.success("Partner updated successfully!");
+      router.push("/dashboard/partners");
+    } catch (err) {
+      logger(err, "Update error");
+      toast.error("Update failed!");
     }
   };
 
-  if (isFetching) {
-    return <p className='text-center mt-10'>Loading onboarding data...</p>;
-  }
+  const handleDeleteImage = async (imageId: number) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "This image will be permanently deleted.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        await deleteImage({ imageId }).unwrap();
+        toast.success("Image deleted!");
+        // Remove from state
+        setFormData((prev) => ({
+          ...prev,
+          images: prev.images?.filter((img) => img.id !== imageId),
+        }));
+        await refetch();
+      } catch (err) {
+        logger(err, "Delete error");
+        toast.error("Failed to delete image.");
+      }
+    }
+  };
+
+  const handleAddNewImage = async (file: File) => {
+    if (!file) return;
+
+    const form = new FormData();
+    form.append("logo", file);
+
+    try {
+      await addImage({ partnerId: id, data: form }).unwrap();
+      toast.success("Image added!");
+      await refetch();
+    } catch (err) {
+      logger(err, "Upload error");
+      toast.error("Failed to upload image.");
+    }
+  };
 
   return (
-    <div className='max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md'>
-      <h2 className='text-2xl font-bold mb-4'>Edit Onboarding</h2>
-      <form onSubmit={handleSubmit} className='space-y-4'>
-        <div>
-          <label className='block font-medium mb-1'>Title</label>
-          <input
-            type='text'
-            value={link}
-            onChange={(e) => setlink(e.target.value)}
-            className='w-full border px-4 py-2 rounded-lg'
-            placeholder='Enter title'
-            required
-          />
-        </div>
+    <div className='max-w-2xl mx-auto p-4'>
+      <Text variant='main' className='mb-4 text-lg font-bold'>
+        Edit Partner
+      </Text>
 
-        <div>
-          <label className='block font-medium mb-1'>Description</label>
-
-          <TextEditor
-            initialValue={description}
-            placeholder='Enter partner description'
-            height={200}
-            onChange={(content) => setDescription(content)}
-          />
-        </div>
-
-        <div>
-          <label className='block font-medium mb-1'>Image</label>
-          <ImageUploader
-            imageUrl={
-              imageFile
-                ? URL.createObjectURL(imageFile)
-                : BASE_URL + "/" + existingImage || "/images/placeholder.png"
-            }
-            onFileChange={(file) => setImageFile(file)}
-            buttonText='Upload New Image'
-          />
-        </div>
-
-        <Button type='submit' variant='brown' disabled={isUpdating}>
+      <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
+        <Input name='link' value={formData.link} onChange={handleChange} />
+        <TextEditor
+          initialValue={formData.description}
+          placeholder='Description'
+          height={300}
+          onChange={(content) =>
+            setFormData((prev) => ({ ...prev, description: content }))
+          }
+        />
+        <Button type='submit' disabled={isUpdating} variant='brown'>
           {isUpdating ? "Updating..." : "Update Partner"}
         </Button>
       </form>
+
+      {/* Partner Images Section */}
+      <div className='my-5'>
+        <Text className='font-semibold text-xl mb-2'>Partner Images</Text>
+        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4'>
+          {formData.images?.map((img) => (
+            <div key={img.id} className='relative group'>
+              <Image
+                src={`${BASE_URL}/${img.link}`}
+                alt='Partner image'
+                width={200}
+                height={150}
+                className='w-full h-32 object-cover rounded-md border'
+              />
+              <button
+                type='button'
+                className='absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-xs hidden group-hover:block'
+                onClick={() => handleDeleteImage(img.id)}>
+                ❌
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Upload New Image */}
+      <div className='mb-6'>
+        <label className='block font-semibold mb-2'>Add New Image</label>
+        <div className='relative inline-block'>
+          <button
+            type='button'
+            className='bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-all'
+            onClick={() =>
+              document.getElementById("hidden-file-input")?.click()
+            }>
+            + Upload Image
+          </button>
+          <input
+            id='hidden-file-input'
+            type='file'
+            accept='image/*'
+            className='hidden'
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              handleAddNewImage(file);
+              // Clear input value to allow re-uploading the same file
+              e.target.value = "";
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 }

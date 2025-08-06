@@ -1,12 +1,18 @@
 export interface PartnerRequest {
   link: string;
-  logo: File;
+  images: File[];
+  description: string;
+}
+
+export interface PartnerImage {
+  id: number;
+  link: string;
 }
 
 export interface Partner {
   id: number;
   link: string;
-  logo: string;
+  images: PartnerImage[];
   description: string;
 }
 

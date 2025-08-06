@@ -55,24 +55,32 @@ export default function CommunitiesPage() {
     }
   };
 
+  logger(communities, "communities");
   const columns = [
     {
       header: "#",
       accessor: (c: Community) => c.id.toString(),
     },
+
     {
       header: "Image",
-      accessor: (c: Community) => c.logo.toString(),
-      cell: (c: Community) => (
-        <Image
-          width={40}
-          height={40}
-          src={BASE_URL + "/" + c.logo}
-          alt='Community image'
-          className='w-10 h-10 rounded-full object-cover'
-        />
-      ),
+      accessor: (c: Community) => c.images?.[0]?.link || "",
+      cell: (c: Community) => {
+        const image = c.images?.[0]?.link;
+        return image ? (
+          <Image
+            width={40}
+            height={40}
+            src={`${BASE_URL}/${image}`}
+            alt='Community image'
+            className='w-10 h-10 rounded-full object-cover'
+          />
+        ) : (
+          <span className='text-gray-400 italic text-xs'>No image</span>
+        );
+      },
     },
+
     {
       header: "Link",
       accessor: (c: Community) => c.link,
@@ -108,6 +116,11 @@ export default function CommunitiesPage() {
             onClick={() => router.push(`/dashboard/community/${c.id}/edit`)}
             className='flex gap-2 items-center p-2 hover:bg-secondary-500 rounded-lg'>
             <Edit className='w-4 h-4 text-main-brown' /> Edit
+          </button>
+          <button
+            onClick={() => router.push(`/dashboard/community/${c.id}/view`)}
+            className='flex gap-2 items-center p-2 hover:bg-secondary-500 rounded-lg'>
+            👁️ View
           </button>
           <button
             onClick={() => handleDelete(c)}
