@@ -13,6 +13,7 @@ export interface Partner {
   id: number;
   link: string;
   images: PartnerImage[];
+  is_premium: boolean;
   description: string;
 }
 

@@ -35,6 +35,8 @@ export default function PartnersPage() {
     }
   }, [partnersData]);
 
+  logger(partners, "partners");
+
   const handleDelete = async (partner: Partner) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -107,6 +109,15 @@ export default function PartnersPage() {
           variant='main'
           classNames='max-w-sm line-clamp-2 break-words px-2 text-center mx-auto whitespace-normal overflow-hidden text-ellipsis'>
           {SanitizeHtmlWidget({ htmlContent: p.description })}
+        </Text>
+      ),
+    },
+    {
+      header: "Premium",
+      accessor: (p: Partner) => (p.is_premium ? "Yes" : "No"),
+      cell: (p: Partner) => (
+        <Text variant='main' classNames='text-center'>
+          {p.is_premium ? "Yes" : "No"}
         </Text>
       ),
     },

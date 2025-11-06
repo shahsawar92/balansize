@@ -22,6 +22,7 @@ import {
 } from "@/redux/api/partners-api";
 
 import { Partner } from "@/types/partners";
+import { Switch } from "@/components/switch/switch";
 
 export default function EditPartnerPage() {
   const router = useRouter();
@@ -37,6 +38,7 @@ export default function EditPartnerPage() {
     id,
     link: "",
     description: "",
+    is_premium: false,
     images: [],
   });
 
@@ -47,6 +49,7 @@ export default function EditPartnerPage() {
         id: data.data.id,
         link: data.data.link,
         description: data.data.description,
+        is_premium: data.data.is_premium,
         images: data.data.images || [],
       }));
     }
@@ -138,6 +141,18 @@ export default function EditPartnerPage() {
             setFormData((prev) => ({ ...prev, description: content }))
           }
         />
+        <div className='flex items-center gap-4'>
+          <Text>Is Premium Partner:</Text>
+          <Switch
+            checked={formData.is_premium}
+            onCheckedChange={(checked) =>
+              setFormData((prev) => ({
+                ...prev,
+                is_premium: checked,
+              }))
+            }
+          />
+        </div>
         <Button type='submit' disabled={isUpdating} variant='brown'>
           {isUpdating ? "Updating..." : "Update Partner"}
         </Button>

@@ -114,7 +114,7 @@ export default function EditCommunityPage() {
     try {
       const res = await addImage({ communityId: id, data: form }).unwrap();
       toast.success("Image added!");
-      await refetch(); // ⬅️ Wait for refetch to complete
+      await refetch();
     } catch (err) {
       logger(err, "Upload error");
       toast.error("Failed to upload image.");

@@ -5,19 +5,22 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 import Button from "@/components/buttons/Button";
+import { TextEditor } from "@/components/editor/Editor";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
 
 import {
   useAddPartnerMutation,
   useGetPartnersQuery,
 } from "@/redux/api/partners-api";
-import { TextEditor } from "@/components/editor/Editor";
+import { Switch } from "@/components/switch/switch";
+import Text from "@/components/text/Text";
 
 export default function AddPartnerPage() {
   const router = useRouter();
   const [link, setlink] = useState("");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
   const [addPartner, { isLoading }] = useAddPartnerMutation();
   const { refetch } = useGetPartnersQuery();
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,6 +35,7 @@ export default function AddPartnerPage() {
     formData.append("link", link);
     formData.append("description", description);
     formData.append("logo", imageFile);
+    formData.append("is_premium", JSON.stringify(isPremium));
 
     try {
       const response = await addPartner(formData).unwrap();
@@ -76,6 +80,16 @@ export default function AddPartnerPage() {
             height={200}
             onChange={(content) => setDescription(content)}
           />
+        </div>
+        <div className='flex items-center gap-4 bg-secondary-300 p-2 rounded shadow bg-opacity-50'>
+          <Switch
+            checked={isPremium}
+            onCheckedChange={(checked) => setIsPremium(checked)}
+          />
+
+          <Text variant='secondary' size='sm'>
+            Is Premium
+          </Text>
         </div>
         <div>
           <label className='block font-medium mb-1'>Logo</label>
