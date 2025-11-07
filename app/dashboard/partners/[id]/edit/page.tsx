@@ -11,6 +11,7 @@ import logger from "@/lib/logger";
 import Button from "@/components/buttons/Button";
 import { TextEditor } from "@/components/editor/Editor";
 import Input from "@/components/input/Input";
+import { Switch } from "@/components/switch/switch";
 import Text from "@/components/text/Text";
 
 import { BASE_URL } from "@/constant/env";
@@ -22,7 +23,6 @@ import {
 } from "@/redux/api/partners-api";
 
 import { Partner } from "@/types/partners";
-import { Switch } from "@/components/switch/switch";
 
 export default function EditPartnerPage() {
   const router = useRouter();
@@ -44,6 +44,8 @@ export default function EditPartnerPage() {
 
   useEffect(() => {
     if (data?.data) {
+      // Convert backend value to proper boolean
+
       setFormData((prev) => ({
         ...prev,
         id: data.data.id,
@@ -54,15 +56,19 @@ export default function EditPartnerPage() {
       }));
     }
   }, [data?.data]);
-
-  logger(data, "data");
-  logger(formData, "formData");
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePremiumChange = (checked: boolean) => {
+    logger(checked, "Premium Status Changed");
+    setFormData((prev) => ({
+      ...prev,
+      is_premium: checked,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,6 +77,12 @@ export default function EditPartnerPage() {
     const body = new FormData();
     body.append("link", formData.link);
     body.append("description", formData.description);
+    // Send as 0 or 1 which is more reliable for APIs
+    body.append("is_premium", formData.is_premium.toString());
+    logger(
+      `Sending is_premium as: ${formData.is_premium.toString()}`,
+      "Premium Value"
+    );
 
     try {
       toast.info("Updating partner...");
@@ -141,17 +153,22 @@ export default function EditPartnerPage() {
             setFormData((prev) => ({ ...prev, description: content }))
           }
         />
-        <div className='flex items-center gap-4'>
-          <Text>Is Premium Partner:</Text>
+        <div className='flex items-center gap-4 p-4 bg-gray-50 rounded-lg border'>
+          <Text className='font-medium'>Is Premium Partner:</Text>
           <Switch
             checked={formData.is_premium}
-            onCheckedChange={(checked) =>
-              setFormData((prev) => ({
-                ...prev,
-                is_premium: checked,
-              }))
-            }
+            onCheckedChange={handlePremiumChange}
           />
+          <div className='ml-auto'>
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                formData.is_premium
+                  ? "bg-green-200 text-green-800"
+                  : "bg-gray-200 text-gray-800"
+              }`}>
+              {formData.is_premium ? "✓ Premium" : "✗ Not Premium"}
+            </span>
+          </div>
         </div>
         <Button type='submit' disabled={isUpdating} variant='brown'>
           {isUpdating ? "Updating..." : "Update Partner"}

@@ -7,13 +7,13 @@ import { toast } from "react-toastify";
 import Button from "@/components/buttons/Button";
 import { TextEditor } from "@/components/editor/Editor";
 import ImageUploader from "@/components/ImageUploader/ImageUploader";
+import { Switch } from "@/components/switch/switch";
+import Text from "@/components/text/Text";
 
 import {
   useAddPartnerMutation,
   useGetPartnersQuery,
 } from "@/redux/api/partners-api";
-import { Switch } from "@/components/switch/switch";
-import Text from "@/components/text/Text";
 
 export default function AddPartnerPage() {
   const router = useRouter();
@@ -35,7 +35,7 @@ export default function AddPartnerPage() {
     formData.append("link", link);
     formData.append("description", description);
     formData.append("logo", imageFile);
-    formData.append("is_premium", JSON.stringify(isPremium));
+    formData.append("is_premium", isPremium.toString());
 
     try {
       const response = await addPartner(formData).unwrap();
