@@ -19,6 +19,7 @@ import {
   useAddImageToPartnerMutation,
   useDeleteImageFromPartnerMutation,
   useGetPartnerQuery,
+  useGetPartnersQuery,
   useUpdatePartnerMutation,
 } from "@/redux/api/partners-api";
 
@@ -42,10 +43,10 @@ export default function EditPartnerPage() {
     images: [],
   });
 
+  const { refetch: refetchList } = useGetPartnersQuery();
+
   useEffect(() => {
     if (data?.data) {
-      // Convert backend value to proper boolean
-
       setFormData((prev) => ({
         ...prev,
         id: data.data.id,
@@ -64,7 +65,6 @@ export default function EditPartnerPage() {
   };
 
   const handlePremiumChange = (checked: boolean) => {
-    logger(checked, "Premium Status Changed");
     setFormData((prev) => ({
       ...prev,
       is_premium: checked,
@@ -74,20 +74,14 @@ export default function EditPartnerPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const body = new FormData();
-    body.append("link", formData.link);
-    body.append("description", formData.description);
-    // Send as 0 or 1 which is more reliable for APIs
-    body.append("is_premium", formData.is_premium.toString());
-    logger(
-      `Sending is_premium as: ${formData.is_premium.toString()}`,
-      "Premium Value"
-    );
-
+    const body = {
+      link: formData.link,
+      description: formData.description,
+      is_premium: formData.is_premium.toString(),
+    };
     try {
-      toast.info("Updating partner...");
       await updatePartner({ id, data: body }).unwrap();
-      toast.success("Partner updated successfully!");
+      await refetchList();
       router.push("/dashboard/partners");
     } catch (err) {
       logger(err, "Update error");
@@ -125,7 +119,6 @@ export default function EditPartnerPage() {
     if (!file) return;
 
     const form = new FormData();
-    form.append("logo", file);
 
     try {
       await addImage({ partnerId: id, data: form }).unwrap();

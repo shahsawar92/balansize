@@ -24,7 +24,6 @@ import { Partner } from "@/types/partners";
 
 export default function PartnersPage() {
   const [partners, setPartners] = useState<Partner[]>([]);
-  logger(partners, "Partners");
   const router = useRouter();
   const { data: partnersData, refetch } = useGetPartnersQuery();
   const [deletePartner] = useDeletePartnerMutation();
@@ -35,7 +34,6 @@ export default function PartnersPage() {
     }
   }, [partnersData]);
 
-  logger(partners, "partners");
 
   const handleDelete = async (partner: Partner) => {
     const result = await Swal.fire({

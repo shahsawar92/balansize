@@ -9,6 +9,12 @@ import { RootState } from "../store";
 
 import { PartnerResponse, SinglePartnerResponse } from "@/types/partners";
 
+type bodyTypes = {
+  link: string;
+  description: string;
+  is_premium: string;
+};
+
 export const partnerApi = createApi({
   reducerPath: "partnerApi",
   baseQuery: fetchBaseQuery({
@@ -21,6 +27,7 @@ export const partnerApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Partner", "Partners"],
   endpoints: (builder) => ({
     addPartner: builder.mutation<PartnerResponse, FormData>({
       query: (credentials) => {
@@ -31,6 +38,7 @@ export const partnerApi = createApi({
           body: credentials,
         };
       },
+      invalidatesTags: ["Partners"],
     }),
     addImageToPartner: builder.mutation<
       PartnerResponse,
@@ -41,6 +49,10 @@ export const partnerApi = createApi({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: (result, error, { partnerId }) => [
+        { type: "Partner", id: partnerId },
+        "Partners",
+      ],
     }),
     getPartners: builder.query<PartnerResponse, void>({
       query: () => {
@@ -49,6 +61,7 @@ export const partnerApi = createApi({
           method: "GET",
         };
       },
+      providesTags: ["Partners"],
     }),
     getPartner: builder.query<SinglePartnerResponse, string>({
       query: (id) => {
@@ -57,16 +70,25 @@ export const partnerApi = createApi({
           method: "GET",
         };
       },
+      providesTags: (result, error, id) => [
+        { type: "Partner", id: Number(id) },
+      ],
     }),
     updatePartner: builder.mutation<
       PartnerResponse,
-      { id: number; data: FormData }
+      { id: number; data: bodyTypes }
     >({
-      query: ({ id, data }) => ({
-        url: `/partners/${id}`,
-        method: "PATCH",
-        body: data,
-      }),
+      query: ({ id, data }) => {
+        return {
+          url: `/partners/${id}`,
+          method: "POST",
+          body: data,
+        };
+      },
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Partner", id },
+        "Partners",
+      ],
     }),
     deleteImageFromPartner: builder.mutation<
       { status: string; message: string },
@@ -76,6 +98,7 @@ export const partnerApi = createApi({
         url: `/partners/image/remove/${imageId}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Partners"],
     }),
     deletePartner: builder.mutation<PartnerResponse, number>({
       query: (id) => {
@@ -84,6 +107,7 @@ export const partnerApi = createApi({
           method: "DELETE",
         };
       },
+      invalidatesTags: ["Partners"],
     }),
   }),
 });
