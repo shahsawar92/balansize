@@ -119,6 +119,7 @@ export default function EditPartnerPage() {
     if (!file) return;
 
     const form = new FormData();
+    form.append("image", file);
 
     try {
       await addImage({ partnerId: id, data: form }).unwrap();
