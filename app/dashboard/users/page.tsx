@@ -101,6 +101,40 @@ export default function UsersPage() {
       ),
     },
     {
+      header: "Last Login",
+      accessor: "lastLoginAt",
+      sortable: true,
+      cell: (user: User) => (
+        <span>
+          {user.lastLoginAt
+            ? new Date(user.lastLoginAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "N/A"}
+        </span>
+      ),
+    },
+    {
+      header: "Device",
+      accessor: "userToken",
+      sortable: false,
+      cell: (user: User) => (
+        <span>
+          {user.userToken?.model || user.userToken?.device_type || "N/A"}
+        </span>
+      ),
+    },
+    {
+      header: "App Version",
+      accessor: "userToken",
+      sortable: false,
+      cell: (user: User) => <span>{user.userToken?.app_version || "N/A"}</span>,
+    },
+    {
       header: "Actions",
       accessor: "id",
       sortable: false,
@@ -125,8 +159,8 @@ export default function UsersPage() {
 
     return users?.filter((user) =>
       Object.values(user).some((value) =>
-        String(value).toLowerCase().includes(searchTerm.toLowerCase())
-      )
+        String(value).toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
     );
   }, [users, searchTerm]);
 

@@ -94,7 +94,7 @@ export default function Table<T extends { id: string | number }>({
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const handleSelectAll = () => {
@@ -124,7 +124,7 @@ export default function Table<T extends { id: string | number }>({
       <div
         className={cn(
           "flex items-center gap-2",
-          headerButton?.title ? "justify-between" : "justify-end"
+          headerButton?.title ? "justify-between" : "justify-end",
         )}>
         {headerButton?.title && (
           <div className='flex items-center gap-2'>
@@ -164,12 +164,12 @@ export default function Table<T extends { id: string | number }>({
       <div
         className={clsx(
           "overflow-x-auto rounded-lg border bg-secondary-100",
-          classes?.table
+          classes?.table,
         )}>
         <table
           className={clsx(
             "min-w-full divide-y divide-gray-200",
-            classes?.table
+            classes?.table,
           )}>
           <thead className={classes?.header}>
             <tr>
@@ -193,7 +193,7 @@ export default function Table<T extends { id: string | number }>({
                   className={clsx(
                     "px-6 py-3 mx-auto text-center ",
                     column.sortable && "cursor-pointer hover:bg-gray-100",
-                    classes?.cell
+                    classes?.cell,
                   )}
                   onClick={() => {
                     if (column.sortable) {
@@ -225,7 +225,7 @@ export default function Table<T extends { id: string | number }>({
                             sortConfig?.key === column.accessor &&
                               sortConfig.direction === "asc"
                               ? "text-primary-600"
-                              : "text-gray-400"
+                              : "text-gray-400",
                           )}
                         />
                         <ChevronDownIcon
@@ -234,7 +234,7 @@ export default function Table<T extends { id: string | number }>({
                             sortConfig?.key === column.accessor &&
                               sortConfig.direction === "desc"
                               ? "text-primary-600"
-                              : "text-gray-400"
+                              : "text-gray-400",
                           )}
                         />
                       </div>
@@ -252,7 +252,7 @@ export default function Table<T extends { id: string | number }>({
                 className={clsx(
                   "hover:bg-secondary-300",
                   onRowClick && "cursor-pointer",
-                  classes?.row
+                  classes?.row,
                 )}>
                 {selectable && (
                   <td className='px-6 py-4 whitespace-nowrap w-12'>
@@ -284,7 +284,7 @@ export default function Table<T extends { id: string | number }>({
                     key={colIndex + 1}
                     className={clsx(
                       "px-6 py-4 whitespace-nowrap text-center",
-                      classes?.cell
+                      classes?.cell,
                     )}>
                     <Text
                       variant='secondary'
@@ -311,7 +311,11 @@ export default function Table<T extends { id: string | number }>({
           </tbody>
         </table>
       </div>
-      <div className={clsx("flex justify-between gap-2", classes?.pagination)}>
+      <div
+        className={clsx(
+          "flex flex-col sm:flex-row justify-between gap-2 items-center",
+          classes?.pagination,
+        )}>
         <div className='flex items-center gap-2'>
           <Text variant='secondary' size='sm' weight='normal'>
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
@@ -319,24 +323,63 @@ export default function Table<T extends { id: string | number }>({
             {filteredData.length}
           </Text>
         </div>
-        <div className='flex justify-center gap-2'>
+        <div className='flex flex-wrap justify-center gap-2'>
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
             className='px-3 py-1 rounded border disabled:opacity-50'>
             Previous
           </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              className={clsx(
-                "px-3 py-1 rounded border",
-                currentPage === page && "bg-main-brown text-white"
-              )}>
-              {page}
-            </button>
-          ))}
+
+          {/* First page */}
+          {currentPage > 3 && (
+            <>
+              <button
+                onClick={() => setCurrentPage(1)}
+                className='px-3 py-1 rounded border'>
+                1
+              </button>
+              {currentPage > 4 && <span className='px-3 py-1'>...</span>}
+            </>
+          )}
+
+          {/* Pages around current page */}
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((page) => {
+              return (
+                page === currentPage ||
+                page === currentPage - 1 ||
+                page === currentPage + 1 ||
+                page === currentPage - 2 ||
+                page === currentPage + 2
+              );
+            })
+            .map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={clsx(
+                  "px-3 py-1 rounded border",
+                  currentPage === page && "bg-main-brown text-white",
+                )}>
+                {page}
+              </button>
+            ))}
+
+          {/* Last page */}
+          {currentPage < totalPages - 2 && (
+            <>
+              {currentPage < totalPages - 3 && (
+                <span className='px-3 py-1'>...</span>
+              )}
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                className='px-3 py-1 rounded border'>
+                {totalPages}
+              </button>
+            </>
+          )}
+
           <button
             onClick={() =>
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
