@@ -4,6 +4,11 @@ export interface Notification {
   message: string;
   icon: string;
   isActive: boolean;
+  sendVia?: "PUSH" | "EMAIL" | "BOTH";
+  sendToAll?: boolean;
+  userIds?: number[];
+  scheduledAt?: Date | string;
+  scheduleType?: "ONCE" | "DAILY";
 }
 
 export interface NotificationResponse {
@@ -23,4 +28,9 @@ export interface NotificationRequest {
   message: string;
   icon: File | null;
   isTrue: boolean;
+  sendVia?: "PUSH" | "EMAIL" | "BOTH";
+  sendToAll?: boolean;
+  userIds?: number[];
+  scheduledAt?: Date;
+  scheduleType?: "ONCE" | "DAILY";
 }
