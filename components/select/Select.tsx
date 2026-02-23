@@ -55,13 +55,14 @@ const CustomSelect: React.FC<SelectProps> = ({
         <label
           className={cn(
             "text-sm font-medium text-gray-700",
-            classNames?.label
+            classNames?.label,
           )}>
           {label}
         </label>
       )}
       <div className='relative'>
         <button
+          type='button'
           onClick={toggleDropdown}
           className={cn(
             "flex items-center justify-between rounded font-medium focus:outline-none focus:ring-2 transition-all duration-75 ",
@@ -99,13 +100,13 @@ const CustomSelect: React.FC<SelectProps> = ({
             ],
             withBorder && "border",
             error && "border-red-500",
-            classNames?.trigger
+            classNames?.trigger,
           )}>
           <span
             className={cn(
               "text-sm",
               value ? "text-dark" : "text-gray-500",
-              classNames?.selected
+              classNames?.selected,
             )}>
             {options.find((opt) => opt.value === value)?.label || placeholder}
           </span>
@@ -115,7 +116,7 @@ const CustomSelect: React.FC<SelectProps> = ({
           <div
             className={cn(
               "absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg border border-gray-200",
-              classNames?.dropdown
+              classNames?.dropdown,
             )}>
             {options.map((option) => (
               <div
@@ -124,7 +125,7 @@ const CustomSelect: React.FC<SelectProps> = ({
                 className={cn(
                   "flex items-center px-3 py-2 text-sm cursor-pointer hover:bg-gray-100",
                   option.value === value && "bg-gray-100",
-                  classNames?.option
+                  classNames?.option,
                 )}>
                 {option.value === value && (
                   <Check className='h-4 w-4 mr-2 text-blue-500' />

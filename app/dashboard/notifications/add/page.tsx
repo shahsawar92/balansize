@@ -74,8 +74,8 @@ export default function AddOnboardingPage() {
     formData.append("sendToAll", sendToAll ? "1" : "0");
 
     if (!sendToAll && selectedUsers.length > 0) {
-      const userIds = selectedUsers.map((user) => Number(user.value));
-      formData.append("userIds", JSON.stringify(userIds));
+      const userIds = selectedUsers.map((user) => user.value).join(",");
+      formData.append("userIds", userIds);
     } else if (!sendToAll && selectedUsers.length === 0) {
       toast.error("Please select at least one user or enable 'Send to All'.");
       return;
@@ -193,15 +193,13 @@ export default function AddOnboardingPage() {
         </div>
 
         {scheduledAt && (
-          <div onClick={(e) => e.stopPropagation()}>
-            <CustomSelect
-              label='Schedule Type'
-              options={scheduleTypeOptions}
-              value={scheduleType}
-              onChange={(value) => setScheduleType(value as "ONCE" | "DAILY")}
-              placeholder='Select schedule type'
-            />
-          </div>
+          <CustomSelect
+            label='Schedule Type'
+            options={scheduleTypeOptions}
+            value={scheduleType}
+            onChange={(value) => setScheduleType(value as "ONCE" | "DAILY")}
+            placeholder='Select schedule type'
+          />
         )}
 
         <div className='flex items-center gap-3'>
