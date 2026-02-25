@@ -85,6 +85,12 @@ export default function UsersPage() {
       ),
     },
     {
+      header: "Subscription ID",
+      accessor: "subscription_id",
+      sortable: true,
+      cell: (user: User) => <span>{user.subscription_id || "N/A"}</span>,
+    },
+    {
       header: "Created At",
       accessor: "createdAt",
       sortable: true,

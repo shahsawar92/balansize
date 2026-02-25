@@ -19,6 +19,7 @@ export interface User {
   social_id: string | null;
   login_type: string;
   subscription_type: string | null;
+  subscription_id: string | null;
   user_type: string;
   profile_picture: File | string | null;
   email_verified_at: string | null;
