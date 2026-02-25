@@ -13,6 +13,7 @@ import {
 
 export const notificationApi = createApi({
   reducerPath: "notificationApi",
+  tagTypes: ["Notification"],
   baseQuery: fetchBaseQuery({
     baseUrl: API_URL,
     prepareHeaders: (headers, { getState }) => {
@@ -41,6 +42,7 @@ export const notificationApi = createApi({
           method: "GET",
         };
       },
+      providesTags: [{ type: "Notification", id: "LIST" }],
     }),
     getSingleNotification: builder.query<SingleNotificationResponse, string>({
       query: (id) => {
@@ -49,6 +51,7 @@ export const notificationApi = createApi({
           method: "GET",
         };
       },
+      providesTags: (_result, _error, id) => [{ type: "Notification", id }],
     }),
     updateNotification: builder.mutation<
       NotificationResponse,
@@ -59,6 +62,10 @@ export const notificationApi = createApi({
         method: "PUT",
         body: data,
       }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: "Notification", id: String(id) },
+        { type: "Notification", id: "LIST" },
+      ],
     }),
     deleteNotification: builder.mutation<NotificationResponse, number>({
       query: (id) => {
@@ -67,6 +74,7 @@ export const notificationApi = createApi({
           method: "DELETE",
         };
       },
+      invalidatesTags: [{ type: "Notification", id: "LIST" }],
     }),
   }),
 });

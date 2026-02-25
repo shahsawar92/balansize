@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Select, { MultiValue } from "react-select";
 import { toast } from "react-toastify";
 
 import Button from "@/components/buttons/Button";
@@ -36,7 +37,9 @@ export default function EditOnboardingPage() {
   const [existingImage, setExistingImage] = useState<string | null>(null);
   const [sendVia, setSendVia] = useState<"PUSH" | "EMAIL" | "BOTH">("PUSH");
   const [sendToAll, setSendToAll] = useState(false);
-  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<
+    MultiValue<{ value: string; label: string }>
+  >([]);
   const [scheduledAt, setScheduledAt] = useState("");
   const [scheduleType, setScheduleType] = useState<"ONCE" | "DAILY">("ONCE");
 
@@ -77,7 +80,20 @@ export default function EditOnboardingPage() {
 
       if (sendVia) setSendVia(sendVia);
       if (sendToAll !== undefined) setSendToAll(sendToAll);
-      if (userIds) setSelectedUserIds(userIds);
+      if (userIds && usersData?.result) {
+        const mapped = userIds
+          .map((uid) => {
+            const user = usersData.result.find((u) => u.id === uid);
+            return user
+              ? {
+                  value: String(user.id),
+                  label: `${user.first_name} ${user.last_name} (${user.email})`,
+                }
+              : null;
+          })
+          .filter(Boolean) as { value: string; label: string }[];
+        setSelectedUsers(mapped);
+      }
       if (scheduledAt) {
         const date = new Date(scheduledAt);
         const formattedDate = date.toISOString().slice(0, 16);
@@ -85,7 +101,7 @@ export default function EditOnboardingPage() {
       }
       if (scheduleType) setScheduleType(scheduleType);
     }
-  }, [data]);
+  }, [data, usersData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +111,7 @@ export default function EditOnboardingPage() {
       return;
     }
 
-    if (!sendToAll && selectedUserIds.length === 0) {
+    if (!sendToAll && selectedUsers.length === 0) {
       toast.error("Please select at least one user or enable 'Send to All'.");
       return;
     }
@@ -107,8 +123,9 @@ export default function EditOnboardingPage() {
     formData.append("sendVia", sendVia);
     formData.append("sendToAll", sendToAll ? "1" : "0");
 
-    if (!sendToAll && selectedUserIds.length > 0) {
-      formData.append("userIds", JSON.stringify(selectedUserIds));
+    if (!sendToAll && selectedUsers.length > 0) {
+      const userIds = selectedUsers.map((user) => user.value).join(",");
+      formData.append("userIds", userIds);
     }
 
     if (scheduledAt) {
@@ -197,43 +214,19 @@ export default function EditOnboardingPage() {
         </div>
 
         {!sendToAll && (
-          <div>
+          <div className='w-full'>
             <label className='block font-medium mb-1'>Select Users</label>
-            <div className='border rounded-lg p-3 max-h-48 overflow-y-auto space-y-2'>
-              {userOptions.length > 0 ? (
-                userOptions.map((user) => (
-                  <div key={user.value} className='flex items-center gap-2'>
-                    <input
-                      type='checkbox'
-                      id={`user-${user.value}`}
-                      checked={selectedUserIds.includes(Number(user.value))}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedUserIds([
-                            ...selectedUserIds,
-                            Number(user.value),
-                          ]);
-                        } else {
-                          setSelectedUserIds(
-                            selectedUserIds.filter(
-                              (id) => id !== Number(user.value),
-                            ),
-                          );
-                        }
-                      }}
-                      className='w-4 h-4'
-                    />
-                    <label
-                      htmlFor={`user-${user.value}`}
-                      className='text-sm cursor-pointer'>
-                      {user.label}
-                    </label>
-                  </div>
-                ))
-              ) : (
-                <p className='text-sm text-gray-500'>No users available</p>
-              )}
-            </div>
+            <Select
+              isMulti
+              options={userOptions}
+              value={selectedUsers}
+              onChange={(value) => setSelectedUsers(value)}
+              placeholder='Select users'
+              className='w-full z-10'
+              classNamePrefix='react-select'
+              isDisabled={userOptions.length === 0}
+              noOptionsMessage={() => "No users available"}
+            />
           </div>
         )}
 
