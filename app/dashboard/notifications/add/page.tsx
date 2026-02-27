@@ -24,10 +24,7 @@ export default function AddOnboardingPage() {
   const [message, setMessage] = useState("");
   const [isTrue, setIsTrue] = useState(true);
   const [icon, setIcon] = useState<File | null>(null);
-  const [sendVia, setSendVia] = useState<{
-    value: "PUSH" | "EMAIL" | "BOTH";
-    label: string;
-  }>({ value: "PUSH", label: "Push Notification" });
+  const [sendVia, setSendVia] = useState<"PUSH" | "EMAIL" | "BOTH">("PUSH");
   const [sendToAll, setSendToAll] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<
     MultiValue<{ value: string; label: string }>
@@ -70,7 +67,7 @@ export default function AddOnboardingPage() {
     formData.append("message", message);
     formData.append("icon", icon);
     formData.append("isTrue", isTrue ? "1" : "0");
-    formData.append("sendVia", sendVia.value);
+    formData.append("sendVia", sendVia);
     formData.append("sendToAll", sendToAll ? "1" : "0");
 
     if (!sendToAll && selectedUsers.length > 0) {
@@ -89,7 +86,7 @@ export default function AddOnboardingPage() {
       title,
       message,
       isTrue,
-      sendVia: sendVia.value,
+      sendVia: sendVia,
       sendToAll,
       selectedUsers: selectedUsers.map((user) => user.value),
       scheduledAt,
@@ -146,17 +143,15 @@ export default function AddOnboardingPage() {
             buttonText='Upload Icon'
           />
         </div>
-        <div className='w-full mt-0'>
-          <label className='block font-medium mb-1'>Send Via</label>
-          <Select
-            options={sendViaOptions}
-            value={sendVia}
-            onChange={(value) => value && setSendVia(value)}
-            placeholder='Select send method'
-            className='w-full z-10'
-            classNamePrefix='react-select'
-          />
-        </div>
+
+        <CustomSelect
+          label='Send Via'
+          options={sendViaOptions}
+          value={sendVia}
+          onChange={(value) => setSendVia(value as "PUSH" | "EMAIL" | "BOTH")}
+          classNames={{ container: "w-full" }}
+          placeholder='Select send method'
+        />
 
         <div className='flex items-center gap-3'>
           <Switch checked={sendToAll} onCheckedChange={setSendToAll} />
@@ -198,6 +193,7 @@ export default function AddOnboardingPage() {
             options={scheduleTypeOptions}
             value={scheduleType}
             onChange={(value) => setScheduleType(value as "ONCE" | "DAILY")}
+            classNames={{ container: "w-full" }}
             placeholder='Select schedule type'
           />
         )}

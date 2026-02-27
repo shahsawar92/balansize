@@ -115,7 +115,7 @@ const CustomSelect: React.FC<SelectProps> = ({
         {isOpen && (
           <div
             className={cn(
-              "absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg border border-gray-200",
+              "absolute z-50 mt-1 w-full rounded-md bg-white shadow-lg border border-gray-200 ",
               classNames?.dropdown,
             )}>
             {options.map((option) => (
@@ -123,7 +123,7 @@ const CustomSelect: React.FC<SelectProps> = ({
                 key={option.value}
                 onClick={() => handleOptionClick(option.value)}
                 className={cn(
-                  "flex items-center px-3 py-2 text-sm cursor-pointer hover:bg-gray-100",
+                  "flex items-center px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 ",
                   option.value === value && "bg-gray-100",
                   classNames?.option,
                 )}>
